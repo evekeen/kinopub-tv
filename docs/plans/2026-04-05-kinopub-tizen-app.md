@@ -213,11 +213,11 @@ The GL.iNet VPN router is still required for video CDN geo-restriction bypass, b
 - [x] **DoD:** `npx tsc --noEmit` passes
 
 ### Task 6: Error handling components
-- [ ] Create `src/components/ErrorBoundary.tsx` — catches React render errors, shows "Something went wrong" with "Press Enter to retry" action, logs error
-- [ ] Create `src/components/NetworkError.tsx` — displayed on API/network failures; shows message + "Press Enter to retry"; checks `navigator.onLine` for offline detection
-- [ ] Create `src/components/LoadingSkeleton.tsx` — shimmer placeholder cards matching PosterCard dimensions; also a generic spinner variant
-- [ ] Create `src/components/TransitionWrapper.tsx` — 150ms opacity fade on screen mount (CSS `transition: opacity 150ms`, not transform)
-- [ ] **DoD:** Components render correctly, ErrorBoundary catches thrown errors in children
+- [x] Create `src/components/ErrorBoundary.tsx` — catches React render errors, shows "Something went wrong" with "Press Enter to retry" action, logs error
+- [x] Create `src/components/NetworkError.tsx` — displayed on API/network failures; shows message + "Press Enter to retry"; checks `navigator.onLine` for offline detection
+- [x] Create `src/components/LoadingSkeleton.tsx` — shimmer placeholder cards matching PosterCard dimensions; also a generic spinner variant
+- [x] Create `src/components/TransitionWrapper.tsx` — 150ms opacity fade on screen mount (CSS `transition: opacity 150ms`, not transform)
+- [x] **DoD:** Components render correctly, ErrorBoundary catches thrown errors in children
 
 ### Task 7: Auth page
 - [ ] Create `src/pages/AuthPage.tsx` — displays user_code in large text (48px+), shows "Go to kino.pub/device", polls every 5s, redirects to Home on success
