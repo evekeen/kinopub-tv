@@ -343,18 +343,97 @@ The GL.iNet VPN router is still required for video CDN geo-restriction bypass, b
 
 ### Task 16: Tizen packaging + deploy
 - [ ] Finalize `scripts/build-wgt.sh` — runs `npm run build`, copies `tizen/config.xml` + icon into `dist/`, zips `dist/` as `kinopub-tizen.wgt`
+- [ ] Create `scripts/deploy-tv.sh` — automates sideloading: connects to TV via sdb, installs .wgt, launches app. Takes TV IP as argument
 - [ ] Test sideloading .wgt onto Samsung TV via Tizen Studio
 - [ ] Verify on TV: auth flow, browsing, video playback with hls.js, audio track switching, subtitles, remote navigation, focus restoration on Back, error overlays
 - [ ] Verify Back button on empty stack exits app
 - [ ] **DoD:** App installed on Samsung TV, full user flow works end-to-end
 
-### Task 17: Full validation
+### Task 17: E2E smoke tests (automated)
+- [ ] Create `e2e/` directory with Playwright-based tests targeting the Vite dev server (browser mode, not TV — for CI)
+- [ ] Create `e2e/playwright.config.ts` — Chromium only, viewport 1920x1080, base URL http://localhost:5173
+- [ ] Create `e2e/auth.spec.ts`:
+  - [ ] App loads without JS errors
+  - [ ] Auth page renders with device code text and "kino.pub/device" link
+  - [ ] Polling indicator is visible
+- [ ] Create `e2e/navigation.spec.ts`:
+  - [ ] Sidebar renders with all expected icons (Home, Search, Bookmarks, History, Settings, Profile)
+  - [ ] Arrow key navigation moves focus between sidebar items (simulate keydown ArrowUp/ArrowDown)
+  - [ ] Enter on sidebar item changes the main content area
+  - [ ] Back key (Backspace) returns to previous screen
+  - [ ] Back on empty stack does not crash (exits gracefully or stays on home)
+- [ ] Create `e2e/home.spec.ts` (requires auth mock or test token):
+  - [ ] Home page renders content rails with poster cards
+  - [ ] Arrow keys navigate horizontally within a rail
+  - [ ] Arrow Down moves focus to next rail
+  - [ ] Poster card shows title and image (or placeholder)
+  - [ ] Enter on card navigates to content detail page
+- [ ] Create `e2e/content.spec.ts` (requires auth mock):
+  - [ ] Content page renders title, poster, plot, metadata
+  - [ ] Play button is focusable
+  - [ ] For series: season tabs render, episode list renders
+  - [ ] Enter on play button navigates to player screen
+- [ ] Create `e2e/player.spec.ts` (requires auth mock + media-links mock):
+  - [ ] Player page mounts video element
+  - [ ] hls.js initializes without errors (check console for Hls.Events.ERROR)
+  - [ ] Player overlay appears on keypress and auto-hides after 5s
+  - [ ] Track picker opens on expected key and lists audio tracks
+  - [ ] Back key exits player and returns to content page
+- [ ] Create `e2e/search.spec.ts` (requires auth mock):
+  - [ ] Search page renders input field
+  - [ ] Typing triggers debounced search (mock API returns results)
+  - [ ] Results grid renders poster cards
+  - [ ] Enter on result navigates to content page
+- [ ] Create `e2e/fixtures/` with mock API responses:
+  - [ ] `auth-token.json` — pre-authenticated token for bypassing auth flow in tests
+  - [ ] `items-fresh.json`, `items-hot.json` — mock content rail data
+  - [ ] `item-detail-movie.json`, `item-detail-serial.json` — mock item details
+  - [ ] `media-links.json` — mock video URLs + subtitles (use a public HLS test stream URL)
+  - [ ] `search-results.json` — mock search response
+  - [ ] `bookmarks.json`, `history.json` — mock bookmark/history data
+- [ ] Create `e2e/helpers/mock-api.ts` — Playwright route handler that intercepts `api.service-kp.com` requests and returns fixture data
+- [ ] Add `npm run e2e` script: starts Vite dev server + runs Playwright tests
+- [ ] Add `npm run e2e:headed` for debugging with visible browser
+- [ ] **DoD:** All E2E tests pass in headless Chromium, no console errors, full navigation flow verified
+
+### Task 18: E2E on-device verification (manual + scripted)
+
+This task verifies the app works on an actual Samsung TV after deployment.
+
+- [ ] Create `e2e/tv-checklist.md` — structured manual test script with pass/fail checkboxes:
+  - [ ] **Install:** `scripts/deploy-tv.sh <TV_IP>` succeeds, app appears in TV app list
+  - [ ] **Launch:** App opens without white screen or JS errors (check Tizen Web Inspector console)
+  - [ ] **Auth:** Device code appears, entering code at kino.pub/device activates the app, home screen loads
+  - [ ] **Home rails:** At least 3 content rails load with poster images, no blank cards
+  - [ ] **Navigation:** D-pad Up/Down moves between rails, Left/Right within rail, focus ring visible from 3 meters
+  - [ ] **Focus restoration:** Navigate Home → Content → Back, verify focus returns to the same poster card
+  - [ ] **Content detail:** Select any item, verify title/plot/poster render. For series: season tabs + episodes visible
+  - [ ] **Playback (VPN on):** Press play, video starts within 5 seconds, no "prepare error"
+  - [ ] **Audio tracks:** Open track picker during playback, switch audio language, audio changes
+  - [ ] **Subtitles:** Enable subtitles, Cyrillic text renders correctly at bottom of screen
+  - [ ] **Seek:** Left/Right arrows seek ±10s, progress bar updates
+  - [ ] **Playback sync:** After watching 2+ minutes, exit and re-enter — playback resumes near last position
+  - [ ] **Search:** Navigate to search, type query via on-screen keyboard, results appear
+  - [ ] **Bookmarks:** Add item to bookmarks, navigate to Bookmarks page, item appears
+  - [ ] **History:** Navigate to History page, recently watched items appear
+  - [ ] **Settings:** Change CDN server, verify setting persists after app restart
+  - [ ] **Logout:** Logout, verify auth screen appears, tokens cleared
+  - [ ] **VPN drop:** During playback, disconnect VPN (disable WireGuard on GL.iNet). Verify retry overlay appears. Re-enable VPN, verify playback resumes
+  - [ ] **No VPN:** With VPN off, attempt playback. Verify NetworkError component shows (not a blank screen or crash)
+  - [ ] **Long playback:** Play a 30+ minute video, verify no memory issues or freezes
+  - [ ] **App restart:** Close and reopen app, verify tokens persist, no re-auth needed
+  - [ ] **Back exit:** From home screen, press Back — app exits cleanly (no hang)
+- [ ] Create `scripts/tv-console-check.sh` — connects to TV via sdb, tails the app's console log, greps for errors/warnings. Used during manual testing to monitor JS errors in real time
+- [ ] Run full checklist on Samsung TV through GL.iNet VPN
+- [ ] Document any failures, fix, and re-test
+- [ ] **DoD:** All checklist items pass on a real Samsung TV with VPN active
+
+### Task 19: Final validation
 - [ ] `npx tsc --noEmit` — no type errors
 - [ ] `npm run lint` — no lint errors
+- [ ] `npm run test` — all unit tests pass
+- [ ] `npm run e2e` — all Playwright E2E tests pass in headless Chromium
 - [ ] `npm run build` — builds successfully, verify legacy polyfill bundle is generated
 - [ ] Check bundle size: total gzipped < 300KB (budget is generous at ~170KB estimated)
-- [ ] Manual TV test: auth → browse home rails → play movie → switch audio → enable subtitles (Cyrillic) → seek → back (focus restores) → search → bookmarks → history → settings → logout
-- [ ] Test on VPN: video plays through GL.iNet VPN tunnel
-- [ ] Test VPN drop during playback: verify retry overlay appears and recovers
-- [ ] Test without VPN: verify NetworkError component shows gracefully when CDN is unreachable
+- [ ] Task 18 on-device checklist fully passed
 - [ ] Test on oldest available Samsung TV (ideally 2017 model) for Chromium M47 compat
