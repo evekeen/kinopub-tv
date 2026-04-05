@@ -10,23 +10,48 @@ The GL.iNet VPN router is still required for video CDN geo-restriction bypass, b
 
 ## Approach
 
-**Stack:** React 18 + TypeScript + Vite + Tailwind CSS + Zustand + hls.js + @noriginmedia/norigin-spatial-navigation
+**Stack:** React 18 + TypeScript + Vite + CSS Modules + Zustand + hls.js (light UMD build) + @noriginmedia/norigin-spatial-navigation + @vitejs/plugin-legacy
 
 **Key decisions:**
 - **React over Svelte** — developer familiarity, strong spatial navigation library ecosystem
 - **hls.js over AVPlay** — AVPlay fails with HLS4 through VPN; hls.js uses MSE which works on Tizen 2015+
+- **hls.js light UMD build** (`hls.js/dist/hls.light.js`) — ESM build causes lockups on Tizen (hls.js#7106); light build excludes subtitle parsing (handled externally via SRT) and saves ~35KB gzipped
 - **Use `url.hls` not `url.hls4`** — simpler HLS streams that hls.js handles reliably; HLS4 includes adaptive multi-track manifests that caused the original issue
+- **CSS Modules over Tailwind** — Tailwind v3+ uses CSS custom properties (`--tw-*`) which require Chrome 49+; Chromium M47 (2017 TVs) does not support them, so every Tailwind color utility silently fails. CSS Modules have zero runtime, full M47 compatibility
+- **@vitejs/plugin-legacy** — Vite's `build.target` only transpiles syntax; this plugin adds core-js polyfills for APIs missing in Chromium M47 (`Object.entries`, `Array.from`, `Promise.allSettled`, etc.)
+- **Vite target `chrome47`** — not `es2015`; more precise esbuild targeting
 - **Zustand over Redux** — ~1KB, minimal boilerplate, sufficient for this app's state complexity
 - **No router library** — state-based screen switching (like KinoPub STV does), simpler for TV navigation
-- **Vite target ES2015** — oldest Tizen Chromium is M47 (2017 TVs)
+- **PlayerContext (singleton)** — owns the single `<video>` element and hls.js instance at App level; avoids MSE SourceBuffer detach/reattach race conditions when navigating in/out of player
 - **Single `<video>` element** — MSE singleton limitation on Tizen
-- **Subtitles via external SRT** — kino.pub API provides SRT URLs in `media-links` response; render with a custom overlay
+- **Subtitles via external SRT** — kino.pub API provides SRT URLs in `media-links` response; render with a custom overlay; handle Windows-1251 encoding for Cyrillic SRT files
 - **localStorage for persistence** — auth tokens, settings, playback position
+- **Focus-driven virtualization** — custom translateX-based rail rendering (render focusedIndex ± 5 cards), not react-window (designed for mouse/scroll, fights focus-driven TV navigation)
+- **React.memo on all leaf components** — mandatory for TV CPU performance; all event handlers via useCallback
+
+**Chromium M47 CSS constraints (banned features):**
+- No CSS custom properties (`var(--*)`) — Chrome 49+
+- No `gap` on flexbox — Chrome 84+
+- No `aspect-ratio` — Chrome 88+
+- No `:focus-visible` — Chrome 86+ (use `:focus` instead)
+- No `clamp()` — Chrome 79+
+- No `@container` queries
+- Stick to flexbox (no CSS grid on M47)
+- Use padding/margin for spacing, explicit width/height for aspect ratios
 
 **API:** kino.pub v1 at `https://api.service-kp.com/v1/`
 - OAuth2 device flow with `client_id: 'xbmc'`, `client_secret: 'cgg3gtifu46urtfp2zp1nqtba0k2ezxh'`
 - Video URLs via `GET /v1/items/media-links?mid={mediaId}` → `files[].url.hls`
 - Subtitles via same endpoint → `subtitles[].url`
+
+**Estimated bundle size (~170KB gzipped):**
+- react + react-dom: ~45KB
+- hls.js light UMD: ~55KB
+- zustand: ~1KB
+- norigin-spatial-navigation: ~5KB
+- core-js polyfills (chrome47): ~40KB
+- CSS modules output: ~5KB
+- app code: ~20KB
 
 **Reference code:**
 - [slonopot/msx-hlsx](https://github.com/slonopot/msx-hlsx) — hls.js audio track + subtitle selection on Samsung TVs
@@ -38,19 +63,18 @@ The GL.iNet VPN router is still required for video CDN geo-restriction bypass, b
 ## Files
 
 ### Project setup
-- `package.json` — dependencies: react, react-dom, hls.js, zustand, @noriginmedia/norigin-spatial-navigation, tailwindcss
-- `vite.config.ts` — build config targeting ES2015, output to `dist/`
-- `tsconfig.json` — strict mode, ES2015 target
-- `tailwind.config.ts` — dark theme, TV-friendly spacing/font scale
-- `postcss.config.js` — tailwind + autoprefixer
+- `package.json` — dependencies: react, react-dom, hls.js, zustand, @noriginmedia/norigin-spatial-navigation; devDeps: @vitejs/plugin-legacy, @vitejs/plugin-react, terser, core-js
+- `vite.config.ts` — build target `chrome47`, hls.js alias to UMD light build, @vitejs/plugin-legacy with targets `chrome 47`
+- `tsconfig.json` — strict mode, jsx: react-jsx, target: ES2015
+- `.browserslistrc` — `chrome 47`
 - `index.html` — shell HTML with `<div id="viewport">`
 
 ### Tizen widget
-- `tizen/config.xml` — Tizen widget manifest with internet privileges
-- `scripts/build-wgt.sh` — script: `vite build` → copy config.xml → zip as .wgt
+- `tizen/config.xml` — Tizen widget manifest with internet, tv.inputdevice, network.public privileges
+- `scripts/build-wgt.sh` — script: `vite build` → copy config.xml + icon → zip as .wgt
 
 ### API client (`src/api/`)
-- `src/api/client.ts` — fetch wrapper with auth header injection, token refresh, error handling
+- `src/api/client.ts` — fetch wrapper with auth header injection, token refresh with promise-based mutex, retry with backoff for network errors, typed response parsing
 - `src/api/auth.ts` — OAuth2 device flow: getDeviceCode, pollForToken, refreshToken
 - `src/api/content.ts` — types, genres, items listing, search, item detail, fresh/hot/popular
 - `src/api/media.ts` — media-links (video URLs + subtitles)
@@ -69,13 +93,16 @@ The GL.iNet VPN router is still required for video CDN geo-restriction bypass, b
 ### State (`src/store/`)
 - `src/store/auth.ts` — zustand store: tokens, isAuthenticated, login/logout/refresh
 - `src/store/player.ts` — zustand store: current media, playback state, selected tracks
-- `src/store/ui.ts` — zustand store: current screen, navigation stack, settings
+- `src/store/ui.ts` — zustand store: current screen, navigation stack with lastFocusKey per entry, settings, capped at 20 entries
+
+### Contexts (`src/contexts/`)
+- `src/contexts/PlayerContext.tsx` — owns single `<video>` element ref + hls.js instance; provides loadSource, destroy, getAudioTracks, setAudioTrack, playback state; mounted at App level
 
 ### Pages (`src/pages/`)
 - `src/pages/AuthPage.tsx` — device code display, polling, "go to kino.pub/device" instruction
 - `src/pages/HomePage.tsx` — content rails (fresh, hot, popular, continue watching) with horizontal scroll
 - `src/pages/ContentPage.tsx` — item detail: poster, metadata, play button, seasons/episodes, bookmarks
-- `src/pages/PlayerPage.tsx` — fullscreen hls.js player with overlay controls
+- `src/pages/PlayerPage.tsx` — thin overlay consuming PlayerContext, shows controls
 - `src/pages/SearchPage.tsx` — text input + results grid
 - `src/pages/BookmarksPage.tsx` — bookmark folders → items list
 - `src/pages/HistoryPage.tsx` — watch history list
@@ -83,45 +110,71 @@ The GL.iNet VPN router is still required for video CDN geo-restriction bypass, b
 
 ### Components (`src/components/`)
 - `src/components/Sidebar.tsx` — left icon sidebar (Home, Search, Bookmarks, History, Settings, Profile)
-- `src/components/ContentRail.tsx` — horizontal scrollable row of poster cards with focus management
-- `src/components/PosterCard.tsx` — content card with poster image, title, year, rating
+- `src/components/ContentRail.tsx` — focus-driven horizontal rail: translateX-based rendering, focusedIndex ± 5 cards visible, preferredChildFocusKey for rail focus memory
+- `src/components/PosterCard.tsx` — React.memo wrapped; poster image with focus-driven lazy loading, title, year, rating
 - `src/components/EpisodeList.tsx` — season selector + episode rows
-- `src/components/Player/PlayerOverlay.tsx` — play/pause, seek bar, time display
-- `src/components/Player/TrackPicker.tsx` — audio track and subtitle selection overlay
-- `src/components/Player/SubtitleRenderer.tsx` — SRT subtitle display overlay
+- `src/components/Player/PlayerOverlay.tsx` — play/pause, seek bar, time display; auto-hides after 5s
+- `src/components/Player/TrackPicker.tsx` — audio track + subtitle selection; uses FocusContext for focus containment
+- `src/components/Player/SubtitleRenderer.tsx` — SRT subtitle display overlay with encoding detection
 - `src/components/Player/ProgressBar.tsx` — seek bar with remote navigation
 - `src/components/FocusableCard.tsx` — wrapper integrating norigin spatial nav with card components
-- `src/components/VirtualList.tsx` — virtualized list for large content grids (mandatory for TV perf)
+- `src/components/ErrorBoundary.tsx` — catches React render errors, "Something went wrong" + Enter to retry
+- `src/components/NetworkError.tsx` — API/network failure display with retry action
+- `src/components/LoadingSkeleton.tsx` — shimmer placeholder cards for loading states
+- `src/components/TransitionWrapper.tsx` — 150ms opacity fade for screen transitions
 
 ### Hooks (`src/hooks/`)
-- `src/hooks/useHlsPlayer.ts` — hls.js lifecycle: load source, attach to video, cleanup, track switching
-- `src/hooks/useRemoteKeys.ts` — Samsung remote key event handling (play/pause, back, arrows, enter)
+- `src/hooks/useRemoteKeys.ts` — Samsung remote key event handling with explicit key registration via tizen.tvinputdevice.registerKey()
 - `src/hooks/usePlaybackSync.ts` — marktime sync every 30s during playback
-- `src/hooks/useSubtitles.ts` — SRT fetch, parse, sync to playback time
+- `src/hooks/useSubtitles.ts` — SRT fetch with Windows-1251/UTF-8 encoding detection, parse, sync to playback time, HTML tag sanitization
 
 ### Entry
-- `src/index.tsx` — React root mount, spatial nav init, auth check → route to Auth or Home
-- `src/App.tsx` — screen router based on ui store state, sidebar layout
+- `src/index.tsx` — React root mount, spatial nav init, Samsung remote key registration, auth check → route to Auth or Home
+- `src/App.tsx` — PlayerContext provider, screen router with TransitionWrapper, sidebar layout, ErrorBoundary, React.lazy + Suspense for page code splitting
+
+### Styles (`src/styles/`)
+- `src/styles/global.css` — dark theme base (#101c36), TV-friendly font sizes (24px base, 32px+ titles), overscan-safe margins (5%)
+- `src/styles/variables.css` — NOT CSS custom properties; static color/spacing constants via CSS classes
+- Each component: colocated `.module.css` file
 
 ## Tasks
 
 ### Task 1: Project scaffolding
-- [ ] Create repo at `/Users/ivkin/git/kinopub-tizen`
-- [ ] `npm init` + install dependencies: react, react-dom, typescript, vite, @vitejs/plugin-react, tailwindcss, postcss, autoprefixer, zustand, hls.js, @noriginmedia/norigin-spatial-navigation
-- [ ] Install dev dependencies: @types/react, @types/react-dom
-- [ ] Create `vite.config.ts` with target ES2015, output to `dist/`
-- [ ] Create `tsconfig.json` with strict mode, jsx: react-jsx, target: ES2015
-- [ ] Create `tailwind.config.ts` with dark theme defaults, TV-friendly font sizes (base 24px)
-- [ ] Create `postcss.config.js`
-- [ ] Create `index.html` with `<div id="viewport">`, dark background
+- [ ] Init repo at `/Users/ivkin/git/kinopub-tizen` with `git init`
+- [ ] `npm init -y` + install dependencies: `react react-dom hls.js zustand @noriginmedia/norigin-spatial-navigation`
+- [ ] Install dev dependencies: `typescript @types/react @types/react-dom vite @vitejs/plugin-react @vitejs/plugin-legacy terser core-js eslint`
+- [ ] Create `vite.config.ts`:
+  - `build.target: 'chrome47'`
+  - `resolve.alias: { 'hls.js': 'hls.js/dist/hls.light.js' }` (force UMD light build, avoids ESM lockups on Tizen)
+  - `@vitejs/plugin-legacy({ targets: 'chrome 47' })` for core-js polyfills
+  - `@vitejs/plugin-react()`
+- [ ] Create `.browserslistrc` with `chrome 47`
+- [ ] Create `tsconfig.json` with strict mode, jsx: react-jsx, target: ES2015, moduleResolution: bundler
+- [ ] Create `src/styles/global.css` — dark theme base styles, TV font sizes, overscan margins. No CSS custom properties, no gap, no aspect-ratio, no :focus-visible
+- [ ] Create `index.html` with `<div id="viewport">`, link to global.css, dark background
 - [ ] Create `src/index.tsx` with React root mount
 - [ ] Create `src/App.tsx` with placeholder "Hello KinoPub" text
 - [ ] Verify `npm run dev` starts and renders in browser
-- [ ] Create `tizen/config.xml` with internet + inputdevice privileges
-- [ ] Create `scripts/build-wgt.sh` that builds + zips into .wgt
-- [ ] **DoD:** `npm run dev` shows the app in browser, `npm run build` produces `dist/` with working HTML/JS
+- [ ] Create `tizen/config.xml` with privileges:
+  - `http://tizen.org/privilege/internet`
+  - `http://tizen.org/privilege/tv.inputdevice`
+  - `http://developer.samsung.com/privilege/network.public`
+  - `<access origin="*" subdomains="true"/>`
+  - `<tizen:allow-navigation>*</tizen:allow-navigation>`
+- [ ] Create `scripts/build-wgt.sh` that builds + copies config.xml + zips as .wgt
+- [ ] **DoD:** `npm run dev` shows the app in browser, `npm run build` produces `dist/` with working HTML/JS, legacy polyfill bundle is generated
 
-### Task 2: TypeScript types
+### Task 2: Tizen compatibility verification
+- [ ] Install Tizen Studio + Tizen 3.0 TV emulator (or use real 2017+ Samsung TV)
+- [ ] Deploy Task 1 output (.wgt) to emulator/TV
+- [ ] Verify: React renders without errors in Chromium M47
+- [ ] Verify: CSS applies correctly (no broken styles from unsupported features)
+- [ ] Verify: hls.js light build loads without JS errors (test with `new Hls()` in console)
+- [ ] Verify: polyfills work (`Object.entries`, `Array.from` available)
+- [ ] Document any compatibility issues found and fix before proceeding
+- [ ] **DoD:** Bare scaffolding app renders correctly on Tizen 3.0 target
+
+### Task 3: TypeScript types
 - [ ] Create `src/types/api.ts` — ApiResponse<T>, PaginatedResponse<T>, Pagination
 - [ ] Create `src/types/auth.ts` — DeviceCodeResponse, TokenResponse
 - [ ] Create `src/types/content.ts` — Item, Season, Episode, Poster, Genre, Country, Duration, Trailer
@@ -130,8 +183,14 @@ The GL.iNet VPN router is still required for video CDN geo-restriction bypass, b
 - [ ] Create `src/types/watching.ts` — WatchingItem, WatchingStatus, HistoryEntry
 - [ ] **DoD:** `npx tsc --noEmit` passes with no errors
 
-### Task 3: API client
-- [ ] Create `src/api/client.ts` — fetch wrapper: base URL, auth header from store, automatic token refresh on 401, typed response parsing
+### Task 4: API client
+- [ ] Create `src/api/client.ts`:
+  - Fetch wrapper with base URL `https://api.service-kp.com/v1/`
+  - Auth header injection from auth store
+  - Promise-based refresh token mutex: if refresh in progress, queue concurrent 401 retries until refresh completes (prevents race condition where two 401s both refresh and invalidate each other's tokens)
+  - Retry with exponential backoff for network errors (not 4xx)
+  - Typed response parsing
+  - Distinguish error types: 401 → re-auth, 403 → subscription error, network → NetworkError, 5xx → server error
 - [ ] Create `src/api/auth.ts` — `getDeviceCode()`, `pollForToken(code)`, `refreshToken(refreshToken)` using OAuth2 device flow
 - [ ] Create `src/api/content.ts` — `getTypes()`, `getGenres()`, `getItems(params)`, `searchItems(query)`, `getItemDetail(id)`, `getFresh()`, `getHot()`, `getPopular()`
 - [ ] Create `src/api/media.ts` — `getMediaLinks(mid)` returning files with HLS URLs + subtitles
@@ -140,87 +199,162 @@ The GL.iNet VPN router is still required for video CDN geo-restriction bypass, b
 - [ ] Create `src/api/history.ts` — `getHistory(page)`
 - [ ] **DoD:** `npx tsc --noEmit` passes; manually test auth flow in browser console against live API
 
-### Task 4: Zustand stores
+### Task 5: Zustand stores
 - [ ] Create `src/store/auth.ts` — `accessToken`, `refreshToken`, `isAuthenticated`, `login(tokens)`, `logout()`, `refresh()`. Persist tokens to localStorage, hydrate on init
 - [ ] Create `src/store/player.ts` — `mediaUrl`, `subtitles`, `audioTracks`, `selectedAudioTrack`, `selectedSubtitle`, `isPlaying`, `currentTime`, `duration`
-- [ ] Create `src/store/ui.ts` — `currentScreen` (enum: auth/home/content/player/search/bookmarks/history/settings), `screenParams` (contentId, etc.), `navigate(screen, params)`, `goBack()`, navigation stack for back button
+- [ ] Create `src/store/ui.ts`:
+  - `currentScreen` enum: auth/home/content/player/search/bookmarks/history/settings
+  - `screenParams` (contentId, etc.)
+  - `navigate(screen, params)` — pushes to navigation stack with `lastFocusKey: null`, caps stack at 20 entries
+  - `goBack()` — pops stack, restores `lastFocusKey` from previous entry; when stack empty, calls `tizen.application.getCurrentApplication().exit()` (with try/catch for browser dev)
+  - `setLastFocusKey(key)` — updates current stack entry's focus key for restoration on Back
+  - Player navigation replaces stack entry (not push) to avoid Back cycling through player
+  - Clear stack on logout
 - [ ] **DoD:** `npx tsc --noEmit` passes
 
-### Task 5: Auth page
-- [ ] Create `src/pages/AuthPage.tsx` — displays user_code in large text, shows "Go to kino.pub/device", polls every 5s, redirects to Home on success
-- [ ] Create `src/App.tsx` — checks auth store on mount, routes to AuthPage if not authenticated, HomePage if authenticated
-- [ ] Style with Tailwind: dark background (#101c36 matching KinoPub STV), centered white text, KinoPub logo/icon
+### Task 6: Error handling components
+- [ ] Create `src/components/ErrorBoundary.tsx` — catches React render errors, shows "Something went wrong" with "Press Enter to retry" action, logs error
+- [ ] Create `src/components/NetworkError.tsx` — displayed on API/network failures; shows message + "Press Enter to retry"; checks `navigator.onLine` for offline detection
+- [ ] Create `src/components/LoadingSkeleton.tsx` — shimmer placeholder cards matching PosterCard dimensions; also a generic spinner variant
+- [ ] Create `src/components/TransitionWrapper.tsx` — 150ms opacity fade on screen mount (CSS `transition: opacity 150ms`, not transform)
+- [ ] **DoD:** Components render correctly, ErrorBoundary catches thrown errors in children
+
+### Task 7: Auth page
+- [ ] Create `src/pages/AuthPage.tsx` — displays user_code in large text (48px+), shows "Go to kino.pub/device", polls every 5s, redirects to Home on success
+- [ ] Create `src/App.tsx`:
+  - Wraps everything in `ErrorBoundary` and `PlayerContext.Provider`
+  - Checks auth store on mount, routes to AuthPage if not authenticated
+  - Uses `React.lazy` + `Suspense` for all page imports (code splitting)
+  - `TransitionWrapper` around screen content
+- [ ] Style with CSS modules: dark background (#101c36), centered white text
 - [ ] **DoD:** App starts, shows auth screen, device code appears, can complete auth flow in browser
 
-### Task 6: Sidebar + layout shell
-- [ ] Create `src/components/Sidebar.tsx` — vertical icon sidebar matching KinoPub STV: Home, Search, Bookmarks, History, Settings, Profile icons. Highlights active screen. Focusable with spatial nav
-- [ ] Create layout in `src/App.tsx` — sidebar (fixed left, ~60px) + main content area
+### Task 8: Sidebar + layout shell
+- [ ] Create `src/components/Sidebar.tsx`:
+  - Vertical icon sidebar matching KinoPub STV: Home, Search, Bookmarks, History, Settings, Profile icons
+  - Own `FocusContext` from norigin (isolated focus tree)
+  - Highlights active screen
+  - Focusable items with `useFocusable()`
+- [ ] Create layout in `src/App.tsx` — sidebar (fixed left, ~60px) + main content area, each in own `FocusContext`
 - [ ] Wire sidebar items to `ui.navigate()` calls
-- [ ] Handle Left arrow to focus sidebar from content, Right arrow to return to content
-- [ ] **DoD:** Sidebar renders, keyboard/arrow navigation works between sidebar items, selecting navigates screens
+- [ ] Global behavior: Left arrow at left edge of any content area → focus transfers to sidebar; Right arrow from sidebar → focus transfers to content area
+- [ ] Register Samsung remote keys at app startup in `src/index.tsx`:
+  - Guard with `if (window.tizen?.tvinputdevice)`
+  - Register: MediaPlayPause, MediaPlay, MediaPause, MediaStop, MediaFastForward, MediaRewind, ColorF0Red, ColorF1Green, ColorF2Yellow, ColorF3Blue
+- [ ] **DoD:** Sidebar renders, keyboard/arrow navigation works between sidebar and content, selecting navigates screens, remote keys registered on Tizen
 
-### Task 7: Home page with content rails
-- [ ] Create `src/components/PosterCard.tsx` — poster image (250x375), title, year. Focus ring on highlight. Uses `useFocusable()` from norigin
-- [ ] Create `src/components/ContentRail.tsx` — horizontal scroll row: title label + row of PosterCards. Arrow keys scroll horizontally. Virtualize if >20 items
-- [ ] Create `src/components/FocusableCard.tsx` — generic focusable wrapper for spatial nav integration
-- [ ] Create `src/pages/HomePage.tsx` — fetches fresh, hot, popular, continue watching. Renders as vertical stack of ContentRails. First rail auto-focuses on load
-- [ ] Implement virtualization for rails — only render visible cards ± 2 offscreen
-- [ ] **DoD:** Home page shows content from live API, arrow keys navigate between and within rails, posters load
+### Task 9: Home page with content rails
+- [ ] Create `src/components/PosterCard.tsx`:
+  - Wrapped in `React.memo`
+  - Poster image (250x375) with focus-driven lazy loading: placeholder by default, real `src` set when card enters render window
+  - Explicit `width`/`height` attributes to prevent layout shift
+  - Title, year below image
+  - Focus ring (`:focus` outline, not `:focus-visible`) on highlight
+  - Uses `useFocusable()` from norigin
+- [ ] Create `src/components/ContentRail.tsx`:
+  - Focus-driven horizontal virtualization: maintains `focusedIndex` state
+  - Renders items from `max(0, focusedIndex - 5)` to `min(items.length - 1, focusedIndex + 5)`
+  - Uses `transform: translateX(...)` to position rail (GPU-composited, not `scrollLeft`)
+  - `preferredChildFocusKey` on FocusContext for rail focus memory (remembers last focused card when rail regains focus)
+  - All `onSelect`/`onFocus` handlers via `useCallback`
+- [ ] Create `src/components/FocusableCard.tsx` — generic focusable wrapper for spatial nav
+- [ ] Create `src/pages/HomePage.tsx`:
+  - Fetches fresh, hot, popular, continue watching
+  - Shows `LoadingSkeleton` shimmer cards while loading
+  - Renders as vertical stack of ContentRails
+  - Vertical virtualization: render focused rail ± 1 (3 rails visible)
+  - First rail auto-focuses on load
+  - Saves `lastFocusKey` to ui store on navigate away
+- [ ] **DoD:** Home page shows content from live API, arrow keys navigate between and within rails, posters lazy-load, focus restores on Back
 
-### Task 8: Content detail page
-- [ ] Create `src/pages/ContentPage.tsx` — fetches item detail by ID. Shows: wide poster background, title, year, rating, duration, plot, genres, cast
+### Task 10: Content detail page
+- [ ] Create `src/pages/ContentPage.tsx`:
+  - Fetches item detail by ID (`nolinks=1`)
+  - Shows: wide poster background, title, year, rating, duration, plot, genres, cast
+  - `LoadingSkeleton` while fetching
 - [ ] For movies: Play button (focused by default)
-- [ ] For series: `src/components/EpisodeList.tsx` — season tabs + episode rows (thumbnail, title, number, duration, watched indicator)
+- [ ] For series: `src/components/EpisodeList.tsx` — season tabs + episode rows (thumbnail, title, number, duration, watched indicator). Rows wrapped in `React.memo`
 - [ ] Bookmark toggle button
 - [ ] Enter on episode/play button → navigate to Player with mediaId
 - [ ] **DoD:** Content page renders for both movies and series, episode list navigable, play triggers navigation
 
-### Task 9: hls.js player
-- [ ] Create `src/hooks/useHlsPlayer.ts` — initializes hls.js, loads HLS URL, attaches to `<video>`, handles errors, exposes audio tracks list, destroys on unmount
-- [ ] Create `src/hooks/useRemoteKeys.ts` — listens for Samsung remote keys: play/pause (MediaPlayPause/Enter), back (10009/Backspace), arrows, channel up/down for seek ±30s
-- [ ] Create `src/hooks/usePlaybackSync.ts` — calls markTime API every 30s with current position
-- [ ] Create `src/pages/PlayerPage.tsx` — fullscreen `<video>` element, fetches media-links by mediaId, picks highest quality `url.hls`, initializes hls.js
-- [ ] Create `src/components/Player/PlayerOverlay.tsx` — shows on any key press, auto-hides after 5s. Displays: title, time / duration, play/pause icon
+### Task 11: PlayerContext + hls.js player
+- [ ] Create `src/contexts/PlayerContext.tsx`:
+  - Owns single `<video>` element ref (mounted at App level, hidden when not playing, fullscreen when playing)
+  - Owns hls.js instance (singleton)
+  - Provides: `loadSource(url)`, `destroy()`, `getAudioTracks()`, `setAudioTrack(id)`, `currentTime`, `duration`, `isPlaying`, `play()`, `pause()`, `seek(time)`
+  - hls.js error handling: listen for `Hls.Events.ERROR`, distinguish fatal vs non-fatal
+  - Fatal network errors: show "Network error — retrying" state, call `hls.startLoad()` with exponential backoff (handles VPN drops)
+  - Fatal media errors: call `hls.recoverMediaError()`, if still fails show retry overlay
+  - hls.js config tuning for Tizen: set `skipBufferHolePadding` > GOP length
+- [ ] Create `src/hooks/useRemoteKeys.ts`:
+  - Listens for Samsung remote keys via `keydown` events
+  - Key codes: play/pause (MediaPlayPause/415, Enter/13), back (10009/Backspace/8), arrows (37-40), channel up/down for seek ±30s
+  - Guards Tizen-specific key codes with `typeof tizen !== 'undefined'`
+- [ ] Create `src/hooks/usePlaybackSync.ts` — calls markTime API every 30s with current position from PlayerContext
+- [ ] Create `src/pages/PlayerPage.tsx`:
+  - Thin overlay consuming PlayerContext
+  - Fetches media-links by mediaId on mount, picks highest quality `url.hls`
+  - Calls `playerContext.loadSource(url)`
+- [ ] Create `src/components/Player/PlayerOverlay.tsx`:
+  - Shows on any key press, auto-hides after 5s
+  - Displays: title, currentTime / duration, play/pause icon
+  - Uses own `FocusContext` for focus containment (prevents focus escaping to sidebar)
 - [ ] Create `src/components/Player/ProgressBar.tsx` — seek bar navigable with Left/Right arrows (±10s), shows buffered range
-- [ ] Create `src/components/Player/TrackPicker.tsx` — overlay triggered by remote button (e.g. Up arrow from progress bar). Lists audio tracks from hls.js `audioTrackController`, subtitles from API response. Selecting switches `hls.audioTrack` or toggles subtitle
-- [ ] **DoD:** Video plays via hls.js, overlay shows/hides, can seek, can switch audio track, playback position syncs to API
+- [ ] Create `src/components/Player/TrackPicker.tsx`:
+  - Overlay triggered by Up arrow from progress bar
+  - Lists audio tracks from PlayerContext, subtitles from media-links response
+  - Uses own `FocusContext` for focus containment
+  - Selecting switches audio track via `playerContext.setAudioTrack(id)` or toggles subtitle
+  - On close, returns focus to player controls
+- [ ] **DoD:** Video plays via hls.js, overlay shows/hides, can seek, can switch audio track, VPN drop shows retry overlay, playback position syncs to API
 
-### Task 10: Subtitles
-- [ ] Create `src/hooks/useSubtitles.ts` — fetches SRT from API URL, parses SRT format into cue array [{start, end, text}], syncs current cue to video currentTime
-- [ ] Create `src/components/Player/SubtitleRenderer.tsx` — positioned overlay at bottom of video, renders current cue text, styled white text with dark shadow
+### Task 12: Subtitles
+- [ ] Create `src/hooks/useSubtitles.ts`:
+  - Fetches SRT from API URL as `ArrayBuffer`
+  - Encoding detection: try UTF-8 decode first, if garbled (detect via BOM or heuristic), fallback to `TextDecoder('windows-1251')` for Cyrillic SRT files
+  - Parses SRT format into cue array `[{start, end, text}]`
+  - Strips or sanitizes HTML tags (`<i>`, `<b>`, `<font>`) in SRT text — no raw innerHTML
+  - Syncs current cue to video currentTime from PlayerContext
+- [ ] Create `src/components/Player/SubtitleRenderer.tsx` — positioned overlay at bottom of video, renders current cue text, styled white text with dark text-shadow
 - [ ] Integrate with TrackPicker — selecting a subtitle triggers SRT fetch + enables renderer
 - [ ] "Off" option in subtitle picker disables renderer
-- [ ] **DoD:** External SRT subtitles display in sync with video, can switch between subtitle tracks or turn off
+- [ ] **DoD:** External SRT subtitles display in sync with video, Cyrillic renders correctly, can switch between subtitle tracks or turn off
 
-### Task 11: Search page
+### Task 13: Search page
 - [ ] Create `src/pages/SearchPage.tsx` — text input at top (Samsung on-screen keyboard opens on focus), results grid below
 - [ ] Debounce search input by 500ms, call `searchItems(query)`
-- [ ] Results as grid of PosterCards, navigable with spatial nav
+- [ ] Results as grid of PosterCards (memoized), navigable with spatial nav
+- [ ] `LoadingSkeleton` while searching
 - [ ] Enter on card → navigate to ContentPage
 - [ ] **DoD:** Can type search query, results appear, can navigate to content
 
-### Task 12: Bookmarks + History pages
-- [ ] Create `src/pages/BookmarksPage.tsx` — list bookmark folders, enter folder shows items as PosterCard grid
-- [ ] Create `src/pages/HistoryPage.tsx` — paginated history list with poster, title, progress indicator
+### Task 14: Bookmarks + History pages
+- [ ] Create `src/pages/BookmarksPage.tsx` — list bookmark folders, enter folder shows items as PosterCard grid, `LoadingSkeleton` while loading
+- [ ] Create `src/pages/HistoryPage.tsx` — paginated history list with poster, title, progress indicator, `LoadingSkeleton` while loading
 - [ ] **DoD:** Both pages load data from API and render navigable lists
 
-### Task 13: Settings page
+### Task 15: Settings page
 - [ ] Create `src/pages/SettingsPage.tsx` — CDN server selection (Auto/Netherlands/Russia), stored in localStorage
 - [ ] Show clock toggle
 - [ ] About section with app version
-- [ ] Logout button (clears auth store + localStorage)
+- [ ] Logout button (clears auth store + localStorage, resets nav stack)
 - [ ] **DoD:** Settings persist across app restarts, logout works
 
-### Task 14: Tizen packaging + deploy
-- [ ] Create `scripts/build-wgt.sh` — runs `npm run build`, copies `tizen/config.xml` + icon into `dist/`, zips `dist/` as `kinopub-tizen.wgt`
+### Task 16: Tizen packaging + deploy
+- [ ] Finalize `scripts/build-wgt.sh` — runs `npm run build`, copies `tizen/config.xml` + icon into `dist/`, zips `dist/` as `kinopub-tizen.wgt`
 - [ ] Test sideloading .wgt onto Samsung TV via Tizen Studio
-- [ ] Verify: auth flow works on TV, browsing works, video plays with hls.js, audio track switching works, subtitles work, remote navigation works
+- [ ] Verify on TV: auth flow, browsing, video playback with hls.js, audio track switching, subtitles, remote navigation, focus restoration on Back, error overlays
+- [ ] Verify Back button on empty stack exits app
 - [ ] **DoD:** App installed on Samsung TV, full user flow works end-to-end
 
-### Task 15: Full validation
+### Task 17: Full validation
 - [ ] `npx tsc --noEmit` — no type errors
 - [ ] `npm run lint` — no lint errors
-- [ ] `npm run build` — builds successfully, bundle size < 500KB gzipped
-- [ ] Manual TV test: auth → browse → play movie → switch audio → enable subtitles → seek → back → search → bookmarks → history → settings → logout
+- [ ] `npm run build` — builds successfully, verify legacy polyfill bundle is generated
+- [ ] Check bundle size: total gzipped < 300KB (budget is generous at ~170KB estimated)
+- [ ] Manual TV test: auth → browse home rails → play movie → switch audio → enable subtitles (Cyrillic) → seek → back (focus restores) → search → bookmarks → history → settings → logout
 - [ ] Test on VPN: video plays through GL.iNet VPN tunnel
-- [ ] Test without VPN: verify app shows error gracefully when CDN is unreachable
+- [ ] Test VPN drop during playback: verify retry overlay appears and recovers
+- [ ] Test without VPN: verify NetworkError component shows gracefully when CDN is unreachable
+- [ ] Test on oldest available Samsung TV (ideally 2017 model) for Chromium M47 compat
