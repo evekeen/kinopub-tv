@@ -310,16 +310,16 @@ The GL.iNet VPN router is still required for video CDN geo-restriction bypass, b
 - [x] **DoD:** Video plays via hls.js, overlay shows/hides, can seek, can switch audio track, VPN drop shows retry overlay, playback position syncs to API
 
 ### Task 12: Subtitles
-- [ ] Create `src/hooks/useSubtitles.ts`:
+- [x] Create `src/hooks/useSubtitles.ts`:
   - Fetches SRT from API URL as `ArrayBuffer`
   - Encoding detection: try UTF-8 decode first, if garbled (detect via BOM or heuristic), fallback to `TextDecoder('windows-1251')` for Cyrillic SRT files
   - Parses SRT format into cue array `[{start, end, text}]`
   - Strips or sanitizes HTML tags (`<i>`, `<b>`, `<font>`) in SRT text — no raw innerHTML
   - Syncs current cue to video currentTime from PlayerContext
-- [ ] Create `src/components/Player/SubtitleRenderer.tsx` — positioned overlay at bottom of video, renders current cue text, styled white text with dark text-shadow
-- [ ] Integrate with TrackPicker — selecting a subtitle triggers SRT fetch + enables renderer
-- [ ] "Off" option in subtitle picker disables renderer
-- [ ] **DoD:** External SRT subtitles display in sync with video, Cyrillic renders correctly, can switch between subtitle tracks or turn off
+- [x] Create `src/components/Player/SubtitleRenderer.tsx` — positioned overlay at bottom of video, renders current cue text, styled white text with dark text-shadow
+- [x] Integrate with TrackPicker — selecting a subtitle triggers SRT fetch + enables renderer
+- [x] "Off" option in subtitle picker disables renderer
+- [x] **DoD:** External SRT subtitles display in sync with video, Cyrillic renders correctly, can switch between subtitle tracks or turn off
 
 ### Task 13: Search page
 - [ ] Create `src/pages/SearchPage.tsx` — text input at top (Samsung on-screen keyboard opens on focus), results grid below

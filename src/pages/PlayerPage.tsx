@@ -8,10 +8,12 @@ import {
   useMemo,
 } from 'react';
 import { PlayerOverlay } from '../components/Player/PlayerOverlay';
+import { SubtitleRenderer } from '../components/Player/SubtitleRenderer';
 import { NetworkError } from '../components/NetworkError';
 import { Spinner } from '../components/LoadingSkeleton';
 import { usePlayerContext } from '../contexts/PlayerContext';
 import { usePlaybackSync } from '../hooks/usePlaybackSync';
+import { useSubtitles } from '../hooks/useSubtitles';
 import { useRemoteKeys } from '../hooks/useRemoteKeys';
 import { getMediaLinks } from '../api/media';
 import { usePlayerStore } from '../store/player';
@@ -154,6 +156,19 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
 
   usePlaybackSync(contentId, mediaId, getCurrentTime, isPlaying);
 
+  const { currentCue, loadSubtitle, clearSubtitle } = useSubtitles(currentTime);
+
+  useEffect(() => {
+    if (selectedSubtitle === null) {
+      clearSubtitle();
+      return;
+    }
+    const sub = subtitles[selectedSubtitle];
+    if (sub !== undefined) {
+      loadSubtitle(sub.url, sub.shift);
+    }
+  }, [selectedSubtitle, subtitles, loadSubtitle, clearSubtitle]);
+
   const handlePlayPause = useCallback((): void => {
     if (isPlaying) {
       player.pause();
@@ -239,6 +254,7 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
 
   return (
     <div className={styles.container}>
+      <SubtitleRenderer text={currentCue} />
       <PlayerOverlay
         title={title}
         isPlaying={isPlaying}
