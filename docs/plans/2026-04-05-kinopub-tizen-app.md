@@ -175,13 +175,13 @@ The GL.iNet VPN router is still required for video CDN geo-restriction bypass, b
 - [x] **DoD:** Bare scaffolding app renders correctly on Tizen 3.0 target (skipped - manual on-device task)
 
 ### Task 3: TypeScript types
-- [ ] Create `src/types/api.ts` — ApiResponse<T>, PaginatedResponse<T>, Pagination
-- [ ] Create `src/types/auth.ts` — DeviceCodeResponse, TokenResponse
-- [ ] Create `src/types/content.ts` — Item, Season, Episode, Poster, Genre, Country, Duration, Trailer
-- [ ] Create `src/types/media.ts` — MediaLinks, MediaFile, MediaUrl (http/hls/hls2/hls4), Subtitle
-- [ ] Create `src/types/bookmark.ts` — BookmarkFolder
-- [ ] Create `src/types/watching.ts` — WatchingItem, WatchingStatus, HistoryEntry
-- [ ] **DoD:** `npx tsc --noEmit` passes with no errors
+- [x] Create `src/types/api.ts` — ApiResponse<T>, PaginatedResponse<T>, Pagination
+- [x] Create `src/types/auth.ts` — DeviceCodeResponse, TokenResponse
+- [x] Create `src/types/content.ts` — Item, Season, Episode, Poster, Genre, Country, Duration, Trailer
+- [x] Create `src/types/media.ts` — MediaLinks, MediaFile, MediaUrl (http/hls/hls2/hls4), Subtitle
+- [x] Create `src/types/bookmark.ts` — BookmarkFolder
+- [x] Create `src/types/watching.ts` — WatchingItem, WatchingStatus, HistoryEntry
+- [x] **DoD:** `npx tsc --noEmit` passes with no errors
 
 ### Task 4: API client
 - [ ] Create `src/api/client.ts`:
