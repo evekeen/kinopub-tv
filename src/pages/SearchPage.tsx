@@ -231,11 +231,15 @@ export const SearchPage = memo(function SearchPage(): ReactElement {
 
   const handleRetry = useCallback((): void => {
     setError(null);
-    executeSearch(queryRef.current).then(() => {
-      requestAnimationFrame(() => {
-        setFocus(SEARCH_INPUT_FOCUS_KEY);
+    executeSearch(queryRef.current)
+      .then(() => {
+        requestAnimationFrame(() => {
+          setFocus(SEARCH_INPUT_FOCUS_KEY);
+        });
+      })
+      .catch((err: unknown) => {
+        setError(err instanceof Error ? err : new Error('Search failed'));
       });
-    });
   }, [executeSearch]);
 
   const focusedRow = useMemo(

@@ -22,7 +22,7 @@ function isErrorResponse(data: unknown): data is { error: string; error_descript
   return typeof data.error === 'string';
 }
 
-async function authPost<T>(path: string, params: Record<string, string>): Promise<T> {
+async function authPost(path: string, params: Record<string, string>): Promise<unknown> {
   const body = new URLSearchParams({
     client_id: CLIENT_ID,
     client_secret: CLIENT_SECRET,
@@ -41,25 +41,49 @@ async function authPost<T>(path: string, params: Record<string, string>): Promis
     throw new AuthRequestError(data.error, data.error_description);
   }
 
-  return data as T;
+  return data;
+}
+
+function isDeviceCodeResponse(data: unknown): data is DeviceCodeResponse {
+  if (typeof data !== 'object' || data === null) return false;
+  return (
+    'code' in data && typeof data.code === 'string' &&
+    'user_code' in data && typeof data.user_code === 'string' &&
+    'verification_uri' in data && typeof data.verification_uri === 'string' &&
+    'expires_in' in data && typeof data.expires_in === 'number' &&
+    'interval' in data && typeof data.interval === 'number'
+  );
+}
+
+function isTokenResponse(data: unknown): data is TokenResponse {
+  if (typeof data !== 'object' || data === null) return false;
+  return (
+    'access_token' in data && typeof data.access_token === 'string' &&
+    'refresh_token' in data && typeof data.refresh_token === 'string' &&
+    'expires_in' in data && typeof data.expires_in === 'number'
+  );
 }
 
 export async function getDeviceCode(): Promise<DeviceCodeResponse> {
-  return authPost<DeviceCodeResponse>('device', {
-    grant_type: 'device_code',
-  });
+  const data = await authPost('device', { grant_type: 'device_code' });
+  if (!isDeviceCodeResponse(data)) {
+    throw new AuthRequestError('invalid_response', 'Unexpected device code response shape');
+  }
+  return data;
 }
 
 export async function pollForToken(code: string): Promise<TokenResponse> {
-  return authPost<TokenResponse>('device', {
-    grant_type: 'device_code',
-    code,
-  });
+  const data = await authPost('device', { grant_type: 'device_code', code });
+  if (!isTokenResponse(data)) {
+    throw new AuthRequestError('invalid_response', 'Unexpected token response shape');
+  }
+  return data;
 }
 
 export async function refreshToken(token: string): Promise<TokenResponse> {
-  return authPost<TokenResponse>('token', {
-    grant_type: 'refresh_token',
-    refresh_token: token,
-  });
+  const data = await authPost('token', { grant_type: 'refresh_token', refresh_token: token });
+  if (!isTokenResponse(data)) {
+    throw new AuthRequestError('invalid_response', 'Unexpected token response shape');
+  }
+  return data;
 }

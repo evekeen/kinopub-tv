@@ -62,7 +62,6 @@ test.describe('Search page', () => {
     await page.keyboard.press('Enter');
     await page.waitForTimeout(1000);
 
-    const bodyText = await page.textContent('body');
-    expect(bodyText).toBeTruthy();
+    await expect(page.getByText('Search Result Movie')).toBeVisible({ timeout: 10000 });
   });
 });

@@ -6,7 +6,6 @@ import {
   setTokens,
   clearTokens,
 } from '../api/client';
-import { refreshToken as refreshTokenApi } from '../api/auth';
 
 interface AuthState {
   accessToken: string | null;
@@ -14,12 +13,9 @@ interface AuthState {
   isAuthenticated: boolean;
   login: (tokens: TokenResponse) => void;
   logout: () => void;
-  refresh: () => Promise<void>;
 }
 
-let refreshPromise: Promise<void> | null = null;
-
-export const useAuthStore = create<AuthState>()((set, get) => ({
+export const useAuthStore = create<AuthState>()((set) => ({
   accessToken: getAccessToken(),
   refreshToken: getRefreshToken(),
   isAuthenticated: getAccessToken() !== null,
@@ -41,38 +37,4 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       isAuthenticated: false,
     });
   },
-
-  refresh(): Promise<void> {
-    if (refreshPromise) return refreshPromise;
-
-    refreshPromise = executeStoreRefresh(get, set).finally(() => {
-      refreshPromise = null;
-    });
-
-    return refreshPromise;
-  },
 }));
-
-async function executeStoreRefresh(
-  get: () => AuthState,
-  set: (partial: Partial<AuthState>) => void,
-): Promise<void> {
-  const currentRefreshToken = get().refreshToken;
-  if (!currentRefreshToken) {
-    get().logout();
-    return;
-  }
-
-  try {
-    const tokens = await refreshTokenApi(currentRefreshToken);
-    setTokens(tokens.access_token, tokens.refresh_token);
-    set({
-      accessToken: tokens.access_token,
-      refreshToken: tokens.refresh_token,
-      isAuthenticated: true,
-    });
-  } catch (error) {
-    get().logout();
-    throw error;
-  }
-}

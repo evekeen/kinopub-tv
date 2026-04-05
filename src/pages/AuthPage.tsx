@@ -93,9 +93,13 @@ export const AuthPage = memo(function AuthPage(): ReactElement {
   }, [startAuth, stopPolling]);
 
   useEffect(() => {
-    if (status === 'expired') {
+    if (status !== 'expired') return;
+    const timerId = window.setTimeout(() => {
       startAuth();
-    }
+    }, 5000);
+    return () => {
+      window.clearTimeout(timerId);
+    };
   }, [status, startAuth]);
 
   useEffect(() => {

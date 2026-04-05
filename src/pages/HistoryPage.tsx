@@ -15,6 +15,7 @@ import {
 import { PosterCard } from '../components/PosterCard';
 import { PosterSkeleton } from '../components/LoadingSkeleton';
 import { NetworkError } from '../components/NetworkError';
+import { useBackKey } from '../hooks/useBackKey';
 import { getHistory } from '../api/history';
 import { useUiStore } from '../store/ui';
 import type { Item, HistoryEntry } from '../types';
@@ -120,20 +121,7 @@ export const HistoryPage = memo(function HistoryPage(): ReactElement {
     setFocusedCardIndex(index);
   }, []);
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent): void => {
-      const keyCode = event.keyCode;
-      if (keyCode === 10009 || keyCode === 8 || event.key === 'Backspace') {
-        event.preventDefault();
-        goBack();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [goBack]);
+  useBackKey(goBack);
 
   const handleRetry = useCallback((): void => {
     setError(null);

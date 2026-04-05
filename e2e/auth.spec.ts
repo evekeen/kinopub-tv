@@ -28,8 +28,6 @@ test.describe('Auth page', () => {
 
     await expect(page.getByText('TESTCODE')).toBeVisible({ timeout: 10000 });
 
-    const spinnerOrPolling = page.locator('[class*="spinner"], [class*="polling"], [class*="status"]');
-    const count = await spinnerOrPolling.count();
-    expect(count).toBeGreaterThanOrEqual(0);
+    await expect(page.getByText('Waiting for activation...')).toBeVisible();
   });
 });

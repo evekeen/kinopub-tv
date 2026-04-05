@@ -46,7 +46,7 @@ test.describe('Player page', () => {
 
     const overlay = page.locator('[class*="overlay"], [class*="Overlay"], [class*="controls"]');
     const count = await overlay.count();
-    expect(count).toBeGreaterThanOrEqual(0);
+    expect(count).toBeGreaterThan(0);
   });
 
   test('track picker opens and lists audio tracks', async ({ page }) => {
@@ -60,7 +60,7 @@ test.describe('Player page', () => {
 
     const trackPicker = page.locator('[class*="track"], [class*="Track"], [class*="picker"]');
     const count = await trackPicker.count();
-    expect(count).toBeGreaterThanOrEqual(0);
+    expect(count).toBeGreaterThan(0);
   });
 
   test('back key exits player and returns to content page', async ({ page }) => {

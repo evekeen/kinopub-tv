@@ -23,7 +23,7 @@ test.describe('Navigation', () => {
 
     const focused = page.locator('[class*="itemFocused"], [class*="focused"]');
     const count = await focused.count();
-    expect(count).toBeGreaterThanOrEqual(0);
+    expect(count).toBeGreaterThan(0);
   });
 
   test('enter on sidebar item changes content area', async ({ page }) => {
@@ -38,8 +38,9 @@ test.describe('Navigation', () => {
     await page.keyboard.press('Enter');
     await page.waitForTimeout(500);
 
-    const bodyText = await page.textContent('body');
-    expect(bodyText).toBeTruthy();
+    await expect(page.getByText('Search')).toBeVisible();
+    const input = page.locator('input[type="text"]');
+    await expect(input).toBeVisible({ timeout: 5000 });
   });
 
   test('back key returns to previous screen', async ({ page }) => {

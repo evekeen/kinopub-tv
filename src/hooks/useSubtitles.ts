@@ -118,37 +118,33 @@ export function useSubtitles(currentTime: number): UseSubtitlesResult {
   const [cues, setCues] = useState<SubtitleCue[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const abortRef = useRef<AbortController | null>(null);
+  const cancelledRef = useRef<number>(0);
 
   const loadSubtitle = useCallback((url: string, shiftMs: number): void => {
-    if (abortRef.current !== null) {
-      abortRef.current.abort();
-    }
-
-    const controller = new AbortController();
-    abortRef.current = controller;
+    const requestId = ++cancelledRef.current;
     const shiftSec = shiftMs / 1000;
 
     setLoading(true);
     setError(null);
     setCues([]);
 
-    fetch(url, { signal: controller.signal })
+    fetch(url)
       .then((response) => {
+        if (cancelledRef.current !== requestId) return null;
         if (!response.ok) {
           throw new Error('Failed to fetch subtitle: ' + response.status);
         }
         return response.arrayBuffer();
       })
       .then((buffer) => {
-        if (controller.signal.aborted) return;
+        if (buffer === null || cancelledRef.current !== requestId) return;
         const text = decodeBuffer(buffer);
         const parsed = parseSrt(text, shiftSec);
         setCues(parsed);
         setLoading(false);
       })
       .catch((err: unknown) => {
-        if (err instanceof Error && err.name === 'AbortError') return;
+        if (cancelledRef.current !== requestId) return;
         const message = err instanceof Error ? err.message : 'Unknown subtitle error';
         setError(message);
         setLoading(false);
@@ -156,10 +152,7 @@ export function useSubtitles(currentTime: number): UseSubtitlesResult {
   }, []);
 
   const clearSubtitle = useCallback((): void => {
-    if (abortRef.current !== null) {
-      abortRef.current.abort();
-      abortRef.current = null;
-    }
+    cancelledRef.current++;
     setCues([]);
     setError(null);
     setLoading(false);
@@ -167,9 +160,7 @@ export function useSubtitles(currentTime: number): UseSubtitlesResult {
 
   useEffect(() => {
     return () => {
-      if (abortRef.current !== null) {
-        abortRef.current.abort();
-      }
+      cancelledRef.current++;
     };
   }, []);
 

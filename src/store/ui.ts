@@ -27,6 +27,7 @@ interface UiState {
   currentScreen: Screen;
   screenParams: ScreenParams;
   navigationStack: StackEntry[];
+  lastRestoredFocusKey: string | null;
   navigate: (screen: Screen, params?: ScreenParams) => void;
   goBack: () => void;
   setLastFocusKey: (key: string) => void;
@@ -48,6 +49,7 @@ export const useUiStore = create<UiState>()((set, get) => ({
   currentScreen: 'auth',
   screenParams: {},
   navigationStack: [],
+  lastRestoredFocusKey: null,
 
   navigate(screen: Screen, params: ScreenParams = {}): void {
     const state = get();
@@ -92,6 +94,7 @@ export const useUiStore = create<UiState>()((set, get) => ({
       currentScreen: previous.screen,
       screenParams: previous.params,
       navigationStack: stack.slice(0, -1),
+      lastRestoredFocusKey: previous.lastFocusKey,
     });
   },
 

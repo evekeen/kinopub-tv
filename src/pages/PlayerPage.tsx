@@ -7,6 +7,10 @@ import {
   useRef,
   useMemo,
 } from 'react';
+import {
+  useFocusable,
+  setFocus,
+} from '@noriginmedia/norigin-spatial-navigation';
 import { PlayerOverlay } from '../components/Player/PlayerOverlay';
 import { SubtitleRenderer } from '../components/Player/SubtitleRenderer';
 import { NetworkError } from '../components/NetworkError';
@@ -243,9 +247,7 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
               : 'Playback failed'}
           </div>
           {player.hlsError === 'fatal' && (
-            <button className={styles.retryButton} onClick={player.retryLoad}>
-              Press Enter to retry
-            </button>
+            <FocusableRetryButton onRetry={player.retryLoad} />
           )}
         </div>
       </div>
@@ -270,6 +272,35 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
         onSelectAudio={handleSelectAudio}
         onSelectSubtitle={handleSelectSubtitle}
       />
+    </div>
+  );
+});
+
+const RETRY_FOCUS_KEY = 'player-retry-button';
+
+interface FocusableRetryButtonProps {
+  onRetry: () => void;
+}
+
+const FocusableRetryButton = memo(function FocusableRetryButton({
+  onRetry,
+}: FocusableRetryButtonProps): ReactElement {
+  const { ref, focused } = useFocusable({
+    onEnterPress: onRetry,
+    focusKey: RETRY_FOCUS_KEY,
+  });
+
+  useEffect(() => {
+    setFocus(RETRY_FOCUS_KEY);
+  }, []);
+
+  const buttonClass = focused
+    ? styles.retryButton + ' ' + styles.retryButtonFocused
+    : styles.retryButton;
+
+  return (
+    <div ref={ref} className={buttonClass}>
+      Press Enter to retry
     </div>
   );
 });

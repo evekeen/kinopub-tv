@@ -27,8 +27,3 @@ export interface StatusResponse {
   status: number;
 }
 
-export interface ApiError {
-  status: number;
-  error: string;
-  error_description?: string;
-}

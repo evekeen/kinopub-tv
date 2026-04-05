@@ -41,6 +41,7 @@
   cursor: pointer;
 }
 
-.retryButton:focus {
+.retryButtonFocused {
   background-color: rgba(74, 158, 255, 0.2);
+  outline: 3px solid #4a9eff;
 }

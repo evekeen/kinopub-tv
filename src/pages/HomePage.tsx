@@ -15,8 +15,10 @@ import {
 import { ContentRail } from '../components/ContentRail';
 import { PosterSkeleton } from '../components/LoadingSkeleton';
 import { NetworkError } from '../components/NetworkError';
+import { useBackKey } from '../hooks/useBackKey';
 import { getFresh, getHot, getPopular } from '../api/content';
 import { getWatchingSerials, getWatchingMovies } from '../api/watching';
+import { AuthRequiredError } from '../api/client';
 import { useUiStore } from '../store/ui';
 import { useAuthStore } from '../store/auth';
 import type { Item } from '../types';
@@ -32,7 +34,7 @@ const RAIL_HEIGHT = 510;
 const VISIBLE_RAIL_BUFFER = 1;
 const PLACEHOLDER_STYLE = { height: RAIL_HEIGHT + 'px' } as const;
 
-export function HomePage(): ReactElement {
+export const HomePage = memo(function HomePage(): ReactElement {
   const [rails, setRails] = useState<ReadonlyArray<RailData>>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -40,8 +42,11 @@ export function HomePage(): ReactElement {
   const rafRef = useRef<number | null>(null);
 
   const navigate = useUiStore((s) => s.navigate);
+  const goBack = useUiStore((s) => s.goBack);
   const setLastFocusKey = useUiStore((s) => s.setLastFocusKey);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+
+  useBackKey(goBack);
 
   const { ref, focusKey } = useFocusable({
     trackChildren: true,
@@ -53,12 +58,18 @@ export function HomePage(): ReactElement {
     setLoading(true);
     setError(null);
     try {
+      const rethrowAuth = <T,>(promise: Promise<T>): Promise<T | null> =>
+        promise.catch((err: unknown) => {
+          if (err instanceof AuthRequiredError) throw err;
+          return null;
+        });
+
       const results = await Promise.all([
-        getWatchingSerials().catch(() => null),
-        getWatchingMovies().catch(() => null),
-        getFresh().catch(() => null),
-        getHot().catch(() => null),
-        getPopular().catch(() => null),
+        rethrowAuth(getWatchingSerials()),
+        rethrowAuth(getWatchingMovies()),
+        rethrowAuth(getFresh()),
+        rethrowAuth(getHot()),
+        rethrowAuth(getPopular()),
       ]);
 
       const [watchingSerials, watchingMovies, fresh, hot, popular] = results;
@@ -207,7 +218,7 @@ export function HomePage(): ReactElement {
       </div>
     </FocusContext.Provider>
   );
-}
+});
 
 interface RailWithIndexProps {
   rail: RailData;

@@ -22,9 +22,7 @@ test.describe('Content detail page', () => {
     await page.keyboard.press('Enter');
     await page.waitForTimeout(1000);
 
-    const playButton = page.locator('[class*="play"], [class*="Play"]');
-    const count = await playButton.count();
-    expect(count).toBeGreaterThanOrEqual(0);
+    await expect(page.getByText('Play')).toBeVisible({ timeout: 5000 });
   });
 
   test('for series: season tabs and episode list render', async ({ page }) => {
@@ -61,7 +59,6 @@ test.describe('Content detail page', () => {
     await page.waitForTimeout(1500);
 
     const video = page.locator('video');
-    const videoCount = await video.count();
-    expect(videoCount).toBeGreaterThanOrEqual(0);
+    await expect(video).toBeAttached({ timeout: 5000 });
   });
 });

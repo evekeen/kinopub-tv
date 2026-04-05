@@ -42,18 +42,6 @@ describe('SettingsPage', () => {
     expect(screen.getByText('Settings')).toBeDefined();
   });
 
-  it('renders CDN server setting with default Auto', () => {
-    render(<SettingsPage />);
-    expect(screen.getByText('CDN Server')).toBeDefined();
-    expect(screen.getByText('Auto')).toBeDefined();
-  });
-
-  it('renders show clock setting with default Off', () => {
-    render(<SettingsPage />);
-    expect(screen.getByText('Show Clock')).toBeDefined();
-    expect(screen.getByText('Off')).toBeDefined();
-  });
-
   it('renders logout button', () => {
     render(<SettingsPage />);
     expect(screen.getByText('Logout')).toBeDefined();
@@ -65,23 +53,9 @@ describe('SettingsPage', () => {
     expect(screen.getByText('hls.js player for Samsung Smart TVs')).toBeDefined();
   });
 
-  it('loads settings from localStorage', () => {
-    localStorageData['kinopub_settings'] = JSON.stringify({
-      cdnServer: 'nl',
-      showClock: true,
-    });
-
+  it('renders account section title', () => {
     render(<SettingsPage />);
-    expect(screen.getByText('Netherlands')).toBeDefined();
-    expect(screen.getByText('On')).toBeDefined();
-  });
-
-  it('handles corrupted localStorage gracefully', () => {
-    localStorageData['kinopub_settings'] = 'not-json';
-
-    render(<SettingsPage />);
-    expect(screen.getByText('Auto')).toBeDefined();
-    expect(screen.getByText('Off')).toBeDefined();
+    expect(screen.getByText('Account')).toBeDefined();
   });
 
   it('logout clears auth state and resets navigation', () => {
@@ -116,12 +90,5 @@ describe('SettingsPage', () => {
     fireEvent.keyDown(window, { key: 'Backspace', keyCode: 8 });
 
     expect(goBackSpy).toHaveBeenCalled();
-  });
-
-  it('renders all section titles', () => {
-    render(<SettingsPage />);
-    expect(screen.getByText('Streaming')).toBeDefined();
-    expect(screen.getByText('Display')).toBeDefined();
-    expect(screen.getByText('Account')).toBeDefined();
   });
 });

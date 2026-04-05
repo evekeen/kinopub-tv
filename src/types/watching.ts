@@ -1,32 +1,4 @@
-import { WatchingStatus } from './api';
-import { Item, ItemType } from './content';
-
-export type { WatchingStatus };
-
-export interface WatchingEpisode {
-  id: number;
-  number: number;
-  title: string;
-  duration: number;
-  status: WatchingStatus;
-  time: number;
-  updated: number | null;
-}
-
-export interface WatchingSeason {
-  number: number;
-  status: WatchingStatus;
-  episodes: WatchingEpisode[];
-}
-
-export interface WatchingItem {
-  id: number;
-  title: string;
-  type: ItemType;
-  status: WatchingStatus;
-  seasons?: WatchingSeason[];
-  videos?: WatchingEpisode[];
-}
+import { Item } from './content';
 
 export interface WatchingSerialItem extends Item {
   new: number;

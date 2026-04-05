@@ -13,7 +13,7 @@ function registerTizenRemoteKeys(): void {
     return;
   }
 
-  const keys: readonly string[] = [
+  const keys: readonly TizenKeyName[] = [
     'MediaPlayPause',
     'MediaPlay',
     'MediaPause',
@@ -28,7 +28,7 @@ function registerTizenRemoteKeys(): void {
 
   keys.forEach((key) => {
     try {
-      window.tizen!.tvinputdevice.registerKey(key as Parameters<typeof window.tizen.tvinputdevice.registerKey>[0]);
+      window.tizen!.tvinputdevice.registerKey(key);
     } catch {
     }
   });

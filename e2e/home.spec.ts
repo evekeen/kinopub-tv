@@ -22,7 +22,7 @@ test.describe('Home page', () => {
 
     const focused = page.locator('[class*="cardFocused"], [class*="focused"]');
     const count = await focused.count();
-    expect(count).toBeGreaterThanOrEqual(0);
+    expect(count).toBeGreaterThan(0);
   });
 
   test('arrow down moves focus to next rail', async ({ page }) => {
@@ -31,8 +31,9 @@ test.describe('Home page', () => {
     await page.keyboard.press('ArrowDown');
     await page.waitForTimeout(300);
 
-    const bodyText = await page.textContent('body');
-    expect(bodyText).toBeTruthy();
+    const focused = page.locator('[class*="cardFocused"], [class*="focused"]');
+    const count = await focused.count();
+    expect(count).toBeGreaterThan(0);
   });
 
   test('poster card shows title and image or placeholder', async ({ page }) => {

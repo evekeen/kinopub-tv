@@ -12,6 +12,7 @@ import {
 } from '@noriginmedia/norigin-spatial-navigation';
 import { EpisodeList } from '../components/EpisodeList';
 import { NetworkError } from '../components/NetworkError';
+import { useBackKey } from '../hooks/useBackKey';
 import { getItemDetail } from '../api/content';
 import { getFolders, addItem, removeItem } from '../api/bookmarks';
 import { useUiStore } from '../store/ui';
@@ -91,8 +92,12 @@ export const ContentPage = memo(function ContentPage(): ReactElement {
 
   useEffect(() => {
     if (item !== null && !loading) {
+      const kind = classifyType(item.type);
+      const focusTarget = kind === 'movie'
+        ? 'content-play-button'
+        : 'content-bookmark-button';
       requestAnimationFrame(() => {
-        setFocus('content-play-button');
+        setFocus(focusTarget);
       });
     }
   }, [item, loading]);
@@ -119,45 +124,39 @@ export const ContentPage = memo(function ContentPage(): ReactElement {
     [item, navigate],
   );
 
-  const handleBookmarkToggle = useCallback(async (): Promise<void> => {
+  const handleBookmarkToggle = useCallback((): void => {
     if (item === null) return;
 
-    if (bookmarked && item.bookmarks.length > 0) {
-      const firstBookmark = item.bookmarks[0];
-      await removeItem(item.id, firstBookmark.id);
-      setItem((prev) => {
-        if (prev === null) return prev;
-        return {
-          ...prev,
-          bookmarks: prev.bookmarks.filter((b) => b.id !== firstBookmark.id),
-        };
-      });
-    } else if (bookmarkFolders.length > 0) {
-      const defaultFolder = bookmarkFolders[0];
-      await addItem(item.id, defaultFolder.id);
-      setItem((prev) => {
-        if (prev === null) return prev;
-        return {
-          ...prev,
-          bookmarks: [...prev.bookmarks, { id: defaultFolder.id, title: defaultFolder.title }],
-        };
-      });
-    }
-  }, [item, bookmarked, bookmarkFolders]);
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent): void => {
-      const keyCode = event.keyCode;
-      if (keyCode === 10009 || keyCode === 8 || event.key === 'Backspace') {
-        event.preventDefault();
-        goBack();
+    const toggle = async (): Promise<void> => {
+      if (bookmarked && item.bookmarks.length > 0) {
+        const firstBookmark = item.bookmarks[0];
+        await removeItem(item.id, firstBookmark.id);
+        setItem((prev) => {
+          if (prev === null) return prev;
+          return {
+            ...prev,
+            bookmarks: prev.bookmarks.filter((b) => b.id !== firstBookmark.id),
+          };
+        });
+      } else if (bookmarkFolders.length > 0) {
+        const defaultFolder = bookmarkFolders[0];
+        await addItem(item.id, defaultFolder.id);
+        setItem((prev) => {
+          if (prev === null) return prev;
+          return {
+            ...prev,
+            bookmarks: [...prev.bookmarks, { id: defaultFolder.id, title: defaultFolder.title }],
+          };
+        });
       }
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [goBack]);
+
+    toggle().catch((err: unknown) => {
+      setError(err instanceof Error ? err : new Error('Bookmark operation failed'));
+    });
+  }, [item, bookmarked, bookmarkFolders]);
+
+  useBackKey(goBack);
 
   if (error) {
     return <NetworkError message={error.message} onRetry={fetchContent} />;

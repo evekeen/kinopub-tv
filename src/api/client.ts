@@ -69,7 +69,7 @@ export function clearTokens(): void {
 
 let refreshPromise: Promise<string> | null = null;
 
-function refreshAccessToken(): Promise<string> {
+export function refreshAccessToken(): Promise<string> {
   if (refreshPromise) {
     return refreshPromise;
   }
@@ -163,7 +163,8 @@ function classifyAndThrow(status: number): void {
 
 async function parseJsonResponse<T>(response: Response): Promise<T> {
   classifyAndThrow(response.status);
-  return response.json() as Promise<T>;
+  const data: T = await response.json();
+  return data;
 }
 
 async function apiRequest<T>(url: string, options: ApiRequestInit = {}): Promise<T> {

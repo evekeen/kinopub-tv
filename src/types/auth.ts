@@ -12,8 +12,3 @@ export interface TokenResponse {
   expires_in: number;
   refresh_token: string;
 }
-
-export interface AuthError {
-  error: string;
-  error_description?: string;
-}

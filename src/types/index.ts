@@ -5,13 +5,11 @@ export type {
   Pagination,
   PaginatedResponse,
   StatusResponse,
-  ApiError,
 } from './api';
 
 export type {
   DeviceCodeResponse,
   TokenResponse,
-  AuthError,
 } from './auth';
 
 export type {
@@ -47,9 +45,6 @@ export type {
 } from './bookmark';
 
 export type {
-  WatchingEpisode,
-  WatchingSeason,
-  WatchingItem,
   WatchingSerialItem,
   HistoryEntry,
 } from './watching';

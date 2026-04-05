@@ -1,13 +1,15 @@
-import { ReactElement, Suspense, lazy, useMemo } from 'react';
+import { ReactElement, Suspense, lazy, useMemo, useEffect } from 'react';
 import {
   useFocusable,
   FocusContext,
+  setFocus,
 } from '@noriginmedia/norigin-spatial-navigation';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { TransitionWrapper } from './components/TransitionWrapper';
 import { Sidebar } from './components/Sidebar';
 import { Spinner } from './components/LoadingSkeleton';
 import { PlayerProvider } from './contexts/PlayerContext';
+import { refreshAccessToken } from './api/client';
 import { useAuthStore } from './store/auth';
 import { useUiStore } from './store/ui';
 import type { Screen } from './store/ui';
@@ -92,6 +94,28 @@ function ContentArea({ children }: { children: ReactElement }): ReactElement {
 export function App(): ReactElement {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const currentScreen = useUiStore((s) => s.currentScreen);
+
+  const lastRestoredFocusKey = useUiStore((s) => s.lastRestoredFocusKey);
+
+  useEffect(() => {
+    if (lastRestoredFocusKey !== null) {
+      requestAnimationFrame(() => {
+        setFocus(lastRestoredFocusKey);
+      });
+    }
+  }, [lastRestoredFocusKey]);
+
+  useEffect(() => {
+    const handleVisibilityChange = (): void => {
+      if (document.visibilityState !== 'visible') return;
+      if (!useAuthStore.getState().isAuthenticated) return;
+      refreshAccessToken().catch(() => {});
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
 
   const screenContent = useMemo(
     () => resolveScreen(currentScreen, isAuthenticated),

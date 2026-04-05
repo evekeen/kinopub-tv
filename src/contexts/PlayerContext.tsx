@@ -40,6 +40,16 @@ const BACKOFF_BASE_MS = 1000;
 const BACKOFF_MAX_MS = 16000;
 const MAX_RETRIES = 5;
 
+const VIDEO_STYLE: React.CSSProperties = {
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  width: '1920px',
+  height: '1080px',
+  zIndex: -1,
+  backgroundColor: '#000000',
+};
+
 const HLS_CONFIG: Partial<HlsConfig> = {
   maxBufferLength: 30,
   maxMaxBufferLength: 60,
@@ -232,15 +242,7 @@ export function PlayerProvider({ children }: PlayerProviderProps): ReactElement 
     <PlayerContext.Provider value={value}>
       <video
         ref={videoRef}
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: '1920px',
-          height: '1080px',
-          zIndex: -1,
-          backgroundColor: '#000000',
-        }}
+        style={VIDEO_STYLE}
       />
       {children}
     </PlayerContext.Provider>

@@ -38,10 +38,13 @@ export const ContentRail = memo(function ContentRail({
 }: ContentRailProps): ReactElement {
   const [focusedIndex, setFocusedIndex] = useState(0);
 
+  const preferredChild = buildCardFocusKey(railFocusKey, focusedIndex);
+
   const { ref } = useFocusable({
     trackChildren: true,
     saveLastFocusedChild: true,
     focusKey: railFocusKey,
+    preferredChildFocusKey: preferredChild,
   });
 
   const handleItemFocus = useCallback((_item: Item, index: number): void => {
