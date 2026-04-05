@@ -200,9 +200,9 @@ The GL.iNet VPN router is still required for video CDN geo-restriction bypass, b
 - [x] **DoD:** `npx tsc --noEmit` passes; manually test auth flow in browser console against live API
 
 ### Task 5: Zustand stores
-- [ ] Create `src/store/auth.ts` — `accessToken`, `refreshToken`, `isAuthenticated`, `login(tokens)`, `logout()`, `refresh()`. Persist tokens to localStorage, hydrate on init
-- [ ] Create `src/store/player.ts` — `mediaUrl`, `subtitles`, `audioTracks`, `selectedAudioTrack`, `selectedSubtitle`, `isPlaying`, `currentTime`, `duration`
-- [ ] Create `src/store/ui.ts`:
+- [x] Create `src/store/auth.ts` — `accessToken`, `refreshToken`, `isAuthenticated`, `login(tokens)`, `logout()`, `refresh()`. Persist tokens to localStorage, hydrate on init
+- [x] Create `src/store/player.ts` — `mediaUrl`, `subtitles`, `audioTracks`, `selectedAudioTrack`, `selectedSubtitle`, `isPlaying`, `currentTime`, `duration`
+- [x] Create `src/store/ui.ts`:
   - `currentScreen` enum: auth/home/content/player/search/bookmarks/history/settings
   - `screenParams` (contentId, etc.)
   - `navigate(screen, params)` — pushes to navigation stack with `lastFocusKey: null`, caps stack at 20 entries
@@ -210,7 +210,7 @@ The GL.iNet VPN router is still required for video CDN geo-restriction bypass, b
   - `setLastFocusKey(key)` — updates current stack entry's focus key for restoration on Back
   - Player navigation replaces stack entry (not push) to avoid Back cycling through player
   - Clear stack on logout
-- [ ] **DoD:** `npx tsc --noEmit` passes
+- [x] **DoD:** `npx tsc --noEmit` passes
 
 ### Task 6: Error handling components
 - [ ] Create `src/components/ErrorBoundary.tsx` — catches React render errors, shows "Something went wrong" with "Press Enter to retry" action, logs error
