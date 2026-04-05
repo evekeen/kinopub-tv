@@ -64,6 +64,7 @@ export function PlayerProvider({ children }: PlayerProviderProps): ReactElement 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const hlsRef = useRef<Hls | null>(null);
   const retryCountRef = useRef(0);
+  const mediaRecoveryCountRef = useRef(0);
   const retryTimerRef = useRef<number | null>(null);
   const lastUrlRef = useRef<string | null>(null);
   const audioTracksCallbackRef = useRef<AudioTracksCallback | null>(null);
@@ -84,6 +85,7 @@ export function PlayerProvider({ children }: PlayerProviderProps): ReactElement 
     }
     setErrorState(null);
     retryCountRef.current = 0;
+    mediaRecoveryCountRef.current = 0;
     lastUrlRef.current = null;
     audioTracksCallbackRef.current = null;
   }, [clearRetryTimer]);
@@ -125,8 +127,13 @@ export function PlayerProvider({ children }: PlayerProviderProps): ReactElement 
             setErrorState('fatal');
           }
         } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
-          setErrorState('media');
-          hls.recoverMediaError();
+          if (mediaRecoveryCountRef.current < 2) {
+            setErrorState('media');
+            mediaRecoveryCountRef.current += 1;
+            hls.recoverMediaError();
+          } else {
+            setErrorState('fatal');
+          }
         } else {
           setErrorState('fatal');
         }
@@ -135,6 +142,7 @@ export function PlayerProvider({ children }: PlayerProviderProps): ReactElement 
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
         setErrorState(null);
         retryCountRef.current = 0;
+        mediaRecoveryCountRef.current = 0;
         video.play().catch(() => {});
       });
 

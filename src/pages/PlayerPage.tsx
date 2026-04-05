@@ -98,7 +98,7 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
       setError(err instanceof Error ? err : new Error('Failed to load media'));
       setLoading(false);
     }
-  }, [mediaId, setMedia]);
+  }, [mediaId, screenTitle, setMedia]);
 
   useEffect(() => {
     fetchAndPlay();

@@ -55,17 +55,19 @@ export const PlayerOverlay = memo(function PlayerOverlay({
   const [showTrackPicker, setShowTrackPicker] = useState(false);
   const [focusedElement, setFocusedElement] = useState<'playPause' | 'progress' | 'tracks'>('progress');
   const hideTimerRef = useRef<number | null>(null);
+  const showTrackPickerRef = useRef(showTrackPicker);
+  showTrackPickerRef.current = showTrackPicker;
 
   const resetHideTimer = useCallback((): void => {
     if (hideTimerRef.current !== null) {
       window.clearTimeout(hideTimerRef.current);
     }
     hideTimerRef.current = window.setTimeout(() => {
-      if (!showTrackPicker) {
+      if (!showTrackPickerRef.current) {
         setVisible(false);
       }
     }, AUTO_HIDE_MS);
-  }, [showTrackPicker]);
+  }, []);
 
   const showOverlay = useCallback((): void => {
     setVisible(true);

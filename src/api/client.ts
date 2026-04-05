@@ -199,6 +199,11 @@ async function apiRequest<T>(url: string, options: ApiRequestInit = {}, allowRet
       headers: { ...options.headers, Authorization: `Bearer ${newToken}` },
       body: options.body,
     }, allowRetry);
+    if (retryResponse.status === 401) {
+      clearTokens();
+      onAuthFailure?.();
+      throw new AuthRequiredError('Authentication failed after token refresh');
+    }
     return parseJsonResponse<T>(retryResponse);
   }
 
