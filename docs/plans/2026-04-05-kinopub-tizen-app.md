@@ -335,11 +335,11 @@ The GL.iNet VPN router is still required for video CDN geo-restriction bypass, b
 - [x] **DoD:** Both pages load data from API and render navigable lists
 
 ### Task 15: Settings page
-- [ ] Create `src/pages/SettingsPage.tsx` — CDN server selection (Auto/Netherlands/Russia), stored in localStorage
-- [ ] Show clock toggle
-- [ ] About section with app version
-- [ ] Logout button (clears auth store + localStorage, resets nav stack)
-- [ ] **DoD:** Settings persist across app restarts, logout works
+- [x] Create `src/pages/SettingsPage.tsx` — CDN server selection (Auto/Netherlands/Russia), stored in localStorage
+- [x] Show clock toggle
+- [x] About section with app version
+- [x] Logout button (clears auth store + localStorage, resets nav stack)
+- [x] **DoD:** Settings persist across app restarts, logout works
 
 ### Task 16: Tizen packaging + deploy
 - [ ] Finalize `scripts/build-wgt.sh` — runs `npm run build`, copies `tizen/config.xml` + icon into `dist/`, zips `dist/` as `kinopub-tizen.wgt`

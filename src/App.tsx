@@ -41,6 +41,10 @@ const HistoryPage = lazy(() =>
   import('./pages/HistoryPage').then((m) => ({ default: m.HistoryPage })),
 );
 
+const SettingsPage = lazy(() =>
+  import('./pages/SettingsPage').then((m) => ({ default: m.SettingsPage })),
+);
+
 function resolveScreen(screen: Screen, isAuthenticated: boolean): ReactElement {
   if (!isAuthenticated) {
     return <AuthPage />;
@@ -62,7 +66,7 @@ function resolveScreen(screen: Screen, isAuthenticated: boolean): ReactElement {
     case 'history':
       return <HistoryPage />;
     case 'settings':
-      return <div>Screen: {screen}</div>;
+      return <SettingsPage />;
     default: {
       const _exhaustive: never = screen;
       throw new Error(`Unhandled screen: ${_exhaustive}`);
