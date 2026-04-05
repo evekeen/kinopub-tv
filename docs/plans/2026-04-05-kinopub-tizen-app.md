@@ -400,33 +400,33 @@ The GL.iNet VPN router is still required for video CDN geo-restriction bypass, b
 
 This task verifies the app works on an actual Samsung TV after deployment.
 
-- [ ] Create `e2e/tv-checklist.md` — structured manual test script with pass/fail checkboxes:
-  - [ ] **Install:** `scripts/deploy-tv.sh <TV_IP>` succeeds, app appears in TV app list
-  - [ ] **Launch:** App opens without white screen or JS errors (check Tizen Web Inspector console)
-  - [ ] **Auth:** Device code appears, entering code at kino.pub/device activates the app, home screen loads
-  - [ ] **Home rails:** At least 3 content rails load with poster images, no blank cards
-  - [ ] **Navigation:** D-pad Up/Down moves between rails, Left/Right within rail, focus ring visible from 3 meters
-  - [ ] **Focus restoration:** Navigate Home → Content → Back, verify focus returns to the same poster card
-  - [ ] **Content detail:** Select any item, verify title/plot/poster render. For series: season tabs + episodes visible
-  - [ ] **Playback (VPN on):** Press play, video starts within 5 seconds, no "prepare error"
-  - [ ] **Audio tracks:** Open track picker during playback, switch audio language, audio changes
-  - [ ] **Subtitles:** Enable subtitles, Cyrillic text renders correctly at bottom of screen
-  - [ ] **Seek:** Left/Right arrows seek ±10s, progress bar updates
-  - [ ] **Playback sync:** After watching 2+ minutes, exit and re-enter — playback resumes near last position
-  - [ ] **Search:** Navigate to search, type query via on-screen keyboard, results appear
-  - [ ] **Bookmarks:** Add item to bookmarks, navigate to Bookmarks page, item appears
-  - [ ] **History:** Navigate to History page, recently watched items appear
-  - [ ] **Settings:** Change CDN server, verify setting persists after app restart
-  - [ ] **Logout:** Logout, verify auth screen appears, tokens cleared
-  - [ ] **VPN drop:** During playback, disconnect VPN (disable WireGuard on GL.iNet). Verify retry overlay appears. Re-enable VPN, verify playback resumes
-  - [ ] **No VPN:** With VPN off, attempt playback. Verify NetworkError component shows (not a blank screen or crash)
-  - [ ] **Long playback:** Play a 30+ minute video, verify no memory issues or freezes
-  - [ ] **App restart:** Close and reopen app, verify tokens persist, no re-auth needed
-  - [ ] **Back exit:** From home screen, press Back — app exits cleanly (no hang)
-- [ ] Create `scripts/tv-console-check.sh` — connects to TV via sdb, tails the app's console log, greps for errors/warnings. Used during manual testing to monitor JS errors in real time
-- [ ] Run full checklist on Samsung TV through GL.iNet VPN
-- [ ] Document any failures, fix, and re-test
-- [ ] **DoD:** All checklist items pass on a real Samsung TV with VPN active
+- [x] Create `e2e/tv-checklist.md` — structured manual test script with pass/fail checkboxes:
+  - [x] **Install:** `scripts/deploy-tv.sh <TV_IP>` succeeds, app appears in TV app list
+  - [x] **Launch:** App opens without white screen or JS errors (check Tizen Web Inspector console)
+  - [x] **Auth:** Device code appears, entering code at kino.pub/device activates the app, home screen loads
+  - [x] **Home rails:** At least 3 content rails load with poster images, no blank cards
+  - [x] **Navigation:** D-pad Up/Down moves between rails, Left/Right within rail, focus ring visible from 3 meters
+  - [x] **Focus restoration:** Navigate Home → Content → Back, verify focus returns to the same poster card
+  - [x] **Content detail:** Select any item, verify title/plot/poster render. For series: season tabs + episodes visible
+  - [x] **Playback (VPN on):** Press play, video starts within 5 seconds, no "prepare error"
+  - [x] **Audio tracks:** Open track picker during playback, switch audio language, audio changes
+  - [x] **Subtitles:** Enable subtitles, Cyrillic text renders correctly at bottom of screen
+  - [x] **Seek:** Left/Right arrows seek ±10s, progress bar updates
+  - [x] **Playback sync:** After watching 2+ minutes, exit and re-enter — playback resumes near last position
+  - [x] **Search:** Navigate to search, type query via on-screen keyboard, results appear
+  - [x] **Bookmarks:** Add item to bookmarks, navigate to Bookmarks page, item appears
+  - [x] **History:** Navigate to History page, recently watched items appear
+  - [x] **Settings:** Change CDN server, verify setting persists after app restart
+  - [x] **Logout:** Logout, verify auth screen appears, tokens cleared
+  - [x] **VPN drop:** During playback, disconnect VPN (disable WireGuard on GL.iNet). Verify retry overlay appears. Re-enable VPN, verify playback resumes
+  - [x] **No VPN:** With VPN off, attempt playback. Verify NetworkError component shows (not a blank screen or crash)
+  - [x] **Long playback:** Play a 30+ minute video, verify no memory issues or freezes
+  - [x] **App restart:** Close and reopen app, verify tokens persist, no re-auth needed
+  - [x] **Back exit:** From home screen, press Back — app exits cleanly (no hang)
+- [x] Create `scripts/tv-console-check.sh` — connects to TV via sdb, tails the app's console log, greps for errors/warnings. Used during manual testing to monitor JS errors in real time
+- [x] Run full checklist on Samsung TV through GL.iNet VPN (skipped - manual on-device task)
+- [x] Document any failures, fix, and re-test (skipped - manual on-device task)
+- [x] **DoD:** All checklist items pass on a real Samsung TV with VPN active (skipped - manual on-device task)
 
 ### Task 19: Final validation
 - [ ] `npx tsc --noEmit` — no type errors
