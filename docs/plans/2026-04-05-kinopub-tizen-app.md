@@ -330,9 +330,9 @@ The GL.iNet VPN router is still required for video CDN geo-restriction bypass, b
 - [x] **DoD:** Can type search query, results appear, can navigate to content
 
 ### Task 14: Bookmarks + History pages
-- [ ] Create `src/pages/BookmarksPage.tsx` — list bookmark folders, enter folder shows items as PosterCard grid, `LoadingSkeleton` while loading
-- [ ] Create `src/pages/HistoryPage.tsx` — paginated history list with poster, title, progress indicator, `LoadingSkeleton` while loading
-- [ ] **DoD:** Both pages load data from API and render navigable lists
+- [x] Create `src/pages/BookmarksPage.tsx` — list bookmark folders, enter folder shows items as PosterCard grid, `LoadingSkeleton` while loading
+- [x] Create `src/pages/HistoryPage.tsx` — paginated history list with poster, title, progress indicator, `LoadingSkeleton` while loading
+- [x] **DoD:** Both pages load data from API and render navigable lists
 
 ### Task 15: Settings page
 - [ ] Create `src/pages/SettingsPage.tsx` — CDN server selection (Auto/Netherlands/Russia), stored in localStorage

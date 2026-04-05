@@ -33,6 +33,14 @@ const SearchPage = lazy(() =>
   import('./pages/SearchPage').then((m) => ({ default: m.SearchPage })),
 );
 
+const BookmarksPage = lazy(() =>
+  import('./pages/BookmarksPage').then((m) => ({ default: m.BookmarksPage })),
+);
+
+const HistoryPage = lazy(() =>
+  import('./pages/HistoryPage').then((m) => ({ default: m.HistoryPage })),
+);
+
 function resolveScreen(screen: Screen, isAuthenticated: boolean): ReactElement {
   if (!isAuthenticated) {
     return <AuthPage />;
@@ -50,7 +58,9 @@ function resolveScreen(screen: Screen, isAuthenticated: boolean): ReactElement {
     case 'search':
       return <SearchPage />;
     case 'bookmarks':
+      return <BookmarksPage />;
     case 'history':
+      return <HistoryPage />;
     case 'settings':
       return <div>Screen: {screen}</div>;
     default: {
