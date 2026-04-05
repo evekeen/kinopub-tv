@@ -20,6 +20,10 @@ const HomePage = lazy(() =>
   import('./pages/HomePage').then((m) => ({ default: m.HomePage })),
 );
 
+const ContentPage = lazy(() =>
+  import('./pages/ContentPage').then((m) => ({ default: m.ContentPage })),
+);
+
 function resolveScreen(screen: Screen, isAuthenticated: boolean): ReactElement {
   if (!isAuthenticated) {
     return <AuthPage />;
@@ -31,6 +35,7 @@ function resolveScreen(screen: Screen, isAuthenticated: boolean): ReactElement {
     case 'home':
       return <HomePage />;
     case 'content':
+      return <ContentPage />;
     case 'player':
     case 'search':
     case 'bookmarks':

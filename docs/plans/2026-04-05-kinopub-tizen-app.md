@@ -268,15 +268,15 @@ The GL.iNet VPN router is still required for video CDN geo-restriction bypass, b
 - [x] **DoD:** Home page shows content from live API, arrow keys navigate between and within rails, posters lazy-load, focus restores on Back
 
 ### Task 10: Content detail page
-- [ ] Create `src/pages/ContentPage.tsx`:
+- [x] Create `src/pages/ContentPage.tsx`:
   - Fetches item detail by ID (`nolinks=1`)
   - Shows: wide poster background, title, year, rating, duration, plot, genres, cast
   - `LoadingSkeleton` while fetching
-- [ ] For movies: Play button (focused by default)
-- [ ] For series: `src/components/EpisodeList.tsx` — season tabs + episode rows (thumbnail, title, number, duration, watched indicator). Rows wrapped in `React.memo`
-- [ ] Bookmark toggle button
-- [ ] Enter on episode/play button → navigate to Player with mediaId
-- [ ] **DoD:** Content page renders for both movies and series, episode list navigable, play triggers navigation
+- [x] For movies: Play button (focused by default)
+- [x] For series: `src/components/EpisodeList.tsx` — season tabs + episode rows (thumbnail, title, number, duration, watched indicator). Rows wrapped in `React.memo`
+- [x] Bookmark toggle button
+- [x] Enter on episode/play button → navigate to Player with mediaId
+- [x] **DoD:** Content page renders for both movies and series, episode list navigable, play triggers navigation
 
 ### Task 11: PlayerContext + hls.js player
 - [ ] Create `src/contexts/PlayerContext.tsx`:

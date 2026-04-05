@@ -1,0 +1,208 @@
+.container {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  outline: none;
+}
+
+.scrollable {
+  display: flex;
+  flex-direction: column;
+  transition: transform 150ms;
+}
+
+.hero {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 32px;
+}
+
+.posterContainer {
+  flex-shrink: 0;
+  width: 300px;
+  height: 450px;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  background-color: #1a2a4a;
+  margin-right: 40px;
+}
+
+.poster {
+  width: 300px;
+  height: 450px;
+  display: block;
+  border-radius: 8px;
+  opacity: 0;
+  transition: opacity 200ms;
+}
+
+.posterLoaded {
+  opacity: 1;
+}
+
+.posterPlaceholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #1a2a4a;
+}
+
+.info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.title {
+  font-size: 42px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #ffffff;
+  margin-bottom: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.meta > * + * {
+  margin-left: 20px;
+}
+
+.metaItem {
+  font-size: 22px;
+  color: #8899aa;
+}
+
+.ratingKp {
+  color: #ffc107;
+  font-weight: 600;
+}
+
+.ratingImdb {
+  color: #f5c518;
+  font-weight: 600;
+}
+
+.genres {
+  font-size: 20px;
+  color: #6688aa;
+  margin-bottom: 12px;
+}
+
+.plot {
+  font-size: 22px;
+  color: #b0c0d0;
+  line-height: 1.5;
+  margin-bottom: 16px;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.castInfo {
+  font-size: 18px;
+  color: #6688aa;
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.castLabel {
+  color: #8899aa;
+}
+
+.actions {
+  display: flex;
+  flex-direction: row;
+  margin-top: 24px;
+}
+
+.actions > * + * {
+  margin-left: 16px;
+}
+
+.actionButton {
+  padding: 12px 40px;
+  font-size: 24px;
+  font-weight: 600;
+  border-radius: 8px;
+  background-color: #1a2a4a;
+  color: #ffffff;
+  outline: none;
+  transition: opacity 150ms;
+}
+
+.actionButtonFocused {
+  composes: actionButton;
+  background-color: #4a9eff;
+  color: #ffffff;
+}
+
+.bookmarkActive {
+  background-color: #2a4a6a;
+}
+
+.loadingContainer {
+  display: flex;
+  flex-direction: row;
+  padding-top: 20px;
+}
+
+.skeletonPoster {
+  flex-shrink: 0;
+  width: 300px;
+  height: 450px;
+  border-radius: 8px;
+  background-color: #1a2a4a;
+  margin-right: 40px;
+}
+
+.skeletonInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.skeletonTitle {
+  width: 400px;
+  height: 42px;
+  background-color: #1a2a4a;
+  border-radius: 4px;
+  margin-bottom: 16px;
+}
+
+.skeletonMeta {
+  width: 300px;
+  height: 24px;
+  background-color: #1a2a4a;
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+
+.skeletonPlot {
+  width: 100%;
+  height: 80px;
+  background-color: #1a2a4a;
+  border-radius: 4px;
+  margin-bottom: 16px;
+}
+
+.skeletonButton {
+  width: 180px;
+  height: 48px;
+  background-color: #1a2a4a;
+  border-radius: 8px;
+}
