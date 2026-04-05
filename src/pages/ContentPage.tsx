@@ -107,19 +107,21 @@ export const ContentPage = memo(function ContentPage(): ReactElement {
     const kind = classifyType(item.type);
 
     if (kind === 'movie' && item.videos && item.videos.length > 0) {
-      navigate('player', { params: { contentId: item.id, mediaId: item.videos[0].id } });
+      navigate('player', { params: { contentId: item.id, mediaId: item.videos[0].id, title: item.title } });
     }
   }, [item, navigate]);
 
   const handleSelectEpisode = useCallback(
     (episode: Video): void => {
       if (item === null) return;
+      const episodeTitle = item.title + ' S' + episode.snumber + 'E' + episode.number;
       navigate('player', {
         params: {
           contentId: item.id,
           mediaId: episode.id,
           seasonNumber: episode.snumber,
           episodeNumber: episode.number,
+          title: episodeTitle,
         },
       });
     },

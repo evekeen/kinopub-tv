@@ -42,9 +42,16 @@ export const ProgressBar = memo(function ProgressBar({
     : null;
 
   const pendingTargetRef = useRef<number | null>(null);
+  const currentTimeRef = useRef(currentTime);
+  const durationRef = useRef(duration);
+  const onSeekRef = useRef(onSeek);
+
+  currentTimeRef.current = currentTime;
+  durationRef.current = duration;
+  onSeekRef.current = onSeek;
 
   const handleSeekLeft = useCallback((): void => {
-    const base = pendingTargetRef.current !== null ? pendingTargetRef.current : currentTime;
+    const base = pendingTargetRef.current !== null ? pendingTargetRef.current : currentTimeRef.current;
     const target = Math.max(0, base - SEEK_STEP_S);
     pendingTargetRef.current = target;
     setSeekPreview(target);
@@ -52,28 +59,28 @@ export const ProgressBar = memo(function ProgressBar({
       window.clearTimeout(seekTimerRef.current);
     }
     seekTimerRef.current = window.setTimeout(() => {
-      onSeek(target);
+      onSeekRef.current(target);
       setSeekPreview(null);
       seekTimerRef.current = null;
       pendingTargetRef.current = null;
     }, 300);
-  }, [currentTime, onSeek]);
+  }, []);
 
   const handleSeekRight = useCallback((): void => {
-    const base = pendingTargetRef.current !== null ? pendingTargetRef.current : currentTime;
-    const target = Math.min(duration, base + SEEK_STEP_S);
+    const base = pendingTargetRef.current !== null ? pendingTargetRef.current : currentTimeRef.current;
+    const target = Math.min(durationRef.current, base + SEEK_STEP_S);
     pendingTargetRef.current = target;
     setSeekPreview(target);
     if (seekTimerRef.current !== null) {
       window.clearTimeout(seekTimerRef.current);
     }
     seekTimerRef.current = window.setTimeout(() => {
-      onSeek(target);
+      onSeekRef.current(target);
       setSeekPreview(null);
       seekTimerRef.current = null;
       pendingTargetRef.current = null;
     }, 300);
-  }, [currentTime, duration, onSeek]);
+  }, []);
 
   useEffect(() => {
     if (!focused) return;

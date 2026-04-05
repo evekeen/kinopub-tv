@@ -15,6 +15,7 @@ interface ScreenParams {
   mediaId?: number;
   seasonNumber?: number;
   episodeNumber?: number;
+  title?: string;
 }
 
 interface StackEntry {

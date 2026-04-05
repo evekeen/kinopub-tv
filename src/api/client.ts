@@ -68,6 +68,11 @@ export function clearTokens(): void {
 }
 
 let refreshPromise: Promise<string> | null = null;
+let onAuthFailure: (() => void) | null = null;
+
+export function setOnAuthFailure(callback: () => void): void {
+  onAuthFailure = callback;
+}
 
 export function refreshAccessToken(): Promise<string> {
   if (refreshPromise) {
@@ -85,6 +90,7 @@ async function executeRefresh(): Promise<string> {
   const storedRefreshToken = getRefreshToken();
   if (!storedRefreshToken) {
     clearTokens();
+    onAuthFailure?.();
     throw new AuthRequiredError('No refresh token available');
   }
 
@@ -95,6 +101,7 @@ async function executeRefresh(): Promise<string> {
   } catch (error) {
     if (error instanceof AuthRequestError) {
       clearTokens();
+      onAuthFailure?.();
       throw new AuthRequiredError('Token refresh failed');
     }
     throw new ApiNetworkError(

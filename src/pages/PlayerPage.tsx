@@ -38,6 +38,7 @@ function pickBestFile(files: MediaFile[]): MediaFile | null {
 export const PlayerPage = memo(function PlayerPage(): ReactElement {
   const contentId = useUiStore((s) => s.screenParams.contentId);
   const mediaId = useUiStore((s) => s.screenParams.mediaId);
+  const screenTitle = useUiStore((s) => s.screenParams.title);
   const goBack = useUiStore((s) => s.goBack);
 
   const setMedia = usePlayerStore((s) => s.setMedia);
@@ -86,7 +87,7 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
       }
 
       const hlsUrl = bestFile.url.hls;
-      setTitle(bestFile.quality);
+      setTitle(screenTitle ?? bestFile.quality);
       setSubtitles(mediaLinks.subtitles);
       setMedia(hlsUrl, [], mediaLinks.subtitles);
       playerRef.current.loadSource(hlsUrl, (tracks) => {
@@ -211,15 +212,15 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
 
   const remoteHandlers: RemoteKeyMap = useMemo(() => ({
     playPause: handlePlayPause,
-    play: () => player.play(),
-    pause: () => player.pause(),
+    play: () => playerRef.current.play(),
+    pause: () => playerRef.current.pause(),
     stop: handleBack,
     back: handleBack,
     fastForward: () => handleSeek(currentTimeRef.current + SEEK_JUMP_S),
     rewind: () => handleSeek(Math.max(0, currentTimeRef.current - SEEK_JUMP_S)),
     channelUp: () => handleSeek(currentTimeRef.current + SEEK_JUMP_S),
     channelDown: () => handleSeek(Math.max(0, currentTimeRef.current - SEEK_JUMP_S)),
-  }), [handlePlayPause, player, handleBack, handleSeek]);
+  }), [handlePlayPause, handleBack, handleSeek]);
 
   useRemoteKeys(remoteHandlers);
 
