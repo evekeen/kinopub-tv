@@ -230,18 +230,18 @@ The GL.iNet VPN router is still required for video CDN geo-restriction bypass, b
 - [x] **DoD:** App starts, shows auth screen, device code appears, can complete auth flow in browser
 
 ### Task 8: Sidebar + layout shell
-- [ ] Create `src/components/Sidebar.tsx`:
+- [x] Create `src/components/Sidebar.tsx`:
   - Vertical icon sidebar matching KinoPub STV: Home, Search, Bookmarks, History, Settings, Profile icons
   - Own `FocusContext` from norigin (isolated focus tree)
   - Highlights active screen
   - Focusable items with `useFocusable()`
-- [ ] Create layout in `src/App.tsx` — sidebar (fixed left, ~60px) + main content area, each in own `FocusContext`
-- [ ] Wire sidebar items to `ui.navigate()` calls
-- [ ] Global behavior: Left arrow at left edge of any content area → focus transfers to sidebar; Right arrow from sidebar → focus transfers to content area
-- [ ] Register Samsung remote keys at app startup in `src/index.tsx`:
+- [x] Create layout in `src/App.tsx` — sidebar (fixed left, ~60px) + main content area, each in own `FocusContext`
+- [x] Wire sidebar items to `ui.navigate()` calls
+- [x] Global behavior: Left arrow at left edge of any content area → focus transfers to sidebar; Right arrow from sidebar → focus transfers to content area
+- [x] Register Samsung remote keys at app startup in `src/index.tsx`:
   - Guard with `if (window.tizen?.tvinputdevice)`
   - Register: MediaPlayPause, MediaPlay, MediaPause, MediaStop, MediaFastForward, MediaRewind, ColorF0Red, ColorF1Green, ColorF2Yellow, ColorF3Blue
-- [ ] **DoD:** Sidebar renders, keyboard/arrow navigation works between sidebar and content, selecting navigates screens, remote keys registered on Tizen
+- [x] **DoD:** Sidebar renders, keyboard/arrow navigation works between sidebar and content, selecting navigates screens, remote keys registered on Tizen
 
 ### Task 9: Home page with content rails
 - [ ] Create `src/components/PosterCard.tsx`:

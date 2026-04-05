@@ -1,10 +1,16 @@
 import { ReactElement, Suspense, lazy, useMemo } from 'react';
+import {
+  useFocusable,
+  FocusContext,
+} from '@noriginmedia/norigin-spatial-navigation';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { TransitionWrapper } from './components/TransitionWrapper';
+import { Sidebar } from './components/Sidebar';
 import { Spinner } from './components/LoadingSkeleton';
 import { useAuthStore } from './store/auth';
 import { useUiStore } from './store/ui';
 import type { Screen } from './store/ui';
+import styles from './App.module.css';
 
 const AuthPage = lazy(() =>
   import('./pages/AuthPage').then((m) => ({ default: m.AuthPage })),
@@ -33,6 +39,21 @@ function resolveScreen(screen: Screen, isAuthenticated: boolean): ReactElement {
   }
 }
 
+function ContentArea({ children }: { children: ReactElement }): ReactElement {
+  const { ref, focusKey } = useFocusable({
+    trackChildren: true,
+    saveLastFocusedChild: true,
+  });
+
+  return (
+    <FocusContext.Provider value={focusKey}>
+      <main ref={ref} className={styles.content}>
+        {children}
+      </main>
+    </FocusContext.Provider>
+  );
+}
+
 export function App(): ReactElement {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const currentScreen = useUiStore((s) => s.currentScreen);
@@ -42,13 +63,19 @@ export function App(): ReactElement {
     [currentScreen, isAuthenticated],
   );
   const transitionKey = isAuthenticated ? currentScreen : 'auth';
+  const showSidebar = isAuthenticated && currentScreen !== 'player';
 
   return (
     <ErrorBoundary>
       <Suspense fallback={<Spinner />}>
-        <TransitionWrapper transitionKey={transitionKey}>
-          {screenContent}
-        </TransitionWrapper>
+        <div className={styles.layout}>
+          {showSidebar && <Sidebar />}
+          <ContentArea>
+            <TransitionWrapper transitionKey={transitionKey}>
+              {screenContent}
+            </TransitionWrapper>
+          </ContentArea>
+        </div>
       </Suspense>
     </ErrorBoundary>
   );
