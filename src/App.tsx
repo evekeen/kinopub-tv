@@ -29,6 +29,10 @@ const PlayerPage = lazy(() =>
   import('./pages/PlayerPage').then((m) => ({ default: m.PlayerPage })),
 );
 
+const SearchPage = lazy(() =>
+  import('./pages/SearchPage').then((m) => ({ default: m.SearchPage })),
+);
+
 function resolveScreen(screen: Screen, isAuthenticated: boolean): ReactElement {
   if (!isAuthenticated) {
     return <AuthPage />;
@@ -44,6 +48,7 @@ function resolveScreen(screen: Screen, isAuthenticated: boolean): ReactElement {
     case 'player':
       return <PlayerPage />;
     case 'search':
+      return <SearchPage />;
     case 'bookmarks':
     case 'history':
     case 'settings':

@@ -322,12 +322,12 @@ The GL.iNet VPN router is still required for video CDN geo-restriction bypass, b
 - [x] **DoD:** External SRT subtitles display in sync with video, Cyrillic renders correctly, can switch between subtitle tracks or turn off
 
 ### Task 13: Search page
-- [ ] Create `src/pages/SearchPage.tsx` — text input at top (Samsung on-screen keyboard opens on focus), results grid below
-- [ ] Debounce search input by 500ms, call `searchItems(query)`
-- [ ] Results as grid of PosterCards (memoized), navigable with spatial nav
-- [ ] `LoadingSkeleton` while searching
-- [ ] Enter on card → navigate to ContentPage
-- [ ] **DoD:** Can type search query, results appear, can navigate to content
+- [x] Create `src/pages/SearchPage.tsx` — text input at top (Samsung on-screen keyboard opens on focus), results grid below
+- [x] Debounce search input by 500ms, call `searchItems(query)`
+- [x] Results as grid of PosterCards (memoized), navigable with spatial nav
+- [x] `LoadingSkeleton` while searching
+- [x] Enter on card → navigate to ContentPage
+- [x] **DoD:** Can type search query, results appear, can navigate to content
 
 ### Task 14: Bookmarks + History pages
 - [ ] Create `src/pages/BookmarksPage.tsx` — list bookmark folders, enter folder shows items as PosterCard grid, `LoadingSkeleton` while loading

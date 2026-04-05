@@ -1,0 +1,108 @@
+.container {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  outline: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.inputContainer {
+  flex-shrink: 0;
+  margin-bottom: 32px;
+}
+
+.inputWrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 16px 24px;
+  background-color: #1a2a4a;
+  border-radius: 8px;
+  outline: 2px solid transparent;
+}
+
+.inputWrapperFocused {
+  composes: inputWrapper;
+  outline: 2px solid #4a9eff;
+}
+
+.searchIcon {
+  font-size: 28px;
+  color: #6688aa;
+  margin-right: 16px;
+  flex-shrink: 0;
+}
+
+.input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 28px;
+  color: #ffffff;
+}
+
+.input::placeholder {
+  color: #6688aa;
+}
+
+.resultsContainer {
+  flex: 1;
+  overflow: hidden;
+}
+
+.resultsGrid {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  transition: transform 150ms;
+}
+
+.resultsGrid > * {
+  margin-right: 16px;
+  margin-bottom: 24px;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding-top: 120px;
+}
+
+.emptyIcon {
+  font-size: 64px;
+  color: #2a3a5a;
+  margin-bottom: 24px;
+}
+
+.emptyText {
+  font-size: 28px;
+  color: #6688aa;
+}
+
+.noResults {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 120px;
+}
+
+.noResultsText {
+  font-size: 28px;
+  color: #6688aa;
+}
+
+.loadingContainer {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.loadingContainer > * {
+  margin-right: 16px;
+  margin-bottom: 24px;
+}
