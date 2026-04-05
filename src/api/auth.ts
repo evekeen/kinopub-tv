@@ -73,7 +73,10 @@ export async function getDeviceCode(): Promise<DeviceCodeResponse> {
 }
 
 export async function pollForToken(code: string): Promise<TokenResponse> {
-  const data = await authPost('device', { grant_type: 'device_code', code });
+  const data = await authPost('device', { grant_type: 'device_token', code });
+  if (isDeviceCodeResponse(data)) {
+    throw new AuthRequestError('authorization_pending', 'Waiting for user activation');
+  }
   if (!isTokenResponse(data)) {
     throw new AuthRequestError('invalid_response', 'Unexpected token response shape');
   }
