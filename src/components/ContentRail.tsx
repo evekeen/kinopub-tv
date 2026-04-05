@@ -104,7 +104,7 @@ export const ContentRail = memo(function ContentRail({
       <FocusContext.Provider value={railFocusKey}>
         <div ref={ref} className={styles.viewport}>
           <div className={styles.track} style={trackStyle}>
-            {visibleRange.start > 0 && <div style={spacerStyle} />}
+            {visibleRange.start > 0 && <div className={styles.spacer} style={spacerStyle} />}
             {visibleCards}
           </div>
         </div>

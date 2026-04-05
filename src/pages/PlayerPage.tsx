@@ -86,7 +86,7 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
       }
 
       const hlsUrl = bestFile.url.hls;
-      setTitle(bestFile.quality + 'p');
+      setTitle(bestFile.quality);
       setSubtitles(mediaLinks.subtitles);
       setMedia(hlsUrl, [], mediaLinks.subtitles);
       playerRef.current.loadSource(hlsUrl, (tracks) => {

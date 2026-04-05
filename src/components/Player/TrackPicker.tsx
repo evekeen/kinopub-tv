@@ -86,7 +86,7 @@ export const TrackPicker = memo(function TrackPicker({
         event.key === 'Escape'
       ) {
         event.preventDefault();
-        event.stopPropagation();
+        event.stopImmediatePropagation();
         onClose();
       }
     };

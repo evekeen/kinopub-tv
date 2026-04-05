@@ -41,8 +41,12 @@ export const ProgressBar = memo(function ProgressBar({
     ? (seekPreview / duration) * 100
     : null;
 
+  const pendingTargetRef = useRef<number | null>(null);
+
   const handleSeekLeft = useCallback((): void => {
-    const target = Math.max(0, currentTime - SEEK_STEP_S);
+    const base = pendingTargetRef.current !== null ? pendingTargetRef.current : currentTime;
+    const target = Math.max(0, base - SEEK_STEP_S);
+    pendingTargetRef.current = target;
     setSeekPreview(target);
     if (seekTimerRef.current !== null) {
       window.clearTimeout(seekTimerRef.current);
@@ -51,11 +55,14 @@ export const ProgressBar = memo(function ProgressBar({
       onSeek(target);
       setSeekPreview(null);
       seekTimerRef.current = null;
+      pendingTargetRef.current = null;
     }, 300);
   }, [currentTime, onSeek]);
 
   const handleSeekRight = useCallback((): void => {
-    const target = Math.min(duration, currentTime + SEEK_STEP_S);
+    const base = pendingTargetRef.current !== null ? pendingTargetRef.current : currentTime;
+    const target = Math.min(duration, base + SEEK_STEP_S);
+    pendingTargetRef.current = target;
     setSeekPreview(target);
     if (seekTimerRef.current !== null) {
       window.clearTimeout(seekTimerRef.current);
@@ -64,6 +71,7 @@ export const ProgressBar = memo(function ProgressBar({
       onSeek(target);
       setSeekPreview(null);
       seekTimerRef.current = null;
+      pendingTargetRef.current = null;
     }, 300);
   }, [currentTime, duration, onSeek]);
 

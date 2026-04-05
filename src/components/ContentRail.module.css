@@ -24,3 +24,7 @@
 .track > * + * {
   margin-left: 16px;
 }
+
+.spacer + * {
+  margin-left: 0;
+}
