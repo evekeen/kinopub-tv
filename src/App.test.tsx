@@ -29,6 +29,17 @@ vi.mock('./api/auth', () => {
   };
 });
 
+vi.mock('./api/content', () => ({
+  getFresh: vi.fn().mockResolvedValue({ status: 200, items: [], pagination: { total: 0, current: 1, perpage: 20, total_items: 0 } }),
+  getHot: vi.fn().mockResolvedValue({ status: 200, items: [], pagination: { total: 0, current: 1, perpage: 20, total_items: 0 } }),
+  getPopular: vi.fn().mockResolvedValue({ status: 200, items: [], pagination: { total: 0, current: 1, perpage: 20, total_items: 0 } }),
+}));
+
+vi.mock('./api/watching', () => ({
+  getWatchingSerials: vi.fn().mockResolvedValue({ status: 200, items: [] }),
+  getWatchingMovies: vi.fn().mockResolvedValue({ status: 200, items: [] }),
+}));
+
 describe('App', () => {
   beforeEach(() => {
     useAuthStore.setState({
@@ -54,14 +65,14 @@ describe('App', () => {
     expect(screen.getByText('https://kino.pub/device')).toBeDefined();
   });
 
-  it('shows home placeholder when authenticated', async () => {
+  it('shows sidebar when authenticated', async () => {
     useAuthStore.setState({ isAuthenticated: true, accessToken: 'token' });
     useUiStore.setState({ currentScreen: 'home' });
 
     render(<App />);
 
     await waitFor(() => {
-      expect(screen.getByText('Screen: home')).toBeDefined();
+      expect(screen.getByText('Home')).toBeDefined();
     });
   });
 });

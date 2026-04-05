@@ -1,0 +1,34 @@
+.container {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  outline: none;
+}
+
+.railList {
+  display: flex;
+  flex-direction: column;
+  transition: transform 150ms;
+}
+
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.loadingContainer > * + * {
+  margin-top: 32px;
+}
+
+.railSkeleton {
+  display: flex;
+  flex-direction: column;
+}
+
+.skeletonTitle {
+  width: 200px;
+  height: 28px;
+  background-color: #1a2a4a;
+  border-radius: 4px;
+  margin-bottom: 16px;
+}

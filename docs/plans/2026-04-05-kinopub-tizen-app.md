@@ -244,28 +244,28 @@ The GL.iNet VPN router is still required for video CDN geo-restriction bypass, b
 - [x] **DoD:** Sidebar renders, keyboard/arrow navigation works between sidebar and content, selecting navigates screens, remote keys registered on Tizen
 
 ### Task 9: Home page with content rails
-- [ ] Create `src/components/PosterCard.tsx`:
+- [x] Create `src/components/PosterCard.tsx`:
   - Wrapped in `React.memo`
   - Poster image (250x375) with focus-driven lazy loading: placeholder by default, real `src` set when card enters render window
   - Explicit `width`/`height` attributes to prevent layout shift
   - Title, year below image
   - Focus ring (`:focus` outline, not `:focus-visible`) on highlight
   - Uses `useFocusable()` from norigin
-- [ ] Create `src/components/ContentRail.tsx`:
+- [x] Create `src/components/ContentRail.tsx`:
   - Focus-driven horizontal virtualization: maintains `focusedIndex` state
   - Renders items from `max(0, focusedIndex - 5)` to `min(items.length - 1, focusedIndex + 5)`
   - Uses `transform: translateX(...)` to position rail (GPU-composited, not `scrollLeft`)
   - `preferredChildFocusKey` on FocusContext for rail focus memory (remembers last focused card when rail regains focus)
   - All `onSelect`/`onFocus` handlers via `useCallback`
-- [ ] Create `src/components/FocusableCard.tsx` — generic focusable wrapper for spatial nav
-- [ ] Create `src/pages/HomePage.tsx`:
+- [x] Create `src/components/FocusableCard.tsx` — generic focusable wrapper for spatial nav
+- [x] Create `src/pages/HomePage.tsx`:
   - Fetches fresh, hot, popular, continue watching
   - Shows `LoadingSkeleton` shimmer cards while loading
   - Renders as vertical stack of ContentRails
   - Vertical virtualization: render focused rail ± 1 (3 rails visible)
   - First rail auto-focuses on load
   - Saves `lastFocusKey` to ui store on navigate away
-- [ ] **DoD:** Home page shows content from live API, arrow keys navigate between and within rails, posters lazy-load, focus restores on Back
+- [x] **DoD:** Home page shows content from live API, arrow keys navigate between and within rails, posters lazy-load, focus restores on Back
 
 ### Task 10: Content detail page
 - [ ] Create `src/pages/ContentPage.tsx`:

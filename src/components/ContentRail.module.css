@@ -1,0 +1,26 @@
+.rail {
+  margin-bottom: 32px;
+  outline: none;
+}
+
+.railTitle {
+  font-size: 28px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 16px;
+}
+
+.viewport {
+  overflow: hidden;
+  position: relative;
+}
+
+.track {
+  display: flex;
+  flex-direction: row;
+  transition: transform 150ms;
+}
+
+.track > * + * {
+  margin-left: 16px;
+}
