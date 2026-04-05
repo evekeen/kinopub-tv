@@ -249,11 +249,11 @@ const RailWithIndex = memo(function RailWithIndex({
   );
 });
 
-function RailSkeleton(): ReactElement {
+const RailSkeleton = memo(function RailSkeleton(): ReactElement {
   return (
     <div className={styles.railSkeleton}>
       <div className={styles.skeletonTitle} />
       <PosterSkeleton count={7} />
     </div>
   );
-}
+});

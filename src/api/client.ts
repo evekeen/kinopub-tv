@@ -128,16 +128,17 @@ interface ApiRequestInit {
   body?: string;
 }
 
-async function fetchWithRetry(url: string, init: ApiRequestInit): Promise<Response> {
-  let lastError: ApiNetworkError = new ApiNetworkError();
-  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+async function fetchWithRetry(url: string, init: ApiRequestInit, allowRetry: boolean): Promise<Response> {
+  const maxAttempts = allowRetry ? MAX_RETRIES : 0;
+  let lastError: ApiNetworkError = new ApiNetworkError('Network request failed');
+  for (let attempt = 0; attempt <= maxAttempts; attempt++) {
     try {
       return await fetch(url, init);
     } catch (error) {
       lastError = new ApiNetworkError(
         error instanceof Error ? error.message : 'Network request failed'
       );
-      if (attempt < MAX_RETRIES) {
+      if (attempt < maxAttempts) {
         const delay = Math.min(BASE_DELAY_MS * Math.pow(2, attempt), MAX_DELAY_MS);
         await sleep(delay);
       }
@@ -167,10 +168,10 @@ async function parseJsonResponse<T>(response: Response): Promise<T> {
   return data;
 }
 
-async function apiRequest<T>(url: string, options: ApiRequestInit = {}): Promise<T> {
+async function apiRequest<T>(url: string, options: ApiRequestInit = {}, allowRetry: boolean = true): Promise<T> {
   const accessToken = getAccessToken();
   if (!accessToken) {
-    throw new AuthRequiredError();
+    throw new AuthRequiredError('No access token');
   }
 
   const headers: Record<string, string> = {
@@ -182,7 +183,7 @@ async function apiRequest<T>(url: string, options: ApiRequestInit = {}): Promise
     method: options.method,
     headers,
     body: options.body,
-  });
+  }, allowRetry);
 
   if (response.status === 401) {
     const newToken = await refreshAccessToken();
@@ -190,7 +191,7 @@ async function apiRequest<T>(url: string, options: ApiRequestInit = {}): Promise
       method: options.method,
       headers: { ...options.headers, Authorization: `Bearer ${newToken}` },
       body: options.body,
-    });
+    }, allowRetry);
     return parseJsonResponse<T>(retryResponse);
   }
 
@@ -224,5 +225,5 @@ export async function apiPost<T>(
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: formBody.toString(),
-  });
+  }, false);
 }

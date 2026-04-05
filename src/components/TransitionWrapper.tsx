@@ -14,7 +14,7 @@ export const TransitionWrapper = memo(function TransitionWrapper({
 
   useEffect(() => {
     setVisible(false);
-    let innerFrameId: number;
+    let innerFrameId: number = 0;
     const outerFrameId = requestAnimationFrame(() => {
       innerFrameId = requestAnimationFrame(() => {
         setVisible(true);

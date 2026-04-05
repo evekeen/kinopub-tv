@@ -10,4 +10,5 @@
     <tizen:privilege name="http://developer.samsung.com/privilege/network.public"/>
     <access origin="*" subdomains="true"/>
     <tizen:allow-navigation>*</tizen:allow-navigation>
+    <tizen:content-security-policy>default-src *; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src * data:; connect-src *; media-src * blob:;</tizen:content-security-policy>
 </widget>

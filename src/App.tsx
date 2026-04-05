@@ -9,7 +9,7 @@ import { TransitionWrapper } from './components/TransitionWrapper';
 import { Sidebar } from './components/Sidebar';
 import { Spinner } from './components/LoadingSkeleton';
 import { PlayerProvider } from './contexts/PlayerContext';
-import { refreshAccessToken } from './api/client';
+import { refreshAccessToken, AuthRequiredError } from './api/client';
 import { useAuthStore } from './store/auth';
 import { useUiStore } from './store/ui';
 import type { Screen } from './store/ui';
@@ -109,7 +109,11 @@ export function App(): ReactElement {
     const handleVisibilityChange = (): void => {
       if (document.visibilityState !== 'visible') return;
       if (!useAuthStore.getState().isAuthenticated) return;
-      refreshAccessToken().catch(() => {});
+      refreshAccessToken().catch((err: unknown) => {
+        if (err instanceof AuthRequiredError) {
+          useAuthStore.getState().logout();
+        }
+      });
     };
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => {

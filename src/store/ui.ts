@@ -55,9 +55,19 @@ export const useUiStore = create<UiState>()((set, get) => ({
     const state = get();
 
     if (screen === 'player') {
+      const playerEntry: StackEntry = {
+        screen: state.currentScreen,
+        params: state.screenParams,
+        lastFocusKey: null,
+      };
+      const playerStack = [...state.navigationStack, playerEntry];
+      const trimmedPlayerStack = playerStack.length > MAX_STACK_SIZE
+        ? playerStack.slice(playerStack.length - MAX_STACK_SIZE)
+        : playerStack;
       set({
         currentScreen: screen,
         screenParams: params,
+        navigationStack: trimmedPlayerStack,
       });
       return;
     }

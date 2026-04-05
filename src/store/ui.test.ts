@@ -42,7 +42,7 @@ describe('ui store', () => {
     expect(state.navigationStack[0].lastFocusKey).toBeNull();
   });
 
-  it('navigate to player does not push to stack', () => {
+  it('navigate to player pushes current screen to stack', () => {
     useUiStore.setState({ currentScreen: 'content', screenParams: { contentId: 42 } });
 
     useUiStore.getState().navigate('player', { mediaId: 100 });
@@ -50,7 +50,23 @@ describe('ui store', () => {
     const state = useUiStore.getState();
     expect(state.currentScreen).toBe('player');
     expect(state.screenParams).toEqual({ mediaId: 100 });
-    expect(state.navigationStack).toHaveLength(0);
+    expect(state.navigationStack).toHaveLength(1);
+    expect(state.navigationStack[0].screen).toBe('content');
+    expect(state.navigationStack[0].params).toEqual({ contentId: 42 });
+  });
+
+  it('back from player returns to content page', () => {
+    useUiStore.setState({ currentScreen: 'home', screenParams: {} });
+    useUiStore.getState().navigate('content', { contentId: 42 });
+    useUiStore.getState().navigate('player', { mediaId: 100 });
+
+    useUiStore.getState().goBack();
+
+    const state = useUiStore.getState();
+    expect(state.currentScreen).toBe('content');
+    expect(state.screenParams).toEqual({ contentId: 42 });
+    expect(state.navigationStack).toHaveLength(1);
+    expect(state.navigationStack[0].screen).toBe('home');
   });
 
   it('goBack restores previous screen from stack', () => {
