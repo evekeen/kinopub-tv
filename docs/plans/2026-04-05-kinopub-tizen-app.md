@@ -350,51 +350,51 @@ The GL.iNet VPN router is still required for video CDN geo-restriction bypass, b
 - [x] **DoD:** App installed on Samsung TV, full user flow works end-to-end (skipped - manual on-device task)
 
 ### Task 17: E2E smoke tests (automated)
-- [ ] Create `e2e/` directory with Playwright-based tests targeting the Vite dev server (browser mode, not TV — for CI)
-- [ ] Create `e2e/playwright.config.ts` — Chromium only, viewport 1920x1080, base URL http://localhost:5173
-- [ ] Create `e2e/auth.spec.ts`:
-  - [ ] App loads without JS errors
-  - [ ] Auth page renders with device code text and "kino.pub/device" link
-  - [ ] Polling indicator is visible
-- [ ] Create `e2e/navigation.spec.ts`:
-  - [ ] Sidebar renders with all expected icons (Home, Search, Bookmarks, History, Settings, Profile)
-  - [ ] Arrow key navigation moves focus between sidebar items (simulate keydown ArrowUp/ArrowDown)
-  - [ ] Enter on sidebar item changes the main content area
-  - [ ] Back key (Backspace) returns to previous screen
-  - [ ] Back on empty stack does not crash (exits gracefully or stays on home)
-- [ ] Create `e2e/home.spec.ts` (requires auth mock or test token):
-  - [ ] Home page renders content rails with poster cards
-  - [ ] Arrow keys navigate horizontally within a rail
-  - [ ] Arrow Down moves focus to next rail
-  - [ ] Poster card shows title and image (or placeholder)
-  - [ ] Enter on card navigates to content detail page
-- [ ] Create `e2e/content.spec.ts` (requires auth mock):
-  - [ ] Content page renders title, poster, plot, metadata
-  - [ ] Play button is focusable
-  - [ ] For series: season tabs render, episode list renders
-  - [ ] Enter on play button navigates to player screen
-- [ ] Create `e2e/player.spec.ts` (requires auth mock + media-links mock):
-  - [ ] Player page mounts video element
-  - [ ] hls.js initializes without errors (check console for Hls.Events.ERROR)
-  - [ ] Player overlay appears on keypress and auto-hides after 5s
-  - [ ] Track picker opens on expected key and lists audio tracks
-  - [ ] Back key exits player and returns to content page
-- [ ] Create `e2e/search.spec.ts` (requires auth mock):
-  - [ ] Search page renders input field
-  - [ ] Typing triggers debounced search (mock API returns results)
-  - [ ] Results grid renders poster cards
-  - [ ] Enter on result navigates to content page
-- [ ] Create `e2e/fixtures/` with mock API responses:
-  - [ ] `auth-token.json` — pre-authenticated token for bypassing auth flow in tests
-  - [ ] `items-fresh.json`, `items-hot.json` — mock content rail data
-  - [ ] `item-detail-movie.json`, `item-detail-serial.json` — mock item details
-  - [ ] `media-links.json` — mock video URLs + subtitles (use a public HLS test stream URL)
-  - [ ] `search-results.json` — mock search response
-  - [ ] `bookmarks.json`, `history.json` — mock bookmark/history data
-- [ ] Create `e2e/helpers/mock-api.ts` — Playwright route handler that intercepts `api.service-kp.com` requests and returns fixture data
-- [ ] Add `npm run e2e` script: starts Vite dev server + runs Playwright tests
-- [ ] Add `npm run e2e:headed` for debugging with visible browser
-- [ ] **DoD:** All E2E tests pass in headless Chromium, no console errors, full navigation flow verified
+- [x] Create `e2e/` directory with Playwright-based tests targeting the Vite dev server (browser mode, not TV — for CI)
+- [x] Create `e2e/playwright.config.ts` — Chromium only, viewport 1920x1080, base URL http://localhost:5173
+- [x] Create `e2e/auth.spec.ts`:
+  - [x] App loads without JS errors
+  - [x] Auth page renders with device code text and "kino.pub/device" link
+  - [x] Polling indicator is visible
+- [x] Create `e2e/navigation.spec.ts`:
+  - [x] Sidebar renders with all expected icons (Home, Search, Bookmarks, History, Settings, Profile)
+  - [x] Arrow key navigation moves focus between sidebar items (simulate keydown ArrowUp/ArrowDown)
+  - [x] Enter on sidebar item changes the main content area
+  - [x] Back key (Backspace) returns to previous screen
+  - [x] Back on empty stack does not crash (exits gracefully or stays on home)
+- [x] Create `e2e/home.spec.ts` (requires auth mock or test token):
+  - [x] Home page renders content rails with poster cards
+  - [x] Arrow keys navigate horizontally within a rail
+  - [x] Arrow Down moves focus to next rail
+  - [x] Poster card shows title and image (or placeholder)
+  - [x] Enter on card navigates to content detail page
+- [x] Create `e2e/content.spec.ts` (requires auth mock):
+  - [x] Content page renders title, poster, plot, metadata
+  - [x] Play button is focusable
+  - [x] For series: season tabs render, episode list renders
+  - [x] Enter on play button navigates to player screen
+- [x] Create `e2e/player.spec.ts` (requires auth mock + media-links mock):
+  - [x] Player page mounts video element
+  - [x] hls.js initializes without errors (check console for Hls.Events.ERROR)
+  - [x] Player overlay appears on keypress and auto-hides after 5s
+  - [x] Track picker opens on expected key and lists audio tracks
+  - [x] Back key exits player and returns to content page
+- [x] Create `e2e/search.spec.ts` (requires auth mock):
+  - [x] Search page renders input field
+  - [x] Typing triggers debounced search (mock API returns results)
+  - [x] Results grid renders poster cards
+  - [x] Enter on result navigates to content page
+- [x] Create `e2e/fixtures/` with mock API responses:
+  - [x] `auth-token.json` — pre-authenticated token for bypassing auth flow in tests
+  - [x] `items-fresh.json`, `items-hot.json` — mock content rail data
+  - [x] `item-detail-movie.json`, `item-detail-serial.json` — mock item details
+  - [x] `media-links.json` — mock video URLs + subtitles (use a public HLS test stream URL)
+  - [x] `search-results.json` — mock search response
+  - [x] `bookmarks.json`, `history.json` — mock bookmark/history data
+- [x] Create `e2e/helpers/mock-api.ts` — Playwright route handler that intercepts `api.service-kp.com` requests and returns fixture data
+- [x] Add `npm run e2e` script: starts Vite dev server + runs Playwright tests
+- [x] Add `npm run e2e:headed` for debugging with visible browser
+- [x] **DoD:** All E2E tests pass in headless Chromium, no console errors, full navigation flow verified
 
 ### Task 18: E2E on-device verification (manual + scripted)
 

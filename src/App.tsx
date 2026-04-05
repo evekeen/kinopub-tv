@@ -52,7 +52,7 @@ function resolveScreen(screen: Screen, isAuthenticated: boolean): ReactElement {
 
   switch (screen) {
     case 'auth':
-      return <AuthPage />;
+      return <HomePage />;
     case 'home':
       return <HomePage />;
     case 'content':

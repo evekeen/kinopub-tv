@@ -1,0 +1,48 @@
+{
+  "status": 200,
+  "items": [
+    {
+      "id": 2001,
+      "title": "Hot Series One",
+      "type": "serial",
+      "subtype": null,
+      "year": 2025,
+      "cast": "Actor D",
+      "director": "Director Z",
+      "voice": "",
+      "duration": { "average": 45, "total": 450 },
+      "langs": 2,
+      "ac3": 1,
+      "quality": 1080,
+      "poor_quality": false,
+      "plot": "An exciting series.",
+      "imdb": 22345,
+      "imdb_rating": 8.1,
+      "imdb_votes": 20000,
+      "kinopoisk": 64321,
+      "kinopoisk_rating": 8.3,
+      "kinopoisk_votes": 10000,
+      "rating": 9,
+      "rating_votes": 500,
+      "rating_percentage": 90,
+      "views": 15000,
+      "comments": 200,
+      "finished": false,
+      "advert": false,
+      "in_watchlist": false,
+      "subscribed": false,
+      "created_at": 1700000000,
+      "updated_at": 1700000000,
+      "posters": {
+        "small": "https://via.placeholder.com/100x150/1a2a4a/ffffff?text=H1",
+        "medium": "https://via.placeholder.com/250x375/1a2a4a/ffffff?text=H1",
+        "big": "https://via.placeholder.com/500x750/1a2a4a/ffffff?text=H1"
+      },
+      "trailer": { "id": 0, "url": "" },
+      "genres": [{ "id": 3, "title": "Sci-Fi", "type": "serial" }],
+      "countries": [{ "id": 1, "title": "USA" }],
+      "bookmarks": []
+    }
+  ],
+  "pagination": { "total": 1, "current": 1, "perpage": 20, "total_items": 1 }
+}

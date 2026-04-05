@@ -1,0 +1,55 @@
+{
+  "status": 200,
+  "items": [
+    {
+      "counter": 1,
+      "first_seen": 1700000000,
+      "last_seen": 1700000000,
+      "time": 3600,
+      "deleted": false,
+      "item": {
+        "id": 1001,
+        "title": "Fresh Movie One",
+        "type": "movie",
+        "subtype": null,
+        "year": 2025,
+        "cast": "Actor A",
+        "director": "Director X",
+        "voice": "",
+        "duration": { "average": 120, "total": 120 },
+        "langs": 2,
+        "ac3": 1,
+        "quality": 1080,
+        "poor_quality": false,
+        "plot": "A thrilling adventure.",
+        "imdb": 12345,
+        "imdb_rating": 7.5,
+        "imdb_votes": 10000,
+        "kinopoisk": 54321,
+        "kinopoisk_rating": 7.8,
+        "kinopoisk_votes": 5000,
+        "rating": 8,
+        "rating_votes": 200,
+        "rating_percentage": 85,
+        "views": 5000,
+        "comments": 50,
+        "finished": true,
+        "advert": false,
+        "in_watchlist": false,
+        "subscribed": false,
+        "created_at": 1700000000,
+        "updated_at": 1700000000,
+        "posters": {
+          "small": "https://via.placeholder.com/100x150/1a2a4a/ffffff?text=F1",
+          "medium": "https://via.placeholder.com/250x375/1a2a4a/ffffff?text=F1",
+          "big": "https://via.placeholder.com/500x750/1a2a4a/ffffff?text=F1"
+        },
+        "trailer": { "id": 0, "url": "" },
+        "genres": [{ "id": 1, "title": "Action", "type": "movie" }],
+        "countries": [{ "id": 1, "title": "USA" }],
+        "bookmarks": []
+      }
+    }
+  ],
+  "pagination": { "total": 1, "current": 1, "perpage": 20, "total_items": 1 }
+}

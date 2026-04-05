@@ -10,7 +10,9 @@
     "lint": "eslint src/",
     "test": "vitest run",
     "storybook": "storybook dev -p 6006",
-    "build-wgt": "bash scripts/build-wgt.sh"
+    "build-wgt": "bash scripts/build-wgt.sh",
+    "e2e": "npx playwright test --config e2e/playwright.config.ts",
+    "e2e:headed": "npx playwright test --config e2e/playwright.config.ts --headed"
   },
   "dependencies": {
     "@noriginmedia/norigin-spatial-navigation": "^3.0.0",
@@ -20,6 +22,7 @@
     "zustand": "^5.0.12"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "@storybook/react-vite": "^10.3.4",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",

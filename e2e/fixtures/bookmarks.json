@@ -1,0 +1,7 @@
+{
+  "status": 200,
+  "items": [
+    { "id": 1, "title": "Favorites", "views": 10, "count": 2, "created": 1700000000, "updated": 1700000000 },
+    { "id": 2, "title": "Watch Later", "views": 5, "count": 1, "created": 1700000000, "updated": 1700000000 }
+  ]
+}

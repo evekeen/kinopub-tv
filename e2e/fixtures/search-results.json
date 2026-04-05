@@ -1,0 +1,48 @@
+{
+  "status": 200,
+  "items": [
+    {
+      "id": 3001,
+      "title": "Search Result Movie",
+      "type": "movie",
+      "subtype": null,
+      "year": 2024,
+      "cast": "Actor E",
+      "director": "Director W",
+      "voice": "",
+      "duration": { "average": 100, "total": 100 },
+      "langs": 1,
+      "ac3": 0,
+      "quality": 1080,
+      "poor_quality": false,
+      "plot": "Found by search.",
+      "imdb": 32345,
+      "imdb_rating": 7.0,
+      "imdb_votes": 5000,
+      "kinopoisk": 74321,
+      "kinopoisk_rating": 7.2,
+      "kinopoisk_votes": 3000,
+      "rating": 7,
+      "rating_votes": 150,
+      "rating_percentage": 75,
+      "views": 3000,
+      "comments": 30,
+      "finished": true,
+      "advert": false,
+      "in_watchlist": false,
+      "subscribed": false,
+      "created_at": 1700000000,
+      "updated_at": 1700000000,
+      "posters": {
+        "small": "https://via.placeholder.com/100x150/1a2a4a/ffffff?text=SR",
+        "medium": "https://via.placeholder.com/250x375/1a2a4a/ffffff?text=SR",
+        "big": "https://via.placeholder.com/500x750/1a2a4a/ffffff?text=SR"
+      },
+      "trailer": { "id": 0, "url": "" },
+      "genres": [{ "id": 4, "title": "Thriller", "type": "movie" }],
+      "countries": [{ "id": 3, "title": "France" }],
+      "bookmarks": []
+    }
+  ],
+  "pagination": { "total": 1, "current": 1, "perpage": 20, "total_items": 1 }
+}
