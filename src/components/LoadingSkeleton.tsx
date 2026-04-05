@@ -1,4 +1,4 @@
-import { ReactElement, memo } from 'react';
+import { ReactElement, memo, useMemo } from 'react';
 import styles from './LoadingSkeleton.module.css';
 
 interface PosterSkeletonProps {
@@ -8,7 +8,10 @@ interface PosterSkeletonProps {
 export const PosterSkeleton = memo(function PosterSkeleton({
   count = 5,
 }: PosterSkeletonProps): ReactElement {
-  const items = Array.from({ length: count }, (_, i) => i);
+  const items = useMemo(
+    () => Array.from({ length: count }, (_, i) => i),
+    [count],
+  );
 
   return (
     <div className={styles.posterRow}>

@@ -1,3 +1,4 @@
+import { ReactElement } from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ErrorBoundary } from './ErrorBoundary';
@@ -9,7 +10,7 @@ function ThrowingChild({ shouldThrow }: { shouldThrow: boolean }): null {
   return null;
 }
 
-function GoodChild(): JSX.Element {
+function GoodChild(): ReactElement {
   return <div>Working content</div>;
 }
 

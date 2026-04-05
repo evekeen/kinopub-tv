@@ -1,4 +1,4 @@
-import { ReactElement, ReactNode, useEffect, useState } from 'react';
+import { ReactElement, ReactNode, memo, useEffect, useState } from 'react';
 import styles from './TransitionWrapper.module.css';
 
 interface TransitionWrapperProps {
@@ -6,7 +6,7 @@ interface TransitionWrapperProps {
   transitionKey: string;
 }
 
-export function TransitionWrapper({
+export const TransitionWrapper = memo(function TransitionWrapper({
   children,
   transitionKey,
 }: TransitionWrapperProps): ReactElement {
@@ -14,11 +14,15 @@ export function TransitionWrapper({
 
   useEffect(() => {
     setVisible(false);
-    const frameId = requestAnimationFrame(() => {
-      setVisible(true);
+    let innerFrameId: number;
+    const outerFrameId = requestAnimationFrame(() => {
+      innerFrameId = requestAnimationFrame(() => {
+        setVisible(true);
+      });
     });
     return () => {
-      cancelAnimationFrame(frameId);
+      cancelAnimationFrame(outerFrameId);
+      cancelAnimationFrame(innerFrameId);
     };
   }, [transitionKey]);
 
@@ -29,4 +33,4 @@ export function TransitionWrapper({
       {children}
     </div>
   );
-}
+});

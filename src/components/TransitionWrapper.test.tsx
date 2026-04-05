@@ -2,6 +2,14 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, act } from '@testing-library/react';
 import { TransitionWrapper } from './TransitionWrapper';
 
+function getWrapper(container: HTMLElement): HTMLElement {
+  const wrapper = container.firstChild;
+  if (!(wrapper instanceof HTMLElement)) {
+    throw new Error('Expected wrapper to be HTMLElement');
+  }
+  return wrapper;
+}
+
 describe('TransitionWrapper', () => {
   it('renders children', () => {
     render(
@@ -19,11 +27,11 @@ describe('TransitionWrapper', () => {
         <div>Content</div>
       </TransitionWrapper>,
     );
-    const wrapper = container.firstChild as HTMLElement;
+    const wrapper = getWrapper(container);
     expect(wrapper.className).toContain('hidden');
 
     await act(async () => {
-      vi.advanceTimersByTime(16);
+      vi.advanceTimersByTime(32);
     });
 
     expect(wrapper.className).toContain('visible');
@@ -39,10 +47,10 @@ describe('TransitionWrapper', () => {
     );
 
     await act(async () => {
-      vi.advanceTimersByTime(16);
+      vi.advanceTimersByTime(32);
     });
 
-    const wrapper = container.firstChild as HTMLElement;
+    const wrapper = getWrapper(container);
     expect(wrapper.className).toContain('visible');
 
     rerender(

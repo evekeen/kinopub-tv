@@ -1,9 +1,9 @@
 @keyframes shimmer {
   0% {
-    background-position: -400px 0;
+    transform: translateX(-100%);
   }
   100% {
-    background-position: 400px 0;
+    transform: translateX(100%);
   }
 }
 
@@ -35,9 +35,18 @@
   height: 375px;
   border-radius: 8px;
   background-color: #1a2a4a;
-  background-image: linear-gradient(90deg, #1a2a4a 0%, #243656 50%, #1a2a4a 100%);
-  background-size: 400px 375px;
-  background-repeat: no-repeat;
+  overflow: hidden;
+  position: relative;
+}
+
+.posterImage::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent 0%, #243656 50%, transparent 100%);
   animation: shimmer 1.5s infinite linear;
 }
 
@@ -47,9 +56,18 @@
   margin-top: 12px;
   border-radius: 4px;
   background-color: #1a2a4a;
-  background-image: linear-gradient(90deg, #1a2a4a 0%, #243656 50%, #1a2a4a 100%);
-  background-size: 400px 20px;
-  background-repeat: no-repeat;
+  overflow: hidden;
+  position: relative;
+}
+
+.posterTitle::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent 0%, #243656 50%, transparent 100%);
   animation: shimmer 1.5s infinite linear;
 }
 

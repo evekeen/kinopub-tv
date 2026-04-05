@@ -37,12 +37,14 @@ describe('NetworkError', () => {
       configurable: true,
     });
 
-    const onRetry = vi.fn();
-    render(<NetworkError onRetry={onRetry} />);
-    expect(screen.getByText('No internet connection')).toBeDefined();
-
-    if (originalOnLine) {
-      Object.defineProperty(Navigator.prototype, 'onLine', originalOnLine);
+    try {
+      const onRetry = vi.fn();
+      render(<NetworkError onRetry={onRetry} />);
+      expect(screen.getByText('No internet connection')).toBeDefined();
+    } finally {
+      if (originalOnLine) {
+        Object.defineProperty(Navigator.prototype, 'onLine', originalOnLine);
+      }
     }
   });
 });
