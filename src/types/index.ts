@@ -31,6 +31,9 @@ export type {
   BookmarkRef,
   Item,
   ItemDetails,
+  ContentTypeDefinition,
+  ItemsQueryParams,
+  ContentListParams,
 } from './content';
 
 export type {

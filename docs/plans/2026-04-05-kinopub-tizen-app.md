@@ -184,20 +184,20 @@ The GL.iNet VPN router is still required for video CDN geo-restriction bypass, b
 - [x] **DoD:** `npx tsc --noEmit` passes with no errors
 
 ### Task 4: API client
-- [ ] Create `src/api/client.ts`:
+- [x] Create `src/api/client.ts`:
   - Fetch wrapper with base URL `https://api.service-kp.com/v1/`
   - Auth header injection from auth store
   - Promise-based refresh token mutex: if refresh in progress, queue concurrent 401 retries until refresh completes (prevents race condition where two 401s both refresh and invalidate each other's tokens)
   - Retry with exponential backoff for network errors (not 4xx)
   - Typed response parsing
   - Distinguish error types: 401 → re-auth, 403 → subscription error, network → NetworkError, 5xx → server error
-- [ ] Create `src/api/auth.ts` — `getDeviceCode()`, `pollForToken(code)`, `refreshToken(refreshToken)` using OAuth2 device flow
-- [ ] Create `src/api/content.ts` — `getTypes()`, `getGenres()`, `getItems(params)`, `searchItems(query)`, `getItemDetail(id)`, `getFresh()`, `getHot()`, `getPopular()`
-- [ ] Create `src/api/media.ts` — `getMediaLinks(mid)` returning files with HLS URLs + subtitles
-- [ ] Create `src/api/bookmarks.ts` — `getFolders()`, `getFolderItems(folderId)`, `addItem(itemId, folderId)`, `removeItem(itemId, folderId)`
-- [ ] Create `src/api/watching.ts` — `getWatchingSerials()`, `getWatchingMovies()`, `markTime(itemId, videoId, time)`, `toggleWatched(itemId, videoId)`, `toggleWatchlist(itemId)`
-- [ ] Create `src/api/history.ts` — `getHistory(page)`
-- [ ] **DoD:** `npx tsc --noEmit` passes; manually test auth flow in browser console against live API
+- [x] Create `src/api/auth.ts` — `getDeviceCode()`, `pollForToken(code)`, `refreshToken(refreshToken)` using OAuth2 device flow
+- [x] Create `src/api/content.ts` — `getTypes()`, `getGenres()`, `getItems(params)`, `searchItems(query)`, `getItemDetail(id)`, `getFresh()`, `getHot()`, `getPopular()`
+- [x] Create `src/api/media.ts` — `getMediaLinks(mid)` returning files with HLS URLs + subtitles
+- [x] Create `src/api/bookmarks.ts` — `getFolders()`, `getFolderItems(folderId)`, `addItem(itemId, folderId)`, `removeItem(itemId, folderId)`
+- [x] Create `src/api/watching.ts` — `getWatchingSerials()`, `getWatchingMovies()`, `markTime(itemId, videoId, time)`, `toggleWatched(itemId, videoId)`, `toggleWatchlist(itemId)`
+- [x] Create `src/api/history.ts` — `getHistory(page)`
+- [x] **DoD:** `npx tsc --noEmit` passes; manually test auth flow in browser console against live API
 
 ### Task 5: Zustand stores
 - [ ] Create `src/store/auth.ts` — `accessToken`, `refreshToken`, `isAuthenticated`, `login(tokens)`, `logout()`, `refresh()`. Persist tokens to localStorage, hydrate on init

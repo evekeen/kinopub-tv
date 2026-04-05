@@ -142,3 +142,21 @@ export interface ItemDetails extends Item {
   videos?: Video[];
   seasons?: Season[];
 }
+
+export interface ContentTypeDefinition {
+  id: ItemType;
+  title: string;
+}
+
+export interface ItemsQueryParams {
+  type?: ItemType;
+  genre?: number;
+  sort?: string;
+  page?: number;
+  perpage?: number;
+}
+
+export interface ContentListParams {
+  type?: ItemType;
+  page?: number;
+}
