@@ -140,29 +140,29 @@ The GL.iNet VPN router is still required for video CDN geo-restriction bypass, b
 ## Tasks
 
 ### Task 1: Project scaffolding
-- [ ] Init repo at `/Users/ivkin/git/kinopub-tizen` with `git init`
-- [ ] `npm init -y` + install dependencies: `react react-dom hls.js zustand @noriginmedia/norigin-spatial-navigation`
-- [ ] Install dev dependencies: `typescript @types/react @types/react-dom vite @vitejs/plugin-react @vitejs/plugin-legacy terser core-js eslint`
-- [ ] Create `vite.config.ts`:
+- [x] Init repo at `/Users/ivkin/git/kinopub-tizen` with `git init`
+- [x] `npm init -y` + install dependencies: `react react-dom hls.js zustand @noriginmedia/norigin-spatial-navigation`
+- [x] Install dev dependencies: `typescript @types/react @types/react-dom vite @vitejs/plugin-react @vitejs/plugin-legacy terser core-js eslint`
+- [x] Create `vite.config.ts`:
   - `build.target: 'chrome47'`
   - `resolve.alias: { 'hls.js': 'hls.js/dist/hls.light.js' }` (force UMD light build, avoids ESM lockups on Tizen)
   - `@vitejs/plugin-legacy({ targets: 'chrome 47' })` for core-js polyfills
   - `@vitejs/plugin-react()`
-- [ ] Create `.browserslistrc` with `chrome 47`
-- [ ] Create `tsconfig.json` with strict mode, jsx: react-jsx, target: ES2015, moduleResolution: bundler
-- [ ] Create `src/styles/global.css` — dark theme base styles, TV font sizes, overscan margins. No CSS custom properties, no gap, no aspect-ratio, no :focus-visible
-- [ ] Create `index.html` with `<div id="viewport">`, link to global.css, dark background
-- [ ] Create `src/index.tsx` with React root mount
-- [ ] Create `src/App.tsx` with placeholder "Hello KinoPub" text
-- [ ] Verify `npm run dev` starts and renders in browser
-- [ ] Create `tizen/config.xml` with privileges:
+- [x] Create `.browserslistrc` with `chrome 47`
+- [x] Create `tsconfig.json` with strict mode, jsx: react-jsx, target: ES2015, moduleResolution: bundler
+- [x] Create `src/styles/global.css` — dark theme base styles, TV font sizes, overscan margins. No CSS custom properties, no gap, no aspect-ratio, no :focus-visible
+- [x] Create `index.html` with `<div id="viewport">`, link to global.css, dark background
+- [x] Create `src/index.tsx` with React root mount
+- [x] Create `src/App.tsx` with placeholder "Hello KinoPub" text
+- [x] Verify `npm run dev` starts and renders in browser
+- [x] Create `tizen/config.xml` with privileges:
   - `http://tizen.org/privilege/internet`
   - `http://tizen.org/privilege/tv.inputdevice`
   - `http://developer.samsung.com/privilege/network.public`
   - `<access origin="*" subdomains="true"/>`
   - `<tizen:allow-navigation>*</tizen:allow-navigation>`
-- [ ] Create `scripts/build-wgt.sh` that builds + copies config.xml + zips as .wgt
-- [ ] **DoD:** `npm run dev` shows the app in browser, `npm run build` produces `dist/` with working HTML/JS, legacy polyfill bundle is generated
+- [x] Create `scripts/build-wgt.sh` that builds + copies config.xml + zips as .wgt
+- [x] **DoD:** `npm run dev` shows the app in browser, `npm run build` produces `dist/` with working HTML/JS, legacy polyfill bundle is generated
 
 ### Task 2: Tizen compatibility verification
 - [ ] Install Tizen Studio + Tizen 3.0 TV emulator (or use real 2017+ Samsung TV)

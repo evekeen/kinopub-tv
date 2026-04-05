@@ -1,0 +1,41 @@
+{
+  "name": "kinopub-tizen",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/",
+    "test": "vitest run",
+    "storybook": "storybook dev -p 6006",
+    "build-wgt": "bash scripts/build-wgt.sh"
+  },
+  "dependencies": {
+    "@noriginmedia/norigin-spatial-navigation": "^3.0.0",
+    "hls.js": "^1.6.15",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "zustand": "^5.0.12"
+  },
+  "devDependencies": {
+    "@storybook/react-vite": "^10.3.4",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/react": "^18.3.28",
+    "@types/react-dom": "^18.3.7",
+    "@typescript-eslint/eslint-plugin": "^8.58.0",
+    "@typescript-eslint/parser": "^8.58.0",
+    "@vitejs/plugin-legacy": "^8.0.1",
+    "@vitejs/plugin-react": "^6.0.1",
+    "core-js": "^3.49.0",
+    "eslint": "^10.2.0",
+    "jsdom": "^29.0.1",
+    "storybook": "^10.3.4",
+    "terser": "^5.46.1",
+    "typescript": "^6.0.2",
+    "vite": "^8.0.3",
+    "vitest": "^4.1.2"
+  }
+}
