@@ -141,7 +141,6 @@ export const BookmarksPage = memo(function BookmarksPage(): ReactElement {
   const rafRef = useRef<number | null>(null);
 
   const navigate = useUiStore((s) => s.navigate);
-  const setLastFocusKey = useUiStore((s) => s.setLastFocusKey);
   const goBack = useUiStore((s) => s.goBack);
 
   const { ref, focusKey } = useFocusable({
@@ -224,10 +223,9 @@ export const BookmarksPage = memo(function BookmarksPage(): ReactElement {
 
   const handleSelectItem = useCallback(
     (item: Item): void => {
-      setLastFocusKey(BOOKMARKS_PAGE_FOCUS_KEY);
-      navigate('content', { contentId: item.id });
+      navigate('content', { params: { contentId: item.id }, lastFocusKey: BOOKMARKS_PAGE_FOCUS_KEY });
     },
-    [navigate, setLastFocusKey],
+    [navigate],
   );
 
   const handleCardFocus = useCallback((_item: Item, index: number): void => {

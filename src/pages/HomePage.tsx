@@ -43,7 +43,6 @@ export const HomePage = memo(function HomePage(): ReactElement {
 
   const navigate = useUiStore((s) => s.navigate);
   const goBack = useUiStore((s) => s.goBack);
-  const setLastFocusKey = useUiStore((s) => s.setLastFocusKey);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   useBackKey(goBack);
@@ -150,10 +149,9 @@ export const HomePage = memo(function HomePage(): ReactElement {
 
   const handleSelectItem = useCallback(
     (item: Item): void => {
-      setLastFocusKey('home-page');
-      navigate('content', { contentId: item.id });
+      navigate('content', { params: { contentId: item.id }, lastFocusKey: 'home-page' });
     },
-    [navigate, setLastFocusKey],
+    [navigate],
   );
 
   const handleRailFocus = useCallback((index: number): void => {

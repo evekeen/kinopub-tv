@@ -32,7 +32,7 @@ describe('ui store', () => {
   it('navigate pushes current screen to stack and sets new screen', () => {
     useUiStore.setState({ currentScreen: 'home', screenParams: {} });
 
-    useUiStore.getState().navigate('content', { contentId: 42 });
+    useUiStore.getState().navigate('content', { params: { contentId: 42 } });
 
     const state = useUiStore.getState();
     expect(state.currentScreen).toBe('content');
@@ -45,7 +45,7 @@ describe('ui store', () => {
   it('navigate to player pushes current screen to stack', () => {
     useUiStore.setState({ currentScreen: 'content', screenParams: { contentId: 42 } });
 
-    useUiStore.getState().navigate('player', { mediaId: 100 });
+    useUiStore.getState().navigate('player', { params: { mediaId: 100 } });
 
     const state = useUiStore.getState();
     expect(state.currentScreen).toBe('player');
@@ -57,8 +57,8 @@ describe('ui store', () => {
 
   it('back from player returns to content page', () => {
     useUiStore.setState({ currentScreen: 'home', screenParams: {} });
-    useUiStore.getState().navigate('content', { contentId: 42 });
-    useUiStore.getState().navigate('player', { mediaId: 100 });
+    useUiStore.getState().navigate('content', { params: { contentId: 42 } });
+    useUiStore.getState().navigate('player', { params: { mediaId: 100 } });
 
     useUiStore.getState().goBack();
 
@@ -71,7 +71,7 @@ describe('ui store', () => {
 
   it('goBack restores previous screen from stack', () => {
     useUiStore.setState({ currentScreen: 'home', screenParams: {} });
-    useUiStore.getState().navigate('content', { contentId: 42 });
+    useUiStore.getState().navigate('content', { params: { contentId: 42 } });
 
     useUiStore.getState().goBack();
 
@@ -89,26 +89,36 @@ describe('ui store', () => {
     expect(mockExit).toHaveBeenCalledTimes(1);
   });
 
-  it('setLastFocusKey updates the top of the stack', () => {
+  it('navigate stores lastFocusKey in pushed stack entry', () => {
     useUiStore.setState({ currentScreen: 'home', screenParams: {} });
-    useUiStore.getState().navigate('content', { contentId: 42 });
-
-    useUiStore.getState().setLastFocusKey('poster-card-5');
+    useUiStore.getState().navigate('content', { params: { contentId: 42 }, lastFocusKey: 'poster-card-5' });
 
     const stack = useUiStore.getState().navigationStack;
     expect(stack[0].lastFocusKey).toBe('poster-card-5');
   });
 
-  it('setLastFocusKey is no-op when stack is empty', () => {
-    useUiStore.getState().setLastFocusKey('some-key');
-    expect(useUiStore.getState().navigationStack).toHaveLength(0);
+  it('goBack restores lastFocusKey from stack entry', () => {
+    useUiStore.setState({ currentScreen: 'home', screenParams: {} });
+    useUiStore.getState().navigate('content', { params: { contentId: 42 }, lastFocusKey: 'poster-card-5' });
+
+    useUiStore.getState().goBack();
+
+    expect(useUiStore.getState().lastRestoredFocusKey).toBe('poster-card-5');
+  });
+
+  it('navigate from auth does not push auth onto stack', () => {
+    useUiStore.getState().navigate('home');
+
+    const state = useUiStore.getState();
+    expect(state.currentScreen).toBe('home');
+    expect(state.navigationStack).toHaveLength(0);
   });
 
   it('navigate caps stack at 20 entries', () => {
     useUiStore.setState({ currentScreen: 'home', screenParams: {} });
 
     for (let i = 0; i < 25; i++) {
-      useUiStore.getState().navigate('content', { contentId: i });
+      useUiStore.getState().navigate('content', { params: { contentId: i } });
     }
 
     expect(useUiStore.getState().navigationStack.length).toBeLessThanOrEqual(20);
@@ -116,7 +126,7 @@ describe('ui store', () => {
 
   it('clearStack resets to auth with empty stack', () => {
     useUiStore.setState({ currentScreen: 'home', screenParams: {} });
-    useUiStore.getState().navigate('content', { contentId: 1 });
+    useUiStore.getState().navigate('content', { params: { contentId: 1 } });
     useUiStore.getState().navigate('search');
 
     useUiStore.getState().clearStack();
@@ -139,7 +149,7 @@ describe('ui store', () => {
 
   it('goBack with deep stack restores correctly', () => {
     useUiStore.setState({ currentScreen: 'home', screenParams: {} });
-    useUiStore.getState().navigate('content', { contentId: 1 });
+    useUiStore.getState().navigate('content', { params: { contentId: 1 } });
     useUiStore.getState().navigate('search');
 
     useUiStore.getState().goBack();

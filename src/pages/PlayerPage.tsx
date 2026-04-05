@@ -54,6 +54,8 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
   const reset = usePlayerStore((s) => s.reset);
 
   const player = usePlayerContext();
+  const playerRef = useRef(player);
+  playerRef.current = player;
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -87,7 +89,7 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
       setTitle(bestFile.quality + 'p');
       setSubtitles(mediaLinks.subtitles);
       setMedia(hlsUrl, [], mediaLinks.subtitles);
-      player.loadSource(hlsUrl, (tracks) => {
+      playerRef.current.loadSource(hlsUrl, (tracks) => {
         setAudioTracks(tracks);
       });
       setLoading(false);
@@ -95,16 +97,16 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
       setError(err instanceof Error ? err : new Error('Failed to load media'));
       setLoading(false);
     }
-  }, [mediaId, setMedia, player]);
+  }, [mediaId, setMedia]);
 
   useEffect(() => {
     fetchAndPlay();
 
     return () => {
-      player.destroy();
+      playerRef.current.destroy();
       reset();
     };
-  }, [fetchAndPlay, player, reset]);
+  }, [fetchAndPlay, reset]);
 
   useEffect(() => {
     const video = player.videoRef.current;

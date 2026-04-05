@@ -123,7 +123,6 @@ export const SearchPage = memo(function SearchPage(): ReactElement {
   const queryRef = useRef(query);
 
   const navigate = useUiStore((s) => s.navigate);
-  const setLastFocusKey = useUiStore((s) => s.setLastFocusKey);
   const goBack = useUiStore((s) => s.goBack);
 
   const { ref, focusKey } = useFocusable({
@@ -199,10 +198,9 @@ export const SearchPage = memo(function SearchPage(): ReactElement {
 
   const handleSelectItem = useCallback(
     (item: Item): void => {
-      setLastFocusKey('search-page');
-      navigate('content', { contentId: item.id });
+      navigate('content', { params: { contentId: item.id }, lastFocusKey: 'search-page' });
     },
-    [navigate, setLastFocusKey],
+    [navigate],
   );
 
   const handleCardFocus = useCallback((_item: Item, index: number): void => {

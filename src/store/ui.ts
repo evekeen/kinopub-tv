@@ -23,15 +23,20 @@ interface StackEntry {
   lastFocusKey: string | null;
 }
 
+interface NavigateOptions {
+  params?: ScreenParams;
+  lastFocusKey?: string;
+}
+
 interface UiState {
   currentScreen: Screen;
   screenParams: ScreenParams;
   navigationStack: StackEntry[];
   lastRestoredFocusKey: string | null;
-  navigate: (screen: Screen, params?: ScreenParams) => void;
+  navigate: (screen: Screen, options?: NavigateOptions) => void;
   goBack: () => void;
-  setLastFocusKey: (key: string) => void;
   clearStack: () => void;
+  clearLastRestoredFocusKey: () => void;
 }
 
 const MAX_STACK_SIZE = 20;
@@ -51,23 +56,15 @@ export const useUiStore = create<UiState>()((set, get) => ({
   navigationStack: [],
   lastRestoredFocusKey: null,
 
-  navigate(screen: Screen, params: ScreenParams = {}): void {
+  navigate(screen: Screen, options: NavigateOptions = {}): void {
     const state = get();
+    const params = options.params ?? {};
+    const focusKey = options.lastFocusKey ?? null;
 
-    if (screen === 'player') {
-      const playerEntry: StackEntry = {
-        screen: state.currentScreen,
-        params: state.screenParams,
-        lastFocusKey: null,
-      };
-      const playerStack = [...state.navigationStack, playerEntry];
-      const trimmedPlayerStack = playerStack.length > MAX_STACK_SIZE
-        ? playerStack.slice(playerStack.length - MAX_STACK_SIZE)
-        : playerStack;
+    if (state.currentScreen === 'auth') {
       set({
         currentScreen: screen,
         screenParams: params,
-        navigationStack: trimmedPlayerStack,
       });
       return;
     }
@@ -75,7 +72,7 @@ export const useUiStore = create<UiState>()((set, get) => ({
     const entry: StackEntry = {
       screen: state.currentScreen,
       params: state.screenParams,
-      lastFocusKey: null,
+      lastFocusKey: focusKey,
     };
 
     const stack = [...state.navigationStack, entry];
@@ -108,25 +105,16 @@ export const useUiStore = create<UiState>()((set, get) => ({
     });
   },
 
-  setLastFocusKey(key: string): void {
-    const state = get();
-    const stack = state.navigationStack;
-    if (stack.length === 0) return;
-
-    const updatedStack = [...stack];
-    updatedStack[updatedStack.length - 1] = {
-      ...updatedStack[updatedStack.length - 1],
-      lastFocusKey: key,
-    };
-    set({ navigationStack: updatedStack });
-  },
-
   clearStack(): void {
     set({
       currentScreen: 'auth',
       screenParams: {},
       navigationStack: [],
     });
+  },
+
+  clearLastRestoredFocusKey(): void {
+    set({ lastRestoredFocusKey: null });
   },
 }));
 

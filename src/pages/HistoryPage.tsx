@@ -72,7 +72,6 @@ export const HistoryPage = memo(function HistoryPage(): ReactElement {
   const rafRef = useRef<number | null>(null);
 
   const navigate = useUiStore((s) => s.navigate);
-  const setLastFocusKey = useUiStore((s) => s.setLastFocusKey);
   const goBack = useUiStore((s) => s.goBack);
 
   const { ref, focusKey } = useFocusable({
@@ -111,10 +110,9 @@ export const HistoryPage = memo(function HistoryPage(): ReactElement {
 
   const handleSelectItem = useCallback(
     (item: Item): void => {
-      setLastFocusKey(HISTORY_PAGE_FOCUS_KEY);
-      navigate('content', { contentId: item.id });
+      navigate('content', { params: { contentId: item.id }, lastFocusKey: HISTORY_PAGE_FOCUS_KEY });
     },
-    [navigate, setLastFocusKey],
+    [navigate],
   );
 
   const handleCardFocus = useCallback((_item: Item, index: number): void => {

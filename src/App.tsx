@@ -54,7 +54,6 @@ function resolveScreen(screen: Screen, isAuthenticated: boolean): ReactElement {
 
   switch (screen) {
     case 'auth':
-      return <HomePage />;
     case 'home':
       return <HomePage />;
     case 'content':
@@ -96,14 +95,16 @@ export function App(): ReactElement {
   const currentScreen = useUiStore((s) => s.currentScreen);
 
   const lastRestoredFocusKey = useUiStore((s) => s.lastRestoredFocusKey);
+  const clearLastRestoredFocusKey = useUiStore((s) => s.clearLastRestoredFocusKey);
 
   useEffect(() => {
     if (lastRestoredFocusKey !== null) {
       requestAnimationFrame(() => {
         setFocus(lastRestoredFocusKey);
       });
+      clearLastRestoredFocusKey();
     }
-  }, [lastRestoredFocusKey]);
+  }, [lastRestoredFocusKey, clearLastRestoredFocusKey]);
 
   useEffect(() => {
     const handleVisibilityChange = (): void => {

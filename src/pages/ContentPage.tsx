@@ -107,7 +107,7 @@ export const ContentPage = memo(function ContentPage(): ReactElement {
     const kind = classifyType(item.type);
 
     if (kind === 'movie' && item.videos && item.videos.length > 0) {
-      navigate('player', { contentId: item.id, mediaId: item.videos[0].id });
+      navigate('player', { params: { contentId: item.id, mediaId: item.videos[0].id } });
     }
   }, [item, navigate]);
 
@@ -115,10 +115,12 @@ export const ContentPage = memo(function ContentPage(): ReactElement {
     (episode: Video): void => {
       if (item === null) return;
       navigate('player', {
-        contentId: item.id,
-        mediaId: episode.id,
-        seasonNumber: episode.snumber,
-        episodeNumber: episode.number,
+        params: {
+          contentId: item.id,
+          mediaId: episode.id,
+          seasonNumber: episode.snumber,
+          episodeNumber: episode.number,
+        },
       });
     },
     [item, navigate],
