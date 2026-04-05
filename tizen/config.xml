@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets" id="http://kinopub.tv/tizen" version="1.0.0" viewmodes="maximized">
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets" id="http://ivkin.dev/kinopub" version="1.0.0" viewmodes="maximized">
     <name>KinoPub</name>
+    <author href="https://ivkin.dev" email="dev@ivkin.dev">Alexander Ivkin</author>
     <icon src="icon.png"/>
     <content src="index.html"/>
     <feature name="http://tizen.org/feature/screen.size.all"/>
-    <tizen:application id="kinopub00.KinoPub" package="kinopub00" required_version="3.0"/>
+    <tizen:application id="evekeen001.KinoPub" package="evekeen001" required_version="3.0"/>
     <tizen:privilege name="http://tizen.org/privilege/internet"/>
     <tizen:privilege name="http://tizen.org/privilege/tv.inputdevice"/>
     <tizen:privilege name="http://developer.samsung.com/privilege/network.public"/>

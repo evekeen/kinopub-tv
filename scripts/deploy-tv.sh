@@ -5,8 +5,8 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 WGT_NAME="kinopub-tizen.wgt"
 WGT_PATH="$PROJECT_DIR/$WGT_NAME"
-APP_ID="kinopub00.KinoPub"
-PACKAGE_ID="kinopub00"
+APP_ID="evekeen001.KinoPub"
+PACKAGE_ID="evekeen001"
 
 if [ $# -lt 1 ]; then
   echo "Usage: $0 <TV_IP> [--build]"

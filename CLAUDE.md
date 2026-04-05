@@ -201,6 +201,33 @@ The `<video>` element and hls.js instance live in a React Context at the App lev
 - Fatal media errors: call `hls.recoverMediaError()`, then retry
 - Non-fatal errors: log and ignore
 
+## kino.pub API Quirks (Learned from Production)
+
+### OAuth2 Device Flow
+- Get device code: POST `/oauth2/device` with `grant_type=device_code` → returns `{code, user_code, verification_uri, interval, expires_in}`
+- Poll for token: POST `/oauth2/device` with `grant_type=device_token` and `code=<code>` (NOT `device_code` — that creates a new code)
+- While pending: API returns a new device code response (not an `{error: "authorization_pending"}`) — treat any device code response during polling as "still waiting"
+- Refresh token: POST `/oauth2/token` with `grant_type=refresh_token`
+
+### Media Links Response
+- `GET /v1/items/media-links?mid=<id>` returns `MediaLinks` directly at root level: `{id, files, subtitles, thumbnail}`
+- NOT wrapped in `{item: ...}` like other endpoints — do NOT use `SingleResponse<T>` wrapper
+
+### Tizen Package ID
+- Must be exactly 10 alphanumeric characters (e.g., `evekeen001`) — 9 characters causes "Load archive info fail" on install
+- App ID format: `<packageId>.<AppName>` (e.g., `evekeen001.KinoPub`)
+
+### .wgt Signing
+- Tizen 9.0+ (2025 TVs) requires signed .wgt — unsigned packages fail with "Load archive info fail"
+- Sign with: `tizen package -t wgt -s <profile-name> -- dist/`
+- Samsung certificate must include TV's DUID (get via `sdb shell 0 getduid`)
+
+### On-Device Debugging
+- Launch in debug mode: `sdb shell 0 debug <appId>` — returns a debug port
+- Connect Chrome DevTools Protocol via WebSocket at `ws://<TV_IP>:<port>/devtools/page/<id>`
+- Get target ID: `curl http://<TV_IP>:<port>/json`
+- Can evaluate JS, read console logs, and dispatch key events remotely via CDP
+
 ## API Client Rules
 
 ### Token Refresh Mutex

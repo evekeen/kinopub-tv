@@ -15,7 +15,7 @@ if [ $# -lt 1 ]; then
 fi
 
 TV_IP="$1"
-APP_ID="kinopub00.KinoPub"
+APP_ID="evekeen001.KinoPub"
 
 if ! command -v sdb &> /dev/null; then
   echo "Error: sdb not found in PATH."
