@@ -220,14 +220,14 @@ The GL.iNet VPN router is still required for video CDN geo-restriction bypass, b
 - [x] **DoD:** Components render correctly, ErrorBoundary catches thrown errors in children
 
 ### Task 7: Auth page
-- [ ] Create `src/pages/AuthPage.tsx` — displays user_code in large text (48px+), shows "Go to kino.pub/device", polls every 5s, redirects to Home on success
-- [ ] Create `src/App.tsx`:
+- [x] Create `src/pages/AuthPage.tsx` — displays user_code in large text (48px+), shows "Go to kino.pub/device", polls every 5s, redirects to Home on success
+- [x] Create `src/App.tsx`:
   - Wraps everything in `ErrorBoundary` and `PlayerContext.Provider`
   - Checks auth store on mount, routes to AuthPage if not authenticated
   - Uses `React.lazy` + `Suspense` for all page imports (code splitting)
   - `TransitionWrapper` around screen content
-- [ ] Style with CSS modules: dark background (#101c36), centered white text
-- [ ] **DoD:** App starts, shows auth screen, device code appears, can complete auth flow in browser
+- [x] Style with CSS modules: dark background (#101c36), centered white text
+- [x] **DoD:** App starts, shows auth screen, device code appears, can complete auth flow in browser
 
 ### Task 8: Sidebar + layout shell
 - [ ] Create `src/components/Sidebar.tsx`:
