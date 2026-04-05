@@ -7,6 +7,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { TransitionWrapper } from './components/TransitionWrapper';
 import { Sidebar } from './components/Sidebar';
 import { Spinner } from './components/LoadingSkeleton';
+import { PlayerProvider } from './contexts/PlayerContext';
 import { useAuthStore } from './store/auth';
 import { useUiStore } from './store/ui';
 import type { Screen } from './store/ui';
@@ -24,6 +25,10 @@ const ContentPage = lazy(() =>
   import('./pages/ContentPage').then((m) => ({ default: m.ContentPage })),
 );
 
+const PlayerPage = lazy(() =>
+  import('./pages/PlayerPage').then((m) => ({ default: m.PlayerPage })),
+);
+
 function resolveScreen(screen: Screen, isAuthenticated: boolean): ReactElement {
   if (!isAuthenticated) {
     return <AuthPage />;
@@ -37,6 +42,7 @@ function resolveScreen(screen: Screen, isAuthenticated: boolean): ReactElement {
     case 'content':
       return <ContentPage />;
     case 'player':
+      return <PlayerPage />;
     case 'search':
     case 'bookmarks':
     case 'history':
@@ -77,16 +83,18 @@ export function App(): ReactElement {
 
   return (
     <ErrorBoundary>
-      <Suspense fallback={<Spinner />}>
-        <div className={styles.layout}>
-          {showSidebar && <Sidebar />}
-          <ContentArea>
-            <TransitionWrapper transitionKey={transitionKey}>
-              {screenContent}
-            </TransitionWrapper>
-          </ContentArea>
-        </div>
-      </Suspense>
+      <PlayerProvider>
+        <Suspense fallback={<Spinner />}>
+          <div className={styles.layout}>
+            {showSidebar && <Sidebar />}
+            <ContentArea>
+              <TransitionWrapper transitionKey={transitionKey}>
+                {screenContent}
+              </TransitionWrapper>
+            </ContentArea>
+          </div>
+        </Suspense>
+      </PlayerProvider>
     </ErrorBoundary>
   );
 }

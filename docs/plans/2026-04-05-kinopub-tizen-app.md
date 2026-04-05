@@ -279,7 +279,7 @@ The GL.iNet VPN router is still required for video CDN geo-restriction bypass, b
 - [x] **DoD:** Content page renders for both movies and series, episode list navigable, play triggers navigation
 
 ### Task 11: PlayerContext + hls.js player
-- [ ] Create `src/contexts/PlayerContext.tsx`:
+- [x] Create `src/contexts/PlayerContext.tsx`:
   - Owns single `<video>` element ref (mounted at App level, hidden when not playing, fullscreen when playing)
   - Owns hls.js instance (singleton)
   - Provides: `loadSource(url)`, `destroy()`, `getAudioTracks()`, `setAudioTrack(id)`, `currentTime`, `duration`, `isPlaying`, `play()`, `pause()`, `seek(time)`
@@ -287,27 +287,27 @@ The GL.iNet VPN router is still required for video CDN geo-restriction bypass, b
   - Fatal network errors: show "Network error — retrying" state, call `hls.startLoad()` with exponential backoff (handles VPN drops)
   - Fatal media errors: call `hls.recoverMediaError()`, if still fails show retry overlay
   - hls.js config tuning for Tizen: set `skipBufferHolePadding` > GOP length
-- [ ] Create `src/hooks/useRemoteKeys.ts`:
+- [x] Create `src/hooks/useRemoteKeys.ts`:
   - Listens for Samsung remote keys via `keydown` events
   - Key codes: play/pause (MediaPlayPause/415, Enter/13), back (10009/Backspace/8), arrows (37-40), channel up/down for seek ±30s
   - Guards Tizen-specific key codes with `typeof tizen !== 'undefined'`
-- [ ] Create `src/hooks/usePlaybackSync.ts` — calls markTime API every 30s with current position from PlayerContext
-- [ ] Create `src/pages/PlayerPage.tsx`:
+- [x] Create `src/hooks/usePlaybackSync.ts` — calls markTime API every 30s with current position from PlayerContext
+- [x] Create `src/pages/PlayerPage.tsx`:
   - Thin overlay consuming PlayerContext
   - Fetches media-links by mediaId on mount, picks highest quality `url.hls`
   - Calls `playerContext.loadSource(url)`
-- [ ] Create `src/components/Player/PlayerOverlay.tsx`:
+- [x] Create `src/components/Player/PlayerOverlay.tsx`:
   - Shows on any key press, auto-hides after 5s
   - Displays: title, currentTime / duration, play/pause icon
   - Uses own `FocusContext` for focus containment (prevents focus escaping to sidebar)
-- [ ] Create `src/components/Player/ProgressBar.tsx` — seek bar navigable with Left/Right arrows (±10s), shows buffered range
-- [ ] Create `src/components/Player/TrackPicker.tsx`:
+- [x] Create `src/components/Player/ProgressBar.tsx` — seek bar navigable with Left/Right arrows (±10s), shows buffered range
+- [x] Create `src/components/Player/TrackPicker.tsx`:
   - Overlay triggered by Up arrow from progress bar
   - Lists audio tracks from PlayerContext, subtitles from media-links response
   - Uses own `FocusContext` for focus containment
   - Selecting switches audio track via `playerContext.setAudioTrack(id)` or toggles subtitle
   - On close, returns focus to player controls
-- [ ] **DoD:** Video plays via hls.js, overlay shows/hides, can seek, can switch audio track, VPN drop shows retry overlay, playback position syncs to API
+- [x] **DoD:** Video plays via hls.js, overlay shows/hides, can seek, can switch audio track, VPN drop shows retry overlay, playback position syncs to API
 
 ### Task 12: Subtitles
 - [ ] Create `src/hooks/useSubtitles.ts`:

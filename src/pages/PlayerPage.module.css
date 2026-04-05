@@ -1,0 +1,46 @@
+.container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 1920px;
+  height: 1080px;
+  z-index: 50;
+}
+
+.containerWithBg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 1920px;
+  height: 1080px;
+  z-index: 50;
+  background-color: #000000;
+}
+
+.errorOverlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.errorText {
+  font-size: 32px;
+  color: #ffffff;
+  margin-bottom: 24px;
+}
+
+.retryButton {
+  font-size: 24px;
+  color: #4a9eff;
+  padding: 12px 32px;
+  border: 2px solid #4a9eff;
+  border-radius: 8px;
+  background: none;
+  cursor: pointer;
+}
+
+.retryButton:focus {
+  background-color: rgba(74, 158, 255, 0.2);
+}
