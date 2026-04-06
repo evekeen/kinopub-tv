@@ -15,7 +15,6 @@ interface TrackPickerProps {
   selectedSubtitle: number | null;
   onSelectAudio: (id: number) => void;
   onSelectSubtitle: (index: number | null) => void;
-  onClose: () => void;
 }
 
 interface TrackItemProps {
@@ -64,7 +63,6 @@ export const TrackPicker = memo(function TrackPicker({
   selectedSubtitle,
   onSelectAudio,
   onSelectSubtitle,
-  onClose,
 }: TrackPickerProps): ReactElement {
   const { ref, focusKey } = useFocusable({
     trackChildren: true,
@@ -82,26 +80,6 @@ export const TrackPicker = memo(function TrackPicker({
       }
     });
   }, [audioTracks.length, subtitles.length]);
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent): void => {
-      if (
-        event.keyCode === 10009 ||
-        event.keyCode === 8 ||
-        event.key === 'Backspace' ||
-        event.key === 'Escape'
-      ) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        onClose();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown, true);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown, true);
-    };
-  }, [onClose]);
 
   const handleSelectAudio = useCallback(
     (id: number | null): void => {

@@ -237,7 +237,6 @@ export const PlayerOverlay = memo(function PlayerOverlay({
             selectedSubtitle={selectedSubtitle}
             onSelectAudio={onSelectAudio}
             onSelectSubtitle={onSelectSubtitle}
-            onClose={handleCloseTracks}
           />
         )}
       </div>
