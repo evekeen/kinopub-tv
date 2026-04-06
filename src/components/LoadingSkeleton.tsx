@@ -2,11 +2,11 @@ import { ReactElement, memo, useMemo } from 'react';
 import styles from './LoadingSkeleton.module.css';
 
 interface PosterSkeletonProps {
-  count?: number;
+  count: number;
 }
 
 export const PosterSkeleton = memo(function PosterSkeleton({
-  count = 5,
+  count,
 }: PosterSkeletonProps): ReactElement {
   const items = useMemo(
     () => Array.from({ length: count }, (_, i) => i),

@@ -44,8 +44,6 @@ describe('AuthPage', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     useAuthStore.setState({
-      accessToken: null,
-      refreshToken: null,
       isAuthenticated: false,
     });
     useUiStore.setState({

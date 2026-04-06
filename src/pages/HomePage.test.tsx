@@ -30,7 +30,7 @@ vi.mock('../api/watching', () => ({
 describe('HomePage', () => {
   beforeEach(async () => {
     init({ debug: false, visualDebug: false });
-    useAuthStore.setState({ isAuthenticated: true, accessToken: 'test-token' });
+    useAuthStore.setState({ isAuthenticated: true });
     useUiStore.setState({
       currentScreen: 'home',
       screenParams: {},

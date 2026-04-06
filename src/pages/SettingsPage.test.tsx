@@ -25,7 +25,7 @@ describe('SettingsPage', () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     init({ debug: false, visualDebug: false });
     Object.keys(localStorageData).forEach((k) => delete localStorageData[k]);
-    useAuthStore.setState({ isAuthenticated: true, accessToken: 'test-token' });
+    useAuthStore.setState({ isAuthenticated: true });
     useUiStore.setState({
       currentScreen: 'settings',
       screenParams: {},
@@ -61,8 +61,6 @@ describe('SettingsPage', () => {
   it('logout clears auth state and resets navigation', () => {
     useAuthStore.setState({
       isAuthenticated: true,
-      accessToken: 'test-token',
-      refreshToken: 'test-refresh',
     });
     useUiStore.setState({
       currentScreen: 'settings',
@@ -76,7 +74,6 @@ describe('SettingsPage', () => {
     useUiStore.getState().clearStack();
 
     expect(useAuthStore.getState().isAuthenticated).toBe(false);
-    expect(useAuthStore.getState().accessToken).toBeNull();
     expect(useUiStore.getState().currentScreen).toBe('auth');
     expect(useUiStore.getState().navigationStack).toHaveLength(0);
   });

@@ -3,8 +3,8 @@ import { render } from '@testing-library/react';
 import { PosterSkeleton, Spinner } from './LoadingSkeleton';
 
 describe('PosterSkeleton', () => {
-  it('renders default 5 skeleton cards', () => {
-    const { container } = render(<PosterSkeleton />);
+  it('renders 5 skeleton cards', () => {
+    const { container } = render(<PosterSkeleton count={5} />);
     const cards = container.querySelectorAll('[class*="posterCard"]');
     expect(cards.length).toBe(5);
   });

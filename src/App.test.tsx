@@ -43,8 +43,6 @@ vi.mock('./api/watching', () => ({
 describe('App', () => {
   beforeEach(() => {
     useAuthStore.setState({
-      accessToken: null,
-      refreshToken: null,
       isAuthenticated: false,
     });
     useUiStore.setState({
@@ -66,7 +64,7 @@ describe('App', () => {
   });
 
   it('shows sidebar when authenticated', async () => {
-    useAuthStore.setState({ isAuthenticated: true, accessToken: 'token' });
+    useAuthStore.setState({ isAuthenticated: true });
     useUiStore.setState({ currentScreen: 'home' });
 
     render(<App />);

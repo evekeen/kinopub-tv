@@ -76,7 +76,7 @@ describe('HistoryPage', () => {
   beforeEach(() => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     init({ debug: false, visualDebug: false });
-    useAuthStore.setState({ isAuthenticated: true, accessToken: 'test-token' });
+    useAuthStore.setState({ isAuthenticated: true });
     useUiStore.setState({
       currentScreen: 'history',
       screenParams: {},
