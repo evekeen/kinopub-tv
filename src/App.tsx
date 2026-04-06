@@ -3,6 +3,7 @@ import {
   useFocusable,
   FocusContext,
   setFocus,
+  getCurrentFocusKey,
 } from '@noriginmedia/norigin-spatial-navigation';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { TransitionWrapper } from './components/TransitionWrapper';
@@ -100,8 +101,12 @@ export function App(): ReactElement {
   useEffect(() => {
     if (lastRestoredFocusKey !== null) {
       requestAnimationFrame(() => {
+        const beforeKey = getCurrentFocusKey();
         setFocus(lastRestoredFocusKey);
-        clearLastRestoredFocusKey();
+        const afterKey = getCurrentFocusKey();
+        if (afterKey !== beforeKey || afterKey === lastRestoredFocusKey) {
+          clearLastRestoredFocusKey();
+        }
       });
     }
   }, [lastRestoredFocusKey, clearLastRestoredFocusKey]);
