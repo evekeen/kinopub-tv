@@ -202,7 +202,9 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
   }, [player.videoRef, setPlaying, setCurrentTime, setDuration, goBack]);
 
   const getCurrentTime = useCallback((): number => {
-    return player.videoRef.current?.currentTime ?? currentTimeRef.current;
+    const video = player.videoRef.current;
+    if (video !== null && video.readyState > 0) return video.currentTime;
+    return currentTimeRef.current;
   }, [player.videoRef]);
 
   usePlaybackSync(contentId, mediaId, getCurrentTime, isPlaying);

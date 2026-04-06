@@ -10,32 +10,47 @@ export function usePlaybackSync(
   isPlaying: boolean,
 ): void {
   const lastSyncedTime = useRef(0);
+  const itemIdRef = useRef(itemId);
+  const videoIdRef = useRef(videoId);
+  const getCurrentTimeRef = useRef(getCurrentTime);
+
+  itemIdRef.current = itemId;
+  videoIdRef.current = videoId;
+  getCurrentTimeRef.current = getCurrentTime;
 
   useEffect(() => {
     if (itemId === undefined || videoId === undefined || !isPlaying) {
       return;
     }
 
-    const intervalId = window.setInterval(() => {
-      const currentTime = Math.floor(getCurrentTime());
+    const sync = (): void => {
+      const id = itemIdRef.current;
+      const vid = videoIdRef.current;
+      if (id === undefined || vid === undefined) return;
+      const currentTime = Math.floor(getCurrentTimeRef.current());
       if (currentTime > 0 && currentTime !== lastSyncedTime.current) {
         lastSyncedTime.current = currentTime;
-        markTime(itemId, videoId, currentTime).catch(() => {});
+        markTime(id, vid, currentTime).catch(() => {});
       }
-    }, SYNC_INTERVAL_MS);
+    };
+
+    const intervalId = window.setInterval(sync, SYNC_INTERVAL_MS);
 
     return () => {
       window.clearInterval(intervalId);
+      sync();
     };
-  }, [itemId, videoId, getCurrentTime, isPlaying]);
+  }, [itemId, videoId, isPlaying]);
 
   useEffect(() => {
     return () => {
-      if (itemId === undefined || videoId === undefined) return;
-      const currentTime = Math.floor(getCurrentTime());
-      if (currentTime > 0) {
-        markTime(itemId, videoId, currentTime).catch(() => {});
+      const id = itemIdRef.current;
+      const vid = videoIdRef.current;
+      if (id === undefined || vid === undefined) return;
+      const currentTime = Math.floor(getCurrentTimeRef.current());
+      if (currentTime > 0 && currentTime !== lastSyncedTime.current) {
+        markTime(id, vid, currentTime).catch(() => {});
       }
     };
-  }, [itemId, videoId, getCurrentTime]);
+  }, []);
 }
