@@ -15,6 +15,7 @@ import { NetworkError } from '../components/NetworkError';
 import { useBackKey } from '../hooks/useBackKey';
 import { getItemDetail } from '../api/content';
 import { getFolders, addItem, removeItem } from '../api/bookmarks';
+import { toggleWatchlist } from '../api/watching';
 import { useUiStore } from '../store/ui';
 import { formatDuration } from '../utils/formatDuration';
 import type { ItemDetails, ItemType, Video, BookmarkFolder, Season } from '../types';
@@ -195,6 +196,21 @@ export const ContentPage = memo(function ContentPage(): ReactElement {
     });
   }, [item, bookmarked, bookmarkFolders]);
 
+  const handleWatchlistToggle = useCallback((): void => {
+    if (item === null) return;
+
+    toggleWatchlist(item.id)
+      .then(() => {
+        setItem((prev) => {
+          if (prev === null) return prev;
+          return { ...prev, in_watchlist: !prev.in_watchlist };
+        });
+      })
+      .catch((err: unknown) => {
+        setError(err instanceof Error ? err : new Error('Watchlist operation failed'));
+      });
+  }, [item]);
+
   useBackKey(goBack);
 
   if (error) {
@@ -269,6 +285,12 @@ export const ContentPage = memo(function ContentPage(): ReactElement {
                     active={false}
                   />
                 )}
+                <ActionButton
+                  label={item.in_watchlist ? 'Watching' : 'Watch'}
+                  focusKey="content-watchlist-button"
+                  onPress={handleWatchlistToggle}
+                  active={item.in_watchlist}
+                />
                 <ActionButton
                   label={bookmarked ? 'Bookmarked' : 'Bookmark'}
                   focusKey="content-bookmark-button"
