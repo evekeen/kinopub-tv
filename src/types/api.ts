@@ -27,3 +27,10 @@ export interface StatusResponse {
   status: number;
 }
 
+import type { HistoryEntry } from './watching';
+
+export interface HistoryResponse {
+  history: HistoryEntry[];
+}
+
+

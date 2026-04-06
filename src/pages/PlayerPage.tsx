@@ -122,7 +122,7 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
       setError(err instanceof Error ? err : new Error('Failed to load media'));
       setLoading(false);
     }
-  }, [mediaId, screenTitle, resumeTime, setMedia]);
+  }, [mediaId, screenTitle, resumeTime, setMedia, setSelectedSubtitle, setSelectedAudioTrack]);
 
   useEffect(() => {
     fetchAndPlay();
@@ -232,29 +232,18 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
     [player, setSelectedAudioTrack],
   );
 
-  const handleSelectSubtitle = useCallback(
-    (index: number | null): void => {
-      setSelectedSubtitle(index);
-    },
-    [setSelectedSubtitle],
-  );
-
-  const handleBack = useCallback((): void => {
-    goBack();
-  }, [goBack]);
-
   const remoteHandlers: RemoteKeyMap = useMemo(() => ({
     playPause: handlePlayPause,
     play: () => playerRef.current.play(),
     pause: () => playerRef.current.pause(),
     enter: handlePlayPause,
-    stop: handleBack,
-    back: handleBack,
+    stop: goBack,
+    back: goBack,
     fastForward: () => handleSeek(currentTimeRef.current + SEEK_JUMP_S),
     rewind: () => handleSeek(Math.max(0, currentTimeRef.current - SEEK_JUMP_S)),
     channelUp: () => handleSeek(currentTimeRef.current + SEEK_JUMP_S),
     channelDown: () => handleSeek(Math.max(0, currentTimeRef.current - SEEK_JUMP_S)),
-  }), [handlePlayPause, handleBack, handleSeek]);
+  }), [handlePlayPause, goBack, handleSeek]);
 
   useRemoteKeys(remoteHandlers);
 
@@ -307,7 +296,7 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
         onPlayPause={handlePlayPause}
         onSeek={handleSeek}
         onSelectAudio={handleSelectAudio}
-        onSelectSubtitle={handleSelectSubtitle}
+        onSelectSubtitle={setSelectedSubtitle}
       />
     </div>
   );

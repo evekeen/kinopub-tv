@@ -174,10 +174,22 @@ export function PlayerProvider({ children }: PlayerProviderProps): ReactElement 
     [destroyHls],
   );
 
+  const lastAudioCallbackRef = useRef<AudioTracksCallback | null>(null);
+
+  const loadSourceWithCallbackSave = useCallback(
+    (url: string, onAudioTracksReady?: AudioTracksCallback): void => {
+      if (onAudioTracksReady !== undefined) {
+        lastAudioCallbackRef.current = onAudioTracksReady;
+      }
+      loadSource(url, onAudioTracksReady);
+    },
+    [loadSource],
+  );
+
   const retryLoad = useCallback((): void => {
     if (lastUrlRef.current !== null) {
       retryCountRef.current = 0;
-      loadSource(lastUrlRef.current);
+      loadSource(lastUrlRef.current, lastAudioCallbackRef.current ?? undefined);
     }
   }, [loadSource]);
 
@@ -223,7 +235,7 @@ export function PlayerProvider({ children }: PlayerProviderProps): ReactElement 
   const value = useMemo(
     (): PlayerContextValue => ({
       videoRef,
-      loadSource,
+      loadSource: loadSourceWithCallbackSave,
       destroy: destroyHls,
       play,
       pause,
@@ -234,7 +246,7 @@ export function PlayerProvider({ children }: PlayerProviderProps): ReactElement 
       retryLoad,
     }),
     [
-      loadSource,
+      loadSourceWithCallbackSave,
       destroyHls,
       play,
       pause,

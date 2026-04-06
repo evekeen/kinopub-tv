@@ -13,8 +13,6 @@ describe('auth store', () => {
     vi.clearAllMocks();
     storage.clear();
     useAuthStore.setState({
-      accessToken: null,
-      refreshToken: null,
       isAuthenticated: false,
     });
   });
@@ -22,8 +20,6 @@ describe('auth store', () => {
   it('starts unauthenticated when no tokens in storage', () => {
     const state = useAuthStore.getState();
     expect(state.isAuthenticated).toBe(false);
-    expect(state.accessToken).toBeNull();
-    expect(state.refreshToken).toBeNull();
   });
 
   it('login stores tokens and sets authenticated', () => {
@@ -36,8 +32,6 @@ describe('auth store', () => {
 
     const state = useAuthStore.getState();
     expect(state.isAuthenticated).toBe(true);
-    expect(state.accessToken).toBe('access123');
-    expect(state.refreshToken).toBe('refresh456');
     expect(storage.get('kinopub_access_token')).toBe('access123');
     expect(storage.get('kinopub_refresh_token')).toBe('refresh456');
   });
@@ -54,8 +48,6 @@ describe('auth store', () => {
 
     const state = useAuthStore.getState();
     expect(state.isAuthenticated).toBe(false);
-    expect(state.accessToken).toBeNull();
-    expect(state.refreshToken).toBeNull();
     expect(storage.has('kinopub_access_token')).toBe(false);
     expect(storage.has('kinopub_refresh_token')).toBe(false);
   });

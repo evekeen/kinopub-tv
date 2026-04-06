@@ -22,17 +22,23 @@ interface TrackItemProps {
   label: string;
   focusKey: string;
   selected: boolean;
-  onPress: () => void;
+  trackId: number | null;
+  onPress: (id: number | null) => void;
 }
 
 const TrackItem = memo(function TrackItem({
   label,
   focusKey: itemFocusKey,
   selected,
+  trackId,
   onPress,
 }: TrackItemProps): ReactElement {
+  const handlePress = useCallback((): void => {
+    onPress(trackId);
+  }, [onPress, trackId]);
+
   const { ref, focused } = useFocusable({
-    onEnterPress: onPress,
+    onEnterPress: handlePress,
     focusKey: itemFocusKey,
   });
 
@@ -98,17 +104,12 @@ export const TrackPicker = memo(function TrackPicker({
   }, [onClose]);
 
   const handleSelectAudio = useCallback(
-    (id: number) => (): void => {
-      onSelectAudio(id);
+    (id: number | null): void => {
+      if (id !== null) {
+        onSelectAudio(id);
+      }
     },
     [onSelectAudio],
-  );
-
-  const handleSelectSubtitle = useCallback(
-    (index: number | null) => (): void => {
-      onSelectSubtitle(index);
-    },
-    [onSelectSubtitle],
   );
 
   return (
@@ -124,7 +125,8 @@ export const TrackPicker = memo(function TrackPicker({
                   label={track.name + (track.lang ? ' (' + track.lang + ')' : '')}
                   focusKey={'track-audio-' + track.id}
                   selected={selectedAudioTrack === track.id}
-                  onPress={handleSelectAudio(track.id)}
+                  trackId={track.id}
+                  onPress={handleSelectAudio}
                 />
               ))}
             </div>
@@ -136,7 +138,8 @@ export const TrackPicker = memo(function TrackPicker({
                 label="Off"
                 focusKey="track-sub-off"
                 selected={selectedSubtitle === null}
-                onPress={handleSelectSubtitle(null)}
+                trackId={null}
+                onPress={onSelectSubtitle}
               />
               {subtitles.map((sub, index) => (
                 <TrackItem
@@ -144,7 +147,8 @@ export const TrackPicker = memo(function TrackPicker({
                   label={sub.lang || 'Subtitle ' + (index + 1)}
                   focusKey={'track-sub-' + index}
                   selected={selectedSubtitle === index}
-                  onPress={handleSelectSubtitle(index)}
+                  trackId={index}
+                  onPress={onSelectSubtitle}
                 />
               ))}
             </div>

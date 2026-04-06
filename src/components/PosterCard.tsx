@@ -1,16 +1,7 @@
 import { ReactElement, memo, useState, useCallback } from 'react';
 import { useFocusable } from '@noriginmedia/norigin-spatial-navigation';
-import type { Posters } from '../types';
+import type { PosterItem } from '../types';
 import styles from './PosterCard.module.css';
-
-export interface PosterItem {
-  id: number;
-  title: string;
-  posters: Posters;
-  year?: number;
-  kinopoisk_rating?: number;
-  imdb_rating?: number;
-}
 
 interface PosterCardProps {
   item: PosterItem;

@@ -25,11 +25,8 @@ export const AuthPage = memo(function AuthPage(): ReactElement {
     }
   }, []);
 
-  const startPolling = useCallback((code: string, intervalMs: number): void => {
-    stopPolling();
-    pollIntervalRef.current = intervalMs;
-
-    pollTimerRef.current = setInterval(async () => {
+  const schedulePoll = useCallback((code: string, intervalMs: number): void => {
+    pollTimerRef.current = window.setTimeout(async () => {
       try {
         const tokens = await pollForToken(code);
         if (!mountedRef.current) return;
@@ -41,12 +38,13 @@ export const AuthPage = memo(function AuthPage(): ReactElement {
         if (!mountedRef.current) return;
 
         if (err instanceof AuthRequestError && err.errorCode === 'authorization_pending') {
+          schedulePoll(code, pollIntervalRef.current);
           return;
         }
 
         if (err instanceof AuthRequestError && err.errorCode === 'slow_down') {
-          stopPolling();
-          startPolling(code, pollIntervalRef.current + 5000);
+          pollIntervalRef.current = pollIntervalRef.current + 5000;
+          schedulePoll(code, pollIntervalRef.current);
           return;
         }
 
@@ -62,6 +60,12 @@ export const AuthPage = memo(function AuthPage(): ReactElement {
       }
     }, intervalMs);
   }, [login, navigate, stopPolling]);
+
+  const startPolling = useCallback((code: string, intervalMs: number): void => {
+    stopPolling();
+    pollIntervalRef.current = intervalMs;
+    schedulePoll(code, intervalMs);
+  }, [stopPolling, schedulePoll]);
 
   const startAuth = useCallback(async (): Promise<void> => {
     setStatus('loading');

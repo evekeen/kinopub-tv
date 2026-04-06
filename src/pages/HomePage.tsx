@@ -13,7 +13,7 @@ import {
   setFocus,
 } from '@noriginmedia/norigin-spatial-navigation';
 import { PosterCard } from '../components/PosterCard';
-import type { PosterItem } from '../components/PosterCard';
+import type { PosterItem } from '../types';
 import { PosterSkeleton } from '../components/LoadingSkeleton';
 import { NetworkError } from '../components/NetworkError';
 import { useBackKey } from '../hooks/useBackKey';
@@ -96,7 +96,7 @@ export const HomePage = memo(function HomePage(): ReactElement {
       );
       setItems(inProgress);
     } catch (err) {
-      if (err instanceof AuthRequiredError) throw err;
+      if (err instanceof AuthRequiredError) return;
       setError(err instanceof Error ? err : new Error('Failed to load content'));
     } finally {
       setLoading(false);

@@ -3,6 +3,7 @@ import {
   memo,
   useState,
   useCallback,
+  useEffect,
   useMemo,
 } from 'react';
 import {
@@ -47,6 +48,14 @@ export const EpisodeList = memo(function EpisodeList({
 }: EpisodeListProps): ReactElement {
   const [selectedSeasonIndex, setSelectedSeasonIndex] = useState(initialSeasonIndex ?? 0);
   const [focusedEpisodeIndex, setFocusedEpisodeIndex] = useState(initialEpisodeIndex ?? 0);
+
+  useEffect(() => {
+    setSelectedSeasonIndex(initialSeasonIndex ?? 0);
+  }, [initialSeasonIndex]);
+
+  useEffect(() => {
+    setFocusedEpisodeIndex(initialEpisodeIndex ?? 0);
+  }, [initialEpisodeIndex]);
 
   const currentSeason = seasons[selectedSeasonIndex];
   const episodes = useMemo(

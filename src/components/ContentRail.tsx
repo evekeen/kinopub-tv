@@ -10,7 +10,7 @@ import {
   FocusContext,
 } from '@noriginmedia/norigin-spatial-navigation';
 import { PosterCard } from './PosterCard';
-import type { PosterItem } from './PosterCard';
+import type { PosterItem } from '../types';
 import styles from './ContentRail.module.css';
 
 const CARD_WIDTH = 250;

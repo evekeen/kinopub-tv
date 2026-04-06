@@ -5,7 +5,6 @@ import {
   useCallback,
   useEffect,
   useRef,
-  useMemo,
 } from 'react';
 import {
   useFocusable,
@@ -50,7 +49,7 @@ export const PlayerOverlay = memo(function PlayerOverlay({
   onSeek,
   onSelectAudio,
   onSelectSubtitle,
-}: PlayerOverlayProps): ReactElement {
+}: PlayerOverlayProps): ReactElement | null {
   const [visible, setVisible] = useState(true);
   const [showTrackPicker, setShowTrackPicker] = useState(false);
   const [focusedElement, setFocusedElement] = useState<'playPause' | 'progress' | 'tracks'>('progress');
@@ -159,13 +158,10 @@ export const PlayerOverlay = memo(function PlayerOverlay({
 
   const playPauseIcon = isPlaying ? '\u275A\u275A' : '\u25B6';
 
-  const hasExtraTracks = useMemo(
-    () => audioTracks.length > 1 || subtitles.length > 0,
-    [audioTracks.length, subtitles.length],
-  );
+  const hasExtraTracks = audioTracks.length > 1 || subtitles.length > 0;
 
   if (!visible && !showTrackPicker) {
-    return <div />;
+    return null;
   }
 
   return (

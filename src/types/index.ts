@@ -5,6 +5,7 @@ export type {
   Pagination,
   PaginatedResponse,
   StatusResponse,
+  HistoryResponse,
 } from './api';
 
 export type {
@@ -43,6 +44,10 @@ export type {
 export type {
   BookmarkFolder,
 } from './bookmark';
+
+export type {
+  PosterItem,
+} from './poster';
 
 export type {
   WatchingSerialItem,

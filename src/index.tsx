@@ -20,6 +20,8 @@ function registerTizenRemoteKeys(): void {
     'MediaStop',
     'MediaFastForward',
     'MediaRewind',
+    'ChannelUp',
+    'ChannelDown',
     'ColorF0Red',
     'ColorF1Green',
     'ColorF2Yellow',

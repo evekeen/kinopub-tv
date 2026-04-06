@@ -141,7 +141,9 @@ export const ContentPage = memo(function ContentPage(): ReactElement {
     const kind = classifyType(item.type);
 
     if (kind === 'movie' && item.videos && item.videos.length > 0) {
-      navigate('player', { params: { contentId: item.id, mediaId: item.videos[0].id, title: item.title } });
+      const video = item.videos[0];
+      const movieResumeTime = video.watching.status === 0 ? video.watching.time : 0;
+      navigate('player', { params: { contentId: item.id, mediaId: video.id, title: item.title, resumeTime: movieResumeTime } });
     }
   }, [item, navigate]);
 

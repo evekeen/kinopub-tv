@@ -13,7 +13,7 @@ import {
   setFocus,
 } from '@noriginmedia/norigin-spatial-navigation';
 import { PosterCard } from '../components/PosterCard';
-import type { PosterItem } from '../components/PosterCard';
+import type { PosterItem } from '../types';
 import { PosterSkeleton } from '../components/LoadingSkeleton';
 import { NetworkError } from '../components/NetworkError';
 import { searchItems } from '../api/content';
