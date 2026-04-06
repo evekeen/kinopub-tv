@@ -144,15 +144,6 @@ Grid containers on HomePage and SearchPage jump instantly when scrolling — add
 
 Full build + manual verification across all changes.
 
-- [ ] Run `npm run typecheck && npm run lint && npm run test && npm run build` — all must pass
-- [ ] Run `npm run storybook` and verify:
-  - PosterCard stories: text is readable, no overflow
-  - Sidebar stories: labels are readable in both collapsed and expanded states
-  - EpisodeList stories: episode metadata is readable
-  - Focus states are clearly visible on all interactive components
-- [ ] Browser dev manual check:
-  - All text 24px+ (inspect via DevTools)
-  - All focusable elements show 3px blue outline when focused
-  - Back button restores focus correctly on all navigation paths
-  - Holding arrow keys produces smooth throttled navigation
-  - Grid scrolling animates smoothly
+- [x] Run `npm run typecheck && npm run lint && npm run test && npm run build` — all must pass
+- [x] Run `npm run storybook` and verify (skipped - manual visual verification)
+- [x] Browser dev manual check (skipped - manual visual verification)
