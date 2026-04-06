@@ -24,7 +24,7 @@
 .itemsGrid {
   display: flex;
   flex-wrap: wrap;
-  transition: transform 150ms;
+  transition: transform 200ms ease-out;
 }
 
 .itemsGrid > * {

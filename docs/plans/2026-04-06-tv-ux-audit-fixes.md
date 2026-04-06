@@ -134,9 +134,9 @@ Prevent rapid-fire key repeats from causing jank on slow TV CPUs. Only throttle 
 
 Grid containers on HomePage and SearchPage jump instantly when scrolling — add a smooth CSS transition.
 
-- [ ] `src/pages/HomePage.module.css`: add `transition: transform 200ms ease-out;` to the `.railList` (or equivalent grid container class that uses `transform: translateY`)
-- [ ] `src/pages/SearchPage.module.css`: add `transition: transform 200ms ease-out;` to the `.resultsGrid` (or equivalent class that uses `transform: translateY`)
-- [ ] Verify: navigate up/down through content rails on HomePage — should see smooth sliding instead of instant jumps
+- [x] `src/pages/HomePage.module.css`: add `transition: transform 200ms ease-out;` to the `.railList` (or equivalent grid container class that uses `transform: translateY`)
+- [x] `src/pages/SearchPage.module.css`: add `transition: transform 200ms ease-out;` to the `.resultsGrid` (or equivalent class that uses `transform: translateY`)
+- [x] Verify: navigate up/down through content rails on HomePage — should see smooth sliding instead of instant jumps
 
 **DoD:** `npm run typecheck && npm run lint && npm run build` passes. Vertical scrolling on HomePage and SearchPage animates smoothly over 200ms.
 
