@@ -17,17 +17,17 @@
 
 .backButton {
   font-size: 28px;
-  color: #6688aa;
+  color: #666666;
   margin-right: 16px;
   cursor: pointer;
   padding: 8px 16px;
   border-radius: 8px;
-  outline: 3px solid transparent;
 }
 
 .backButtonFocused {
   composes: backButton;
-  outline: 3px solid #4a9eff;
+  background-color: #1a1a1a;
+  border: 2px solid #ffffff;
   color: #ffffff;
 }
 
@@ -50,19 +50,18 @@
   padding: 20px 24px;
   margin-bottom: 8px;
   border-radius: 8px;
-  background-color: #1a2a4a;
-  outline: 3px solid transparent;
+  background-color: #1a1a1a;
 }
 
 .folderFocused {
   composes: folder;
-  outline: 3px solid #4a9eff;
-  background-color: #243a5e;
+  border: 2px solid #ffffff;
+  background-color: #222222;
 }
 
 .folderIcon {
   font-size: 32px;
-  color: #6688aa;
+  color: #666666;
   margin-right: 20px;
   flex-shrink: 0;
 }
@@ -80,7 +79,7 @@
 
 .folderCount {
   font-size: 24px;
-  color: #6688aa;
+  color: #666666;
   margin-top: 4px;
 }
 
@@ -94,6 +93,7 @@
   flex-direction: row;
   flex-wrap: wrap;
   transition: transform 200ms ease-out;
+  padding: 16px;
 }
 
 .itemsGrid > * {
@@ -112,13 +112,13 @@
 
 .emptyIcon {
   font-size: 64px;
-  color: #2a3a5a;
+  color: #333333;
   margin-bottom: 24px;
 }
 
 .emptyText {
   font-size: 28px;
-  color: #6688aa;
+  color: #666666;
 }
 
 .loadingContainer {

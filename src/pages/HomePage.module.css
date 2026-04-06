@@ -25,6 +25,7 @@
   display: flex;
   flex-wrap: wrap;
   transition: transform 200ms ease-out;
+  padding: 16px;
 }
 
 .itemsGrid > * {
@@ -52,11 +53,11 @@
 
 .emptyText {
   font-size: 32px;
-  color: #8899aa;
+  color: #888888;
   margin-bottom: 12px;
 }
 
 .emptyHint {
   font-size: 24px;
-  color: #556677;
+  color: #555555;
 }

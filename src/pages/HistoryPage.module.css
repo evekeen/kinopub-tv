@@ -28,6 +28,7 @@
   flex-direction: row;
   flex-wrap: wrap;
   transition: transform 200ms ease-out;
+  padding: 16px;
 }
 
 .itemsGrid > * {
@@ -46,13 +47,13 @@
 
 .emptyIcon {
   font-size: 64px;
-  color: #2a3a5a;
+  color: #333333;
   margin-bottom: 24px;
 }
 
 .emptyText {
   font-size: 28px;
-  color: #6688aa;
+  color: #666666;
 }
 
 .loadingContainer {

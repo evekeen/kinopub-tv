@@ -17,28 +17,25 @@
   font-size: 24px;
   font-weight: 600;
   border-radius: 6px;
-  background-color: #1a2a4a;
-  color: #8899aa;
+  background-color: #1a1a1a;
+  color: #888888;
   outline: none;
 }
 
 .seasonTabFocused {
   composes: seasonTab;
-  background-color: #4a9eff;
+  background-color: #e50914;
   color: #ffffff;
-  outline: 3px solid #4a9eff;
-  outline-offset: 2px;
 }
 
 .seasonTabActive {
   composes: seasonTab;
-  background-color: #2a4a6a;
+  background-color: #333333;
   color: #ffffff;
 }
 
 .episodesViewport {
   overflow: hidden;
-  max-height: 354px;
 }
 
 .episodes {
@@ -59,13 +56,13 @@
   border-radius: 8px;
   background-color: transparent;
   outline: none;
+  border: 2px solid transparent;
 }
 
 .episodeRowFocused {
   composes: episodeRow;
-  background-color: #1a2a4a;
-  outline: 3px solid #4a9eff;
-  outline-offset: -3px;
+  background-color: #1a1a1a;
+  border-color: #ffffff;
 }
 
 .episodeThumbnail {
@@ -74,7 +71,7 @@
   height: 90px;
   border-radius: 6px;
   overflow: hidden;
-  background-color: #1a2a4a;
+  background-color: #1a1a1a;
   margin-right: 20px;
 }
 
@@ -91,13 +88,13 @@
 
 .episodeNumber {
   font-size: 24px;
-  color: #6688aa;
+  color: #666666;
   margin-bottom: 4px;
 }
 
 .episodeTitle {
   font-size: 24px;
-  color: #e0e0e0;
+  color: #999999;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -110,7 +107,7 @@
 
 .episodeDuration {
   font-size: 24px;
-  color: #6688aa;
+  color: #666666;
   margin-top: 4px;
 }
 

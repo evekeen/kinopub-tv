@@ -233,9 +233,11 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
   const handleSeek = useCallback(
     (time: number): void => {
       seekingRef.current = true;
+      currentTimeRef.current = time;
+      setCurrentTime(time);
       playerRef.current.seek(time);
     },
-    [],
+    [setCurrentTime],
   );
 
   const handleSelectAudio = useCallback(

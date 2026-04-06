@@ -99,6 +99,7 @@ export const HistoryPage = memo(function HistoryPage(): ReactElement {
   }, [loadHistory]);
 
   useEffect(() => {
+    if (loading) return;
     rafRef.current = requestAnimationFrame(() => {
       setFocus(HISTORY_PAGE_FOCUS_KEY);
     });
@@ -107,7 +108,7 @@ export const HistoryPage = memo(function HistoryPage(): ReactElement {
         cancelAnimationFrame(rafRef.current);
       }
     };
-  }, []);
+  }, [loading]);
 
   const handleSelectPosterItem = useCallback(
     (item: PosterItem): void => {
