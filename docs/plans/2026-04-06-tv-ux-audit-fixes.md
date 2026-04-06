@@ -113,7 +113,7 @@ Ensure every `navigate()` call captures the current focus key so pressing Back r
 
 Prevent rapid-fire key repeats from causing jank on slow TV CPUs. Only throttle navigation keys — media keys must remain instant.
 
-- [ ] Create `src/hooks/useThrottledKey.ts`:
+- [x] Create `src/hooks/useThrottledKey.ts`:
   ```typescript
   const NAVIGATION_KEYS = new Set([
     'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
@@ -125,8 +125,8 @@ Prevent rapid-fire key repeats from causing jank on slow TV CPUs. Only throttle 
   - Returns `false` for non-navigation keys (media keys pass through immediately)
   - Returns `true` if the same key was handled within `THROTTLE_MS` ago
   - Uses a simple `lastKeyTime: Map<string, number>` to track per-key timestamps
-- [ ] `src/hooks/useRemoteKeys.ts`: import `shouldThrottleKey`, add early return at the top of the `handleKeyDown` callback if `shouldThrottleKey` returns `true`
-- [ ] Verify: hold down arrow key in browser dev — should navigate once per ~150ms, not every frame
+- [x] `src/hooks/useRemoteKeys.ts`: import `shouldThrottleKey`, add early return at the top of the `handleKeyDown` callback if `shouldThrottleKey` returns `true`
+- [x] Verify: hold down arrow key in browser dev — should navigate once per ~150ms, not every frame
 
 **DoD:** `npm run typecheck && npm run lint && npm run build` passes. Holding an arrow key in browser causes smooth, throttled navigation at ~6-7 steps/second instead of flooding.
 
