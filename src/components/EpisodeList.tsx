@@ -48,17 +48,22 @@ export const EpisodeList = memo(function EpisodeList({
   const [selectedSeasonIndex, setSelectedSeasonIndex] = useState(initialSeasonIndex ?? 0);
   const [focusedEpisodeIndex, setFocusedEpisodeIndex] = useState(initialEpisodeIndex ?? 0);
 
-  const { ref, focusKey } = useFocusable({
-    trackChildren: true,
-    saveLastFocusedChild: true,
-    focusKey: 'episode-list',
-  });
-
   const currentSeason = seasons[selectedSeasonIndex];
   const episodes = useMemo(
     () => (currentSeason ? currentSeason.episodes : []),
     [currentSeason],
   );
+
+  const initialEpisodeFocusKey = episodes.length > focusedEpisodeIndex
+    ? 'episode-' + episodes[focusedEpisodeIndex].id
+    : undefined;
+
+  const { ref, focusKey } = useFocusable({
+    trackChildren: true,
+    saveLastFocusedChild: true,
+    focusKey: 'episode-list',
+    preferredChildFocusKey: initialEpisodeFocusKey,
+  });
 
   const handleSelectSeason = useCallback(
     (index: number): void => {

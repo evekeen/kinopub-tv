@@ -128,7 +128,7 @@ export const ContentPage = memo(function ContentPage(): ReactElement {
       const kind = classifyType(item.type);
       const focusTarget = kind === 'movie'
         ? 'content-play-button'
-        : 'content-bookmark-button';
+        : 'episode-list';
       requestAnimationFrame(() => {
         setFocus(focusTarget);
       });
