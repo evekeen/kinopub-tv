@@ -21,7 +21,7 @@ import { useUiStore } from '../store/ui';
 import type { Item, BookmarkFolder } from '../types';
 import styles from './BookmarksPage.module.css';
 
-const VISIBLE_CARD_BUFFER = 5;
+const VISIBLE_CARD_BUFFER = 21;
 const CARDS_PER_ROW = 7;
 const CARD_ROW_HEIGHT = 480;
 const FOLDER_HEIGHT = 80;

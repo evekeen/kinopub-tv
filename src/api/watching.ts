@@ -1,8 +1,11 @@
 import { apiGet, apiPost } from './client';
 import type { ListResponse, StatusResponse, WatchingSerialItem, WatchingMovieItem } from '../types';
 
-export async function getWatchingSerials(sort?: string): Promise<ListResponse<WatchingSerialItem>> {
-  return apiGet<ListResponse<WatchingSerialItem>>('watching/serials', { sort });
+export async function getWatchingSerials(sort?: string, subscribed?: boolean): Promise<ListResponse<WatchingSerialItem>> {
+  return apiGet<ListResponse<WatchingSerialItem>>('watching/serials', {
+    sort,
+    subscribed: subscribed === true ? 1 : undefined,
+  });
 }
 
 export async function getWatchingMovies(sort?: string): Promise<ListResponse<WatchingMovieItem>> {

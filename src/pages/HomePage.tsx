@@ -18,7 +18,7 @@ import { PosterSkeleton } from '../components/LoadingSkeleton';
 import { NetworkError } from '../components/NetworkError';
 import { useBackKey } from '../hooks/useBackKey';
 import { getFresh, getHot, getPopular } from '../api/content';
-import { getWatchingSerials, getWatchingMovies } from '../api/watching';
+import { getWatchingSerials } from '../api/watching';
 import { AuthRequiredError } from '../api/client';
 import { useUiStore } from '../store/ui';
 import { useAuthStore } from '../store/auth';
@@ -64,24 +64,20 @@ export const HomePage = memo(function HomePage(): ReactElement {
         });
 
       const results = await Promise.all([
-        rethrowAuth(getWatchingSerials()),
-        rethrowAuth(getWatchingMovies()),
+        rethrowAuth(getWatchingSerials('updated', true)),
         rethrowAuth(getFresh()),
         rethrowAuth(getHot()),
         rethrowAuth(getPopular()),
       ]);
 
-      const [watchingSerials, watchingMovies, fresh, hot, popular] = results;
+      const [subscribed, fresh, hot, popular] = results;
 
       const newRails: RailData[] = [];
 
       const continueWatchingItems: PosterItem[] = [];
-      if (watchingSerials?.items) {
-        const inProgress = watchingSerials.items.filter((s) => s.watched > 0 && s.watched < s.total);
+      if (subscribed?.items) {
+        const inProgress = subscribed.items.filter((s) => s.watched > 0 && s.watched < s.total);
         continueWatchingItems.push(...inProgress);
-      }
-      if (watchingMovies?.items) {
-        continueWatchingItems.push(...watchingMovies.items);
       }
 
       if (continueWatchingItems.length > 0) {
