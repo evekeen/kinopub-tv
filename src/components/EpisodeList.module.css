@@ -14,7 +14,7 @@
 
 .seasonTab {
   padding: 8px 24px;
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 600;
   border-radius: 6px;
   background-color: #1a2a4a;
@@ -86,7 +86,7 @@
 }
 
 .episodeNumber {
-  font-size: 18px;
+  font-size: 24px;
   color: #6688aa;
   margin-bottom: 4px;
 }
@@ -105,7 +105,7 @@
 }
 
 .episodeDuration {
-  font-size: 18px;
+  font-size: 24px;
   color: #6688aa;
   margin-top: 4px;
 }

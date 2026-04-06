@@ -64,7 +64,12 @@
 }
 
 .label {
-  font-size: 13px;
+  font-size: 24px;
   margin-top: 6px;
   line-height: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 86px;
+  text-align: center;
 }
