@@ -13,6 +13,7 @@ import {
   setFocus,
 } from '@noriginmedia/norigin-spatial-navigation';
 import { ContentRail } from '../components/ContentRail';
+import type { PosterItem } from '../components/PosterCard';
 import { PosterSkeleton } from '../components/LoadingSkeleton';
 import { NetworkError } from '../components/NetworkError';
 import { useBackKey } from '../hooks/useBackKey';
@@ -21,12 +22,11 @@ import { getWatchingSerials, getWatchingMovies } from '../api/watching';
 import { AuthRequiredError } from '../api/client';
 import { useUiStore } from '../store/ui';
 import { useAuthStore } from '../store/auth';
-import type { Item } from '../types';
 import styles from './HomePage.module.css';
 
 interface RailData {
   title: string;
-  items: ReadonlyArray<Item>;
+  items: ReadonlyArray<PosterItem>;
   focusKey: string;
 }
 
@@ -75,9 +75,10 @@ export const HomePage = memo(function HomePage(): ReactElement {
 
       const newRails: RailData[] = [];
 
-      const continueWatchingItems: Item[] = [];
+      const continueWatchingItems: PosterItem[] = [];
       if (watchingSerials?.items) {
-        continueWatchingItems.push(...watchingSerials.items);
+        const inProgress = watchingSerials.items.filter((s) => s.watched > 0 && s.watched < s.total);
+        continueWatchingItems.push(...inProgress);
       }
       if (watchingMovies?.items) {
         continueWatchingItems.push(...watchingMovies.items);
@@ -148,7 +149,7 @@ export const HomePage = memo(function HomePage(): ReactElement {
   }, [rails]);
 
   const handleSelectItem = useCallback(
-    (item: Item): void => {
+    (item: PosterItem): void => {
       navigate('content', { params: { contentId: item.id }, lastFocusKey: 'home-page' });
     },
     [navigate],
@@ -221,7 +222,7 @@ export const HomePage = memo(function HomePage(): ReactElement {
 interface RailWithIndexProps {
   rail: RailData;
   index: number;
-  onSelectItem: (item: Item) => void;
+  onSelectItem: (item: PosterItem) => void;
   onRailFocus: (index: number) => void;
 }
 

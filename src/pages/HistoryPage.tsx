@@ -13,12 +13,13 @@ import {
   setFocus,
 } from '@noriginmedia/norigin-spatial-navigation';
 import { PosterCard } from '../components/PosterCard';
+import type { PosterItem } from '../components/PosterCard';
 import { PosterSkeleton } from '../components/LoadingSkeleton';
 import { NetworkError } from '../components/NetworkError';
 import { useBackKey } from '../hooks/useBackKey';
 import { getHistory } from '../api/history';
 import { useUiStore } from '../store/ui';
-import type { Item, HistoryEntry } from '../types';
+import type { HistoryEntry } from '../types';
 import styles from './HistoryPage.module.css';
 
 const VISIBLE_CARD_BUFFER = 5;
@@ -27,11 +28,11 @@ const CARD_ROW_HEIGHT = 480;
 const HISTORY_PAGE_FOCUS_KEY = 'history-page';
 
 interface HistoryCardProps {
-  item: Item;
+  item: PosterItem;
   index: number;
   focusedIndex: number;
-  onSelect: (item: Item) => void;
-  onFocus: (item: Item, index: number) => void;
+  onSelect: (item: PosterItem) => void;
+  onFocus: (item: PosterItem, index: number) => void;
   focusKey: string;
 }
 
@@ -47,8 +48,8 @@ const HistoryCard = memo(function HistoryCard({
     Math.abs(index - focusedIndex) <= VISIBLE_CARD_BUFFER;
 
   const handleFocus = useCallback(
-    (focusedItem: Item): void => {
-      onFocus(focusedItem, index);
+    (focusedPosterItem: PosterItem): void => {
+      onFocus(focusedPosterItem, index);
     },
     [onFocus, index],
   );
@@ -85,7 +86,7 @@ export const HistoryPage = memo(function HistoryPage(): ReactElement {
     setError(null);
     try {
       const response = await getHistory();
-      setEntries(response.items);
+      setEntries(response.history);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to load history'));
     } finally {
@@ -108,14 +109,14 @@ export const HistoryPage = memo(function HistoryPage(): ReactElement {
     };
   }, []);
 
-  const handleSelectItem = useCallback(
-    (item: Item): void => {
+  const handleSelectPosterItem = useCallback(
+    (item: PosterItem): void => {
       navigate('content', { params: { contentId: item.id }, lastFocusKey: HISTORY_PAGE_FOCUS_KEY });
     },
     [navigate],
   );
 
-  const handleCardFocus = useCallback((_item: Item, index: number): void => {
+  const handleCardFocus = useCallback((_item: PosterItem, index: number): void => {
     setFocusedCardIndex(index);
   }, []);
 
@@ -127,7 +128,7 @@ export const HistoryPage = memo(function HistoryPage(): ReactElement {
   }, [loadHistory]);
 
   const items = useMemo(
-    () => entries.filter((e) => !e.deleted).map((e) => e.item),
+    () => entries.filter((e) => e.deleted !== true).map((e) => e.item),
     [entries],
   );
 
@@ -179,7 +180,7 @@ export const HistoryPage = memo(function HistoryPage(): ReactElement {
                   item={item}
                   index={index}
                   focusedIndex={focusedCardIndex}
-                  onSelect={handleSelectItem}
+                  onSelect={handleSelectPosterItem}
                   onFocus={handleCardFocus}
                   focusKey={'history-card-' + item.id + '-' + index}
                 />

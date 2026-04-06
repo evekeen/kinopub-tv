@@ -90,8 +90,19 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
       setTitle(screenTitle ?? bestFile.quality);
       setSubtitles(mediaLinks.subtitles);
       setMedia(hlsUrl, [], mediaLinks.subtitles);
+
+      const engSubIndex = mediaLinks.subtitles.findIndex((s) => s.lang === 'eng');
+      if (engSubIndex !== -1) {
+        setSelectedSubtitle(engSubIndex);
+      }
+
       playerRef.current.loadSource(hlsUrl, (tracks) => {
         setAudioTracks(tracks);
+        const engTrack = tracks.find((t) => t.lang === 'eng');
+        if (engTrack !== undefined) {
+          playerRef.current.setAudioTrack(engTrack.id);
+          setSelectedAudioTrack(engTrack.id);
+        }
       });
       setLoading(false);
     } catch (err) {

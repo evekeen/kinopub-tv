@@ -13,6 +13,7 @@ import {
   setFocus,
 } from '@noriginmedia/norigin-spatial-navigation';
 import { PosterCard } from '../components/PosterCard';
+import type { PosterItem } from '../components/PosterCard';
 import { PosterSkeleton } from '../components/LoadingSkeleton';
 import { NetworkError } from '../components/NetworkError';
 import { getFolders, getFolderItems } from '../api/bookmarks';
@@ -73,8 +74,8 @@ interface ItemCardProps {
   item: Item;
   index: number;
   focusedIndex: number;
-  onSelect: (item: Item) => void;
-  onFocus: (item: Item, index: number) => void;
+  onSelect: (item: PosterItem) => void;
+  onFocus: (item: PosterItem, index: number) => void;
   focusKey: string;
 }
 
@@ -90,7 +91,7 @@ const ItemCard = memo(function ItemCard({
     Math.abs(index - focusedIndex) <= VISIBLE_CARD_BUFFER;
 
   const handleFocus = useCallback(
-    (focusedItem: Item): void => {
+    (focusedItem: PosterItem): void => {
       onFocus(focusedItem, index);
     },
     [onFocus, index],
@@ -222,13 +223,13 @@ export const BookmarksPage = memo(function BookmarksPage(): ReactElement {
   }, [focusedFolderIndex]);
 
   const handleSelectItem = useCallback(
-    (item: Item): void => {
+    (item: PosterItem): void => {
       navigate('content', { params: { contentId: item.id }, lastFocusKey: BOOKMARKS_PAGE_FOCUS_KEY });
     },
     [navigate],
   );
 
-  const handleCardFocus = useCallback((_item: Item, index: number): void => {
+  const handleCardFocus = useCallback((_item: PosterItem, index: number): void => {
     setFocusedCardIndex(index);
   }, []);
 

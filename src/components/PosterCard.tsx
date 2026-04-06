@@ -1,13 +1,22 @@
 import { ReactElement, memo, useState, useCallback } from 'react';
 import { useFocusable } from '@noriginmedia/norigin-spatial-navigation';
-import type { Item } from '../types';
+import type { Posters } from '../types';
 import styles from './PosterCard.module.css';
 
+export interface PosterItem {
+  id: number;
+  title: string;
+  posters: Posters;
+  year?: number;
+  kinopoisk_rating?: number;
+  imdb_rating?: number;
+}
+
 interface PosterCardProps {
-  item: Item;
+  item: PosterItem;
   shouldLoadImage: boolean;
-  onSelect: (item: Item) => void;
-  onFocus: (item: Item) => void;
+  onSelect: (item: PosterItem) => void;
+  onFocus: (item: PosterItem) => void;
   focusKey?: string;
 }
 
@@ -43,10 +52,12 @@ export const PosterCard = memo(function PosterCard({
     ? styles.image + ' ' + styles.imageLoaded
     : styles.image;
 
-  const rating = item.kinopoisk_rating > 0
-    ? item.kinopoisk_rating.toFixed(1)
-    : item.imdb_rating > 0
-      ? item.imdb_rating.toFixed(1)
+  const kpRating = item.kinopoisk_rating ?? 0;
+  const imdbRating = item.imdb_rating ?? 0;
+  const rating = kpRating > 0
+    ? kpRating.toFixed(1)
+    : imdbRating > 0
+      ? imdbRating.toFixed(1)
       : null;
 
   return (
@@ -68,7 +79,9 @@ export const PosterCard = memo(function PosterCard({
         )}
       </div>
       <div className={styles.title}>{item.title}</div>
-      <div className={styles.year}>{item.year}</div>
+      {item.year !== undefined && item.year > 0 && (
+        <div className={styles.year}>{item.year}</div>
+      )}
     </div>
   );
 });

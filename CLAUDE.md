@@ -222,6 +222,12 @@ The `<video>` element and hls.js instance live in a React Context at the App lev
 - Sign with: `tizen package -t wgt -s <profile-name> -- dist/`
 - Samsung certificate must include TV's DUID (get via `sdb shell 0 getduid`)
 
+### sdb Connection on Tizen 9.0 (2025 TVs)
+- After every TV restart, sdb connection must be re-authorized via **Tizen Device Manager GUI** (`open ~/tizen-studio/tools/device-manager/bin/device-manager.app`)
+- Connect to the TV IP in Device Manager first — this triggers a consent dialog on the TV screen
+- Only after accepting the GUI consent will `sdb connect <TV_IP>` work from CLI
+- This approval is lost on TV restart — must repeat the Device Manager step each time
+
 ### On-Device Debugging
 - Launch in debug mode: `sdb shell 0 debug <appId>` — returns a debug port
 - Connect Chrome DevTools Protocol via WebSocket at `ws://<TV_IP>:<port>/devtools/page/<id>`

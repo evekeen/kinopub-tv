@@ -10,19 +10,19 @@ import {
   FocusContext,
 } from '@noriginmedia/norigin-spatial-navigation';
 import { PosterCard } from './PosterCard';
-import type { Item } from '../types';
+import type { PosterItem } from './PosterCard';
 import styles from './ContentRail.module.css';
 
 const CARD_WIDTH = 250;
 const CARD_GAP = 16;
 const CARD_STEP = CARD_WIDTH + CARD_GAP;
-const VISIBLE_BUFFER = 5;
-const IMAGE_LOAD_BUFFER = 3;
+const VISIBLE_BUFFER = 8;
+const IMAGE_LOAD_BUFFER = 8;
 
 interface ContentRailProps {
   title: string;
-  items: ReadonlyArray<Item>;
-  onSelectItem: (item: Item) => void;
+  items: ReadonlyArray<PosterItem>;
+  onSelectItem: (item: PosterItem) => void;
   railFocusKey: string;
 }
 
@@ -47,7 +47,7 @@ export const ContentRail = memo(function ContentRail({
     preferredChildFocusKey: preferredChild,
   });
 
-  const handleItemFocus = useCallback((_item: Item, index: number): void => {
+  const handleItemFocus = useCallback((_item: PosterItem, index: number): void => {
     setFocusedIndex(index);
   }, []);
 
@@ -114,11 +114,11 @@ export const ContentRail = memo(function ContentRail({
 });
 
 interface PosterCardWithIndexProps {
-  item: Item;
+  item: PosterItem;
   index: number;
   shouldLoadImage: boolean;
-  onSelect: (item: Item) => void;
-  onFocus: (item: Item, index: number) => void;
+  onSelect: (item: PosterItem) => void;
+  onFocus: (item: PosterItem, index: number) => void;
   focusKey: string;
 }
 
@@ -131,8 +131,8 @@ const PosterCardWithIndex = memo(function PosterCardWithIndex({
   focusKey,
 }: PosterCardWithIndexProps): ReactElement {
   const handleFocus = useCallback(
-    (focusedItem: Item): void => {
-      onFocus(focusedItem, index);
+    (focusedPosterItem: PosterItem): void => {
+      onFocus(focusedPosterItem, index);
     },
     [onFocus, index],
   );

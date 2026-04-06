@@ -111,8 +111,8 @@ describe('ContentRail', () => {
       />,
     );
     expect(screen.getByText('Item 1')).toBeDefined();
-    expect(screen.getByText('Item 6')).toBeDefined();
-    expect(screen.queryByText('Item 7')).toBeNull();
+    expect(screen.getByText('Item 9')).toBeDefined();
+    expect(screen.queryByText('Item 10')).toBeNull();
   });
 
   it('uses translateX for GPU-composited scrolling', () => {

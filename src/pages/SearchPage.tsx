@@ -13,6 +13,7 @@ import {
   setFocus,
 } from '@noriginmedia/norigin-spatial-navigation';
 import { PosterCard } from '../components/PosterCard';
+import type { PosterItem } from '../components/PosterCard';
 import { PosterSkeleton } from '../components/LoadingSkeleton';
 import { NetworkError } from '../components/NetworkError';
 import { searchItems } from '../api/content';
@@ -76,8 +77,8 @@ interface ResultCardProps {
   item: Item;
   index: number;
   focusedIndex: number;
-  onSelect: (item: Item) => void;
-  onFocus: (item: Item, index: number) => void;
+  onSelect: (item: PosterItem) => void;
+  onFocus: (item: PosterItem, index: number) => void;
   focusKey: string;
 }
 
@@ -93,7 +94,7 @@ const ResultCard = memo(function ResultCard({
     Math.abs(index - focusedIndex) <= VISIBLE_CARD_BUFFER;
 
   const handleFocus = useCallback(
-    (focusedItem: Item): void => {
+    (focusedItem: PosterItem): void => {
       onFocus(focusedItem, index);
     },
     [onFocus, index],
@@ -197,13 +198,13 @@ export const SearchPage = memo(function SearchPage(): ReactElement {
   }, []);
 
   const handleSelectItem = useCallback(
-    (item: Item): void => {
+    (item: PosterItem): void => {
       navigate('content', { params: { contentId: item.id }, lastFocusKey: 'search-page' });
     },
     [navigate],
   );
 
-  const handleCardFocus = useCallback((_item: Item, index: number): void => {
+  const handleCardFocus = useCallback((_item: PosterItem, index: number): void => {
     setFocusedCardIndex(index);
   }, []);
 

@@ -46,5 +46,7 @@ export type {
 
 export type {
   WatchingSerialItem,
+  WatchingMovieItem,
   HistoryEntry,
+  HistoryMedia,
 } from './watching';

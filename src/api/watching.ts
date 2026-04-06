@@ -1,12 +1,12 @@
 import { apiGet, apiPost } from './client';
-import type { ListResponse, StatusResponse, Item, WatchingSerialItem } from '../types';
+import type { ListResponse, StatusResponse, WatchingSerialItem, WatchingMovieItem } from '../types';
 
-export async function getWatchingSerials(): Promise<ListResponse<WatchingSerialItem>> {
-  return apiGet<ListResponse<WatchingSerialItem>>('watching/serials');
+export async function getWatchingSerials(sort?: string): Promise<ListResponse<WatchingSerialItem>> {
+  return apiGet<ListResponse<WatchingSerialItem>>('watching/serials', { sort });
 }
 
-export async function getWatchingMovies(): Promise<ListResponse<Item>> {
-  return apiGet<ListResponse<Item>>('watching/movies');
+export async function getWatchingMovies(sort?: string): Promise<ListResponse<WatchingMovieItem>> {
+  return apiGet<ListResponse<WatchingMovieItem>>('watching/movies', { sort });
 }
 
 export async function markTime(itemId: number, videoId: number, time: number): Promise<StatusResponse> {

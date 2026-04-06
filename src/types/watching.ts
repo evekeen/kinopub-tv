@@ -1,9 +1,25 @@
-import { Item } from './content';
+import { Item, ItemType, Posters } from './content';
 
-export interface WatchingSerialItem extends Item {
+export interface WatchingSerialItem {
+  id: number;
+  type: ItemType;
+  title: string;
+  subtype: string;
+  posters: Posters;
   new: number;
   total: number;
   watched: number;
+}
+
+export interface WatchingMovieItem {
+  id: number;
+  type: ItemType;
+  title: string;
+  subtype: string;
+  posters: Posters;
+  status: number;
+  time: number;
+  duration: number;
 }
 
 export interface HistoryEntry {
@@ -11,6 +27,17 @@ export interface HistoryEntry {
   first_seen: number;
   last_seen: number;
   time: number;
-  deleted: boolean;
+  deleted?: boolean;
   item: Item;
+  media?: HistoryMedia;
+}
+
+export interface HistoryMedia {
+  id: number;
+  number: number;
+  snumber: number;
+  thumbnail: string;
+  title: string;
+  tracks: number;
+  duration: number;
 }

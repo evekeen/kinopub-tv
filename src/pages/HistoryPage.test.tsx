@@ -4,7 +4,7 @@ import { init } from '@noriginmedia/norigin-spatial-navigation';
 import { HistoryPage } from './HistoryPage';
 import { useUiStore } from '../store/ui';
 import { useAuthStore } from '../store/auth';
-import type { Item, HistoryEntry, PaginatedResponse } from '../types';
+import type { Item, HistoryEntry } from '../types';
 
 function makeItem(id: number, title: string): Item {
   return {
@@ -62,11 +62,9 @@ function makeHistoryEntry(id: number, title: string, deleted: boolean): HistoryE
   };
 }
 
-function makeHistoryResponse(entries: HistoryEntry[]): PaginatedResponse<HistoryEntry> {
+function makeHistoryResponse(entries: HistoryEntry[]): { history: HistoryEntry[] } {
   return {
-    status: 200,
-    items: entries,
-    pagination: { total: 1, current: 1, perpage: 20, total_items: entries.length },
+    history: entries,
   };
 }
 

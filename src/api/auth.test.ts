@@ -60,7 +60,7 @@ describe('auth', () => {
       const calledInit = mockFetch.mock.calls[0][1] as RequestInit;
       const body = new URLSearchParams(calledInit.body as string);
       expect(body.get('code')).toBe('abc123');
-      expect(body.get('grant_type')).toBe('device_code');
+      expect(body.get('grant_type')).toBe('device_token');
     });
 
     it('throws AuthRequestError on authorization_pending', async () => {

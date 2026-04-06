@@ -1,6 +1,10 @@
 import { apiGet } from './client';
-import type { PaginatedResponse, HistoryEntry } from '../types';
+import type { HistoryEntry } from '../types';
 
-export async function getHistory(page?: number): Promise<PaginatedResponse<HistoryEntry>> {
-  return apiGet<PaginatedResponse<HistoryEntry>>('history', { page });
+interface HistoryResponse {
+  history: HistoryEntry[];
+}
+
+export async function getHistory(page?: number): Promise<HistoryResponse> {
+  return apiGet<HistoryResponse>('history', { page });
 }
