@@ -91,9 +91,9 @@ export const PlayerOverlay = memo(function PlayerOverlay({
       }
     };
 
-    window.addEventListener('keydown', handleAnyKey);
+    window.addEventListener('keydown', handleAnyKey, true);
     return () => {
-      window.removeEventListener('keydown', handleAnyKey);
+      window.removeEventListener('keydown', handleAnyKey, true);
     };
   }, [visible, showOverlay, resetHideTimer]);
 
@@ -111,6 +111,26 @@ export const PlayerOverlay = memo(function PlayerOverlay({
       setFocus('player-overlay-tracks-btn');
     });
   }, [resetHideTimer]);
+
+  useEffect(() => {
+    const handleBackInTrackPicker = (event: KeyboardEvent): void => {
+      if (!showTrackPickerRef.current) return;
+      if (
+        event.keyCode === 10009 ||
+        event.keyCode === 8 ||
+        event.key === 'Backspace' ||
+        event.key === 'Escape'
+      ) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        handleCloseTracks();
+      }
+    };
+    window.addEventListener('keydown', handleBackInTrackPicker, true);
+    return () => {
+      window.removeEventListener('keydown', handleBackInTrackPicker, true);
+    };
+  }, [handleCloseTracks]);
 
   const { ref: overlayRef, focusKey: overlayFocusKey } = useFocusable({
     trackChildren: true,

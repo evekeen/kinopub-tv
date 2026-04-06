@@ -67,6 +67,7 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
   const [title, setTitle] = useState('');
   const currentTimeRef = useRef(0);
   const seekingRef = useRef(false);
+  const canPlayHandlerRef = useRef<(() => void) | null>(null);
 
   currentTimeRef.current = currentTime;
 
@@ -110,10 +111,15 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
       if (resumeTime !== undefined && resumeTime > 0) {
         const video = playerRef.current.videoRef.current;
         if (video !== null) {
+          if (canPlayHandlerRef.current !== null) {
+            video.removeEventListener('canplay', canPlayHandlerRef.current);
+          }
           const onCanPlay = (): void => {
             video.removeEventListener('canplay', onCanPlay);
+            canPlayHandlerRef.current = null;
             playerRef.current.seek(resumeTime);
           };
+          canPlayHandlerRef.current = onCanPlay;
           video.addEventListener('canplay', onCanPlay);
         }
       }
@@ -128,6 +134,10 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
     fetchAndPlay();
 
     return () => {
+      if (canPlayHandlerRef.current !== null && playerRef.current.videoRef.current !== null) {
+        playerRef.current.videoRef.current.removeEventListener('canplay', canPlayHandlerRef.current);
+        canPlayHandlerRef.current = null;
+      }
       playerRef.current.destroy();
       reset();
     };
