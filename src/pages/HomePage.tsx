@@ -12,33 +12,66 @@ import {
   FocusContext,
   setFocus,
 } from '@noriginmedia/norigin-spatial-navigation';
-import { ContentRail } from '../components/ContentRail';
+import { PosterCard } from '../components/PosterCard';
 import type { PosterItem } from '../components/PosterCard';
 import { PosterSkeleton } from '../components/LoadingSkeleton';
 import { NetworkError } from '../components/NetworkError';
 import { useBackKey } from '../hooks/useBackKey';
-import { getFresh, getHot, getPopular } from '../api/content';
 import { getWatchingSerials } from '../api/watching';
 import { AuthRequiredError } from '../api/client';
 import { useUiStore } from '../store/ui';
 import { useAuthStore } from '../store/auth';
+import type { WatchingSerialItem } from '../types';
 import styles from './HomePage.module.css';
 
-interface RailData {
-  title: string;
-  items: ReadonlyArray<PosterItem>;
+const VISIBLE_CARD_BUFFER = 21;
+const CARDS_PER_ROW = 7;
+const CARD_ROW_HEIGHT = 480;
+const HOME_PAGE_FOCUS_KEY = 'home-page';
+
+interface WatchingCardProps {
+  item: WatchingSerialItem;
+  index: number;
+  focusedIndex: number;
+  onSelect: (item: PosterItem) => void;
+  onFocus: (item: PosterItem, index: number) => void;
   focusKey: string;
 }
 
-const RAIL_HEIGHT = 510;
-const VISIBLE_RAIL_BUFFER = 1;
-const PLACEHOLDER_STYLE = { height: RAIL_HEIGHT + 'px' } as const;
+const WatchingCard = memo(function WatchingCard({
+  item,
+  index,
+  focusedIndex,
+  onSelect,
+  onFocus,
+  focusKey,
+}: WatchingCardProps): ReactElement {
+  const shouldLoadImage =
+    Math.abs(index - focusedIndex) <= VISIBLE_CARD_BUFFER;
+
+  const handleFocus = useCallback(
+    (focusedItem: PosterItem): void => {
+      onFocus(focusedItem, index);
+    },
+    [onFocus, index],
+  );
+
+  return (
+    <PosterCard
+      item={item}
+      shouldLoadImage={shouldLoadImage}
+      onSelect={onSelect}
+      onFocus={handleFocus}
+      focusKey={focusKey}
+    />
+  );
+});
 
 export const HomePage = memo(function HomePage(): ReactElement {
-  const [rails, setRails] = useState<ReadonlyArray<RailData>>([]);
+  const [items, setItems] = useState<ReadonlyArray<WatchingSerialItem>>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  const [focusedRailIndex, setFocusedRailIndex] = useState(0);
+  const [focusedCardIndex, setFocusedCardIndex] = useState(0);
   const rafRef = useRef<number | null>(null);
 
   const navigate = useUiStore((s) => s.navigate);
@@ -50,75 +83,20 @@ export const HomePage = memo(function HomePage(): ReactElement {
   const { ref, focusKey } = useFocusable({
     trackChildren: true,
     saveLastFocusedChild: true,
-    focusKey: 'home-page',
+    focusKey: HOME_PAGE_FOCUS_KEY,
   });
 
   const fetchContent = useCallback(async (): Promise<void> => {
     setLoading(true);
     setError(null);
     try {
-      const rethrowAuth = <T,>(promise: Promise<T>): Promise<T | null> =>
-        promise.catch((err: unknown) => {
-          if (err instanceof AuthRequiredError) throw err;
-          return null;
-        });
-
-      const results = await Promise.all([
-        rethrowAuth(getWatchingSerials('updated', true)),
-        rethrowAuth(getFresh()),
-        rethrowAuth(getHot()),
-        rethrowAuth(getPopular()),
-      ]);
-
-      const [subscribed, fresh, hot, popular] = results;
-
-      const newRails: RailData[] = [];
-
-      const continueWatchingItems: PosterItem[] = [];
-      if (subscribed?.items) {
-        const inProgress = subscribed.items.filter((s) => s.watched > 0 && s.watched < s.total);
-        continueWatchingItems.push(...inProgress);
-      }
-
-      if (continueWatchingItems.length > 0) {
-        newRails.push({
-          title: 'Continue Watching',
-          items: continueWatchingItems,
-          focusKey: 'rail-continue',
-        });
-      }
-
-      if (fresh !== null && fresh.items.length > 0) {
-        newRails.push({
-          title: 'Fresh',
-          items: fresh.items,
-          focusKey: 'rail-fresh',
-        });
-      }
-
-      if (hot !== null && hot.items.length > 0) {
-        newRails.push({
-          title: 'Hot',
-          items: hot.items,
-          focusKey: 'rail-hot',
-        });
-      }
-
-      if (popular !== null && popular.items.length > 0) {
-        newRails.push({
-          title: 'Popular',
-          items: popular.items,
-          focusKey: 'rail-popular',
-        });
-      }
-
-      if (newRails.length === 0) {
-        setError(new Error('No content available'));
-        return;
-      }
-
-      setRails(newRails);
+      const response = await getWatchingSerials('updated', true);
+      const inProgress = response.items.filter(
+        (s) => s.watched > 0 && s.watched < s.total,
+      );
+      setItems(inProgress);
     } catch (err) {
+      if (err instanceof AuthRequiredError) throw err;
       setError(err instanceof Error ? err : new Error('Failed to load content'));
     } finally {
       setLoading(false);
@@ -132,9 +110,9 @@ export const HomePage = memo(function HomePage(): ReactElement {
   }, [fetchContent, isAuthenticated]);
 
   useEffect(() => {
-    if (rails.length > 0) {
+    if (!loading && items.length > 0) {
       rafRef.current = requestAnimationFrame(() => {
-        setFocus(rails[0].focusKey);
+        setFocus(HOME_PAGE_FOCUS_KEY);
       });
     }
     return () => {
@@ -142,113 +120,81 @@ export const HomePage = memo(function HomePage(): ReactElement {
         cancelAnimationFrame(rafRef.current);
       }
     };
-  }, [rails]);
+  }, [loading, items.length]);
 
   const handleSelectItem = useCallback(
     (item: PosterItem): void => {
-      navigate('content', { params: { contentId: item.id }, lastFocusKey: 'home-page' });
+      navigate('content', { params: { contentId: item.id }, lastFocusKey: HOME_PAGE_FOCUS_KEY });
     },
     [navigate],
   );
 
-  const handleRailFocus = useCallback((index: number): void => {
-    setFocusedRailIndex(index);
+  const handleCardFocus = useCallback((_item: PosterItem, index: number): void => {
+    setFocusedCardIndex(index);
   }, []);
 
-  const translateY = useMemo(() => {
-    if (focusedRailIndex <= 0) return 0;
-    return -(focusedRailIndex * RAIL_HEIGHT);
-  }, [focusedRailIndex]);
+  const handleRetry = useCallback((): void => {
+    setError(null);
+    fetchContent();
+  }, [fetchContent]);
 
-  const visibleRails = useMemo(() => {
-    const start = Math.max(0, focusedRailIndex - VISIBLE_RAIL_BUFFER);
-    const end = Math.min(rails.length - 1, focusedRailIndex + VISIBLE_RAIL_BUFFER);
-    return { start, end };
-  }, [focusedRailIndex, rails.length]);
+  const focusedRow = useMemo(
+    () => Math.floor(focusedCardIndex / CARDS_PER_ROW),
+    [focusedCardIndex],
+  );
 
-  const railListStyle = useMemo(
-    () => ({
-      transform: 'translateY(' + translateY + 'px)',
-    }),
-    [translateY],
+  const gridTranslateY = useMemo(() => {
+    if (focusedRow <= 0) return 0;
+    return -(focusedRow * CARD_ROW_HEIGHT);
+  }, [focusedRow]);
+
+  const gridStyle = useMemo(
+    () => ({ transform: 'translateY(' + gridTranslateY + 'px)' }),
+    [gridTranslateY],
   );
 
   if (error) {
-    return <NetworkError message={error.message} onRetry={fetchContent} />;
-  }
-
-  if (loading) {
-    return (
-      <div className={styles.loadingContainer}>
-        <RailSkeleton />
-        <RailSkeleton />
-        <RailSkeleton />
-      </div>
-    );
+    return <NetworkError message={error.message} onRetry={handleRetry} />;
   }
 
   return (
     <FocusContext.Provider value={focusKey}>
       <div ref={ref} className={styles.container}>
-        <div className={styles.railList} style={railListStyle}>
-          {rails.map((rail, index) => {
-            const isVisible =
-              index >= visibleRails.start && index <= visibleRails.end;
-            if (!isVisible) {
-              return (
-                <div key={rail.focusKey} style={PLACEHOLDER_STYLE} />
-              );
-            }
-            return (
-              <RailWithIndex
-                key={rail.focusKey}
-                rail={rail}
-                index={index}
-                onSelectItem={handleSelectItem}
-                onRailFocus={handleRailFocus}
-              />
-            );
-          })}
+        <div className={styles.header}>
+          <span className={styles.title}>Continue Watching</span>
+        </div>
+
+        <div className={styles.itemsContainer}>
+          {loading && (
+            <div className={styles.loadingContainer}>
+              <PosterSkeleton count={14} />
+            </div>
+          )}
+
+          {!loading && items.length === 0 && (
+            <div className={styles.emptyState}>
+              <span className={styles.emptyText}>No shows in progress</span>
+              <span className={styles.emptyHint}>Subscribe to shows and start watching</span>
+            </div>
+          )}
+
+          {!loading && items.length > 0 && (
+            <div className={styles.itemsGrid} style={gridStyle}>
+              {items.map((item, index) => (
+                <WatchingCard
+                  key={item.id}
+                  item={item}
+                  index={index}
+                  focusedIndex={focusedCardIndex}
+                  onSelect={handleSelectItem}
+                  onFocus={handleCardFocus}
+                  focusKey={'home-card-' + item.id}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </FocusContext.Provider>
-  );
-});
-
-interface RailWithIndexProps {
-  rail: RailData;
-  index: number;
-  onSelectItem: (item: PosterItem) => void;
-  onRailFocus: (index: number) => void;
-}
-
-const RailWithIndex = memo(function RailWithIndex({
-  rail,
-  index,
-  onSelectItem,
-  onRailFocus,
-}: RailWithIndexProps): ReactElement {
-  const handleFocusCapture = useCallback((): void => {
-    onRailFocus(index);
-  }, [onRailFocus, index]);
-
-  return (
-    <div onFocusCapture={handleFocusCapture}>
-      <ContentRail
-        title={rail.title}
-        items={rail.items}
-        onSelectItem={onSelectItem}
-        railFocusKey={rail.focusKey}
-      />
-    </div>
-  );
-});
-
-const RailSkeleton = memo(function RailSkeleton(): ReactElement {
-  return (
-    <div className={styles.railSkeleton}>
-      <div className={styles.skeletonTitle} />
-      <PosterSkeleton count={7} />
-    </div>
   );
 });

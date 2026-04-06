@@ -5,30 +5,58 @@
   outline: none;
 }
 
-.railList {
+.header {
+  padding: 24px 0 16px 0;
+}
+
+.title {
+  font-size: 36px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.itemsContainer {
+  width: 100%;
+  height: calc(100% - 76px);
+  overflow: hidden;
+}
+
+.itemsGrid {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   transition: transform 150ms;
+}
+
+.itemsGrid > * {
+  margin-right: 16px;
+  margin-bottom: 16px;
 }
 
 .loadingContainer {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
 }
 
-.loadingContainer > * + * {
-  margin-top: 32px;
+.loadingContainer > * {
+  margin-right: 16px;
+  margin-bottom: 16px;
 }
 
-.railSkeleton {
+.emptyState {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
 }
 
-.skeletonTitle {
-  width: 200px;
-  height: 28px;
-  background-color: #1a2a4a;
-  border-radius: 4px;
-  margin-bottom: 16px;
+.emptyText {
+  font-size: 32px;
+  color: #8899aa;
+  margin-bottom: 12px;
+}
+
+.emptyHint {
+  font-size: 24px;
+  color: #556677;
 }

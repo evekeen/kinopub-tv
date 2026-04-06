@@ -4,62 +4,27 @@ import { init } from '@noriginmedia/norigin-spatial-navigation';
 import { HomePage } from './HomePage';
 import { useAuthStore } from '../store/auth';
 import { useUiStore } from '../store/ui';
-import type { Item } from '../types';
+import type { WatchingSerialItem } from '../types';
 
-function makeItem(id: number, title: string): Item {
+function makeWatchingItem(id: number, title: string, watched: number, total: number): WatchingSerialItem {
   return {
     id,
     title,
-    type: 'movie',
-    subtype: null,
-    year: 2024,
-    cast: '',
-    director: '',
-    voice: '',
-    duration: { average: 120, total: 120 },
-    langs: 1,
-    ac3: 0,
-    quality: 1080,
-    poor_quality: false,
-    plot: '',
-    imdb: 0,
-    imdb_rating: 0,
-    imdb_votes: 0,
-    kinopoisk: 0,
-    kinopoisk_rating: 0,
-    kinopoisk_votes: 0,
-    rating: 0,
-    rating_votes: 0,
-    rating_percentage: 0,
-    views: 0,
-    comments: 0,
-    finished: true,
-    advert: false,
-    in_watchlist: false,
-    subscribed: false,
-    created_at: 1700000000,
-    updated_at: 1700000000,
+    type: 'serial',
+    subtype: '',
     posters: {
       small: 'https://example.com/small.jpg',
       medium: 'https://example.com/medium.jpg',
       big: 'https://example.com/big.jpg',
     },
-    trailer: { id: 0, url: '' },
-    genres: [],
-    countries: [],
-    bookmarks: [],
+    new: total - watched,
+    total,
+    watched,
   };
 }
 
-vi.mock('../api/content', () => ({
-  getFresh: vi.fn(),
-  getHot: vi.fn(),
-  getPopular: vi.fn(),
-}));
-
 vi.mock('../api/watching', () => ({
   getWatchingSerials: vi.fn(),
-  getWatchingMovies: vi.fn(),
 }));
 
 describe('HomePage', () => {
@@ -72,107 +37,68 @@ describe('HomePage', () => {
       navigationStack: [],
     });
 
-    const freshItems = [makeItem(1, 'Fresh Movie'), makeItem(2, 'Fresh Film')];
-    const hotItems = [makeItem(3, 'Hot Movie'), makeItem(4, 'Hot Film')];
-    const popularItems = [makeItem(5, 'Popular Movie')];
-
-    const content = await import('../api/content');
-    vi.mocked(content.getFresh).mockResolvedValue({
-      status: 200,
-      items: freshItems,
-      pagination: { total: 1, current: 1, perpage: 20, total_items: 2 },
-    });
-    vi.mocked(content.getHot).mockResolvedValue({
-      status: 200,
-      items: hotItems,
-      pagination: { total: 1, current: 1, perpage: 20, total_items: 2 },
-    });
-    vi.mocked(content.getPopular).mockResolvedValue({
-      status: 200,
-      items: popularItems,
-      pagination: { total: 1, current: 1, perpage: 20, total_items: 1 },
-    });
-
     const watching = await import('../api/watching');
     vi.mocked(watching.getWatchingSerials).mockResolvedValue({
       status: 200,
-      items: [],
-    });
-    vi.mocked(watching.getWatchingMovies).mockResolvedValue({
-      status: 200,
-      items: [],
+      items: [
+        makeWatchingItem(1, 'Scrubs', 187, 189),
+        makeWatchingItem(2, 'Fallout', 10, 16),
+        makeWatchingItem(3, 'Not Started', 0, 20),
+        makeWatchingItem(4, 'Completed', 50, 50),
+      ],
     });
   });
 
   it('renders loading skeleton initially', () => {
     const { container } = render(<HomePage />);
-    const skeletons = container.querySelectorAll('[class*="skeletonTitle"]');
+    const skeletons = container.querySelectorAll('[class*="skeleton"], [class*="loading"]');
     expect(skeletons.length).toBeGreaterThan(0);
   });
 
-  it('renders visible content rails after loading', async () => {
+  it('renders in-progress shows as grid', async () => {
     render(<HomePage />);
 
     await waitFor(() => {
-      expect(screen.getByText('Fresh')).toBeDefined();
+      expect(screen.getByText('Scrubs')).toBeDefined();
     });
 
-    expect(screen.getByText('Hot')).toBeDefined();
+    expect(screen.getByText('Fallout')).toBeDefined();
+    expect(screen.getByText('Continue Watching')).toBeDefined();
   });
 
-  it('renders items from visible rails', async () => {
+  it('filters out not-started and completed shows', async () => {
     render(<HomePage />);
 
     await waitFor(() => {
-      expect(screen.getByText('Fresh Movie')).toBeDefined();
+      expect(screen.getByText('Scrubs')).toBeDefined();
     });
 
-    expect(screen.getByText('Hot Movie')).toBeDefined();
+    expect(screen.queryByText('Not Started')).toBeNull();
+    expect(screen.queryByText('Completed')).toBeNull();
   });
 
-  it('virtualizes rails outside visible range', async () => {
-    render(<HomePage />);
-
-    await waitFor(() => {
-      expect(screen.getByText('Fresh')).toBeDefined();
+  it('shows empty state when no in-progress shows', async () => {
+    const watching = await import('../api/watching');
+    vi.mocked(watching.getWatchingSerials).mockResolvedValue({
+      status: 200,
+      items: [makeWatchingItem(1, 'Not Started', 0, 20)],
     });
 
-    expect(screen.queryByText('Popular Movie')).toBeNull();
-  });
-
-  it('does not render continue watching rail when empty', async () => {
     render(<HomePage />);
 
     await waitFor(() => {
-      expect(screen.getByText('Fresh')).toBeDefined();
-    });
-
-    expect(screen.queryByText('Continue Watching')).toBeNull();
-  });
-
-  it('shows error when all primary rails fail', async () => {
-    const content = await import('../api/content');
-    vi.mocked(content.getFresh).mockRejectedValueOnce(new Error('fail'));
-    vi.mocked(content.getHot).mockRejectedValueOnce(new Error('fail'));
-    vi.mocked(content.getPopular).mockRejectedValueOnce(new Error('fail'));
-
-    render(<HomePage />);
-
-    await waitFor(() => {
-      expect(screen.getByText('No content available')).toBeDefined();
+      expect(screen.getByText('No shows in progress')).toBeDefined();
     });
   });
 
-  it('still renders when one rail fails but others succeed', async () => {
-    const content = await import('../api/content');
-    vi.mocked(content.getFresh).mockRejectedValueOnce(new Error('fail'));
+  it('shows error on API failure', async () => {
+    const watching = await import('../api/watching');
+    vi.mocked(watching.getWatchingSerials).mockRejectedValueOnce(new Error('Network error'));
 
     render(<HomePage />);
 
     await waitFor(() => {
-      expect(screen.getByText('Hot')).toBeDefined();
+      expect(screen.getByText('Network error')).toBeDefined();
     });
-
-    expect(screen.queryByText('Fresh')).toBeNull();
   });
 });
