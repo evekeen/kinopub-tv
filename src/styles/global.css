@@ -10,7 +10,7 @@ html, body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background-color: #101c36;
+  background-color: #000000;
   color: #ffffff;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   font-size: 24px;
@@ -23,12 +23,11 @@ html, body {
   width: 1920px;
   height: 1080px;
   position: relative;
-  padding: 54px 96px;
+  padding: 27px 48px;
 }
 
 :focus {
-  outline: 3px solid #4a9eff;
-  outline-offset: 2px;
+  outline: none;
 }
 
 img {

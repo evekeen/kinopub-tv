@@ -22,7 +22,7 @@
 .url {
   font-size: 32px;
   font-weight: 600;
-  color: #4a9eff;
+  color: #e50914;
   margin-bottom: 24px;
 }
 
@@ -33,7 +33,7 @@
   color: #ffffff;
   margin-bottom: 48px;
   padding: 16px 32px;
-  background-color: #1a2a4a;
+  background-color: #1a1a1a;
   border-radius: 12px;
 }
 
@@ -45,7 +45,7 @@
 
 .hint {
   font-size: 24px;
-  color: #4a9eff;
+  color: #e50914;
 }
 
 @keyframes pulse {
@@ -67,7 +67,7 @@
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background-color: #4a9eff;
+  background-color: #e50914;
   margin-right: 12px;
   animation: pulse 2s ease-in-out infinite;
 }

@@ -1,7 +1,8 @@
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useRemoteKeys } from './useRemoteKeys';
 import type { RemoteKeyMap } from './useRemoteKeys';
+import { resetThrottleState } from './useThrottledKey';
 
 function fireKey(keyCode: number, key: string): void {
   window.dispatchEvent(
@@ -10,6 +11,10 @@ function fireKey(keyCode: number, key: string): void {
 }
 
 describe('useRemoteKeys', () => {
+  beforeEach(() => {
+    resetThrottleState();
+  });
+
   afterEach(() => {
     vi.restoreAllMocks();
   });

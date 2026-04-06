@@ -26,6 +26,7 @@ const VISIBLE_CARD_BUFFER = 21;
 const CARDS_PER_ROW = 7;
 const CARD_ROW_HEIGHT = 480;
 const SEARCH_INPUT_FOCUS_KEY = 'search-input';
+const SEARCH_PAGE_FOCUS_KEY = 'search-page';
 
 interface SearchInputProps {
   value: string;
@@ -129,7 +130,7 @@ export const SearchPage = memo(function SearchPage(): ReactElement {
   const { ref, focusKey } = useFocusable({
     trackChildren: true,
     saveLastFocusedChild: true,
-    focusKey: 'search-page',
+    focusKey: SEARCH_PAGE_FOCUS_KEY,
   });
 
   useEffect(() => {
@@ -199,7 +200,7 @@ export const SearchPage = memo(function SearchPage(): ReactElement {
 
   const handleSelectItem = useCallback(
     (item: PosterItem): void => {
-      navigate('content', { params: { contentId: item.id }, lastFocusKey: 'search-page' });
+      navigate('content', { params: { contentId: item.id }, lastFocusKey: SEARCH_PAGE_FOCUS_KEY });
     },
     [navigate],
   );

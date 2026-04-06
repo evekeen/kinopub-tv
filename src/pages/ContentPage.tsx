@@ -2,6 +2,7 @@ import {
   ReactElement,
   memo,
   useEffect,
+  useRef,
   useState,
   useCallback,
 } from 'react';
@@ -54,6 +55,23 @@ function findResumePoint(seasons: ReadonlyArray<Season>): ResumePoint | null {
   return null;
 }
 
+interface EpisodePosition {
+  seasonIndex: number;
+  episodeIndex: number;
+}
+
+function findEpisodePosition(seasons: ReadonlyArray<Season>, episodeId: number): EpisodePosition | null {
+  for (let si = 0; si < seasons.length; si++) {
+    const eps = seasons[si].episodes;
+    for (let ei = 0; ei < eps.length; ei++) {
+      if (eps[ei].id === episodeId) {
+        return { seasonIndex: si, episodeIndex: ei };
+      }
+    }
+  }
+  return null;
+}
+
 type ContentKind = 'movie' | 'serial';
 
 function classifyType(type: ItemType): ContentKind {
@@ -80,13 +98,16 @@ function hasRatings(item: ItemDetails): boolean {
 
 export const ContentPage = memo(function ContentPage(): ReactElement {
   const contentId = useUiStore((s) => s.screenParams.contentId);
-  const navigate = useUiStore((s) => s.navigate);
+  const navigateWithFocus = useUiStore((s) => s.navigateWithFocus);
   const goBack = useUiStore((s) => s.goBack);
 
   const [item, setItem] = useState<ItemDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [bookmarkFolders, setBookmarkFolders] = useState<ReadonlyArray<BookmarkFolder>>([]);
+
+  const [focusRestorePosition, setFocusRestorePosition] = useState<EpisodePosition | null>(null);
+  const pendingFocusRef = useRef<string | null>(null);
 
   const bookmarked = item !== null && item.bookmarks.length > 0;
 
@@ -126,6 +147,27 @@ export const ContentPage = memo(function ContentPage(): ReactElement {
 
   useEffect(() => {
     if (item !== null && !loading) {
+      const pendingFocusKey = useUiStore.getState().lastRestoredFocusKey;
+      if (pendingFocusKey !== null) {
+        useUiStore.getState().clearLastRestoredFocusKey();
+
+        if (pendingFocusKey.startsWith('episode-') && item.seasons) {
+          const episodeId = parseInt(pendingFocusKey.slice(8), 10);
+          if (!isNaN(episodeId)) {
+            const position = findEpisodePosition(item.seasons, episodeId);
+            if (position !== null) {
+              pendingFocusRef.current = pendingFocusKey;
+              setFocusRestorePosition(position);
+              return;
+            }
+          }
+        }
+
+        requestAnimationFrame(() => {
+          setFocus(pendingFocusKey);
+        });
+        return;
+      }
       const kind = classifyType(item.type);
       const focusTarget = kind === 'movie'
         ? 'content-play-button'
@@ -136,6 +178,16 @@ export const ContentPage = memo(function ContentPage(): ReactElement {
     }
   }, [item, loading]);
 
+  useEffect(() => {
+    if (focusRestorePosition !== null && pendingFocusRef.current !== null) {
+      const key = pendingFocusRef.current;
+      pendingFocusRef.current = null;
+      requestAnimationFrame(() => {
+        setFocus(key);
+      });
+    }
+  }, [focusRestorePosition]);
+
   const handlePlay = useCallback((): void => {
     if (item === null) return;
     const kind = classifyType(item.type);
@@ -143,16 +195,16 @@ export const ContentPage = memo(function ContentPage(): ReactElement {
     if (kind === 'movie' && item.videos && item.videos.length > 0) {
       const video = item.videos[0];
       const movieResumeTime = video.watching.status === 0 ? video.watching.time : 0;
-      navigate('player', { params: { contentId: item.id, mediaId: video.id, title: item.title, resumeTime: movieResumeTime } });
+      navigateWithFocus('player', { params: { contentId: item.id, mediaId: video.id, title: item.title, resumeTime: movieResumeTime } });
     }
-  }, [item, navigate]);
+  }, [item, navigateWithFocus]);
 
   const handleSelectEpisode = useCallback(
     (episode: Video): void => {
       if (item === null) return;
       const episodeTitle = item.title + ' S' + episode.snumber + 'E' + episode.number;
       const resumeTime = episode.watching.status === 0 ? episode.watching.time : 0;
-      navigate('player', {
+      navigateWithFocus('player', {
         params: {
           contentId: item.id,
           mediaId: episode.id,
@@ -163,7 +215,7 @@ export const ContentPage = memo(function ContentPage(): ReactElement {
         },
       });
     },
-    [item, navigate],
+    [item, navigateWithFocus],
   );
 
   const handleBookmarkToggle = useCallback((): void => {
@@ -306,8 +358,8 @@ export const ContentPage = memo(function ContentPage(): ReactElement {
             <EpisodeList
               seasons={item.seasons}
               onSelectEpisode={handleSelectEpisode}
-              initialSeasonIndex={resumePoint?.seasonIndex}
-              initialEpisodeIndex={resumePoint?.episodeIndex}
+              initialSeasonIndex={focusRestorePosition?.seasonIndex ?? resumePoint?.seasonIndex}
+              initialEpisodeIndex={focusRestorePosition?.episodeIndex ?? resumePoint?.episodeIndex}
             />
           )}
         </div>

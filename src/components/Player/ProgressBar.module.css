@@ -7,7 +7,7 @@
 }
 
 .time {
-  font-size: 22px;
+  font-size: 24px;
   color: #ffffff;
   min-width: 80px;
   text-align: center;
@@ -47,7 +47,7 @@
   top: 0;
   left: 0;
   height: 100%;
-  background-color: #4a9eff;
+  background-color: #e50914;
 }
 
 .preview {
@@ -55,7 +55,7 @@
   top: 0;
   left: 0;
   height: 100%;
-  background-color: rgba(74, 158, 255, 0.5);
+  background-color: rgba(229, 9, 20, 0.5);
 }
 
 .thumb {
@@ -63,7 +63,7 @@
   top: 50%;
   width: 16px;
   height: 16px;
-  background-color: #4a9eff;
+  background-color: #e50914;
   border-radius: 50%;
   transform: translate(-50%, -50%);
 }

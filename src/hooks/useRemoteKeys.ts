@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { shouldThrottleKey } from './useThrottledKey';
 
 type RemoteKeyAction =
   | 'playPause'
@@ -102,6 +103,7 @@ export function useRemoteKeys(handlers: RemoteKeyMap): void {
     const handleKeyDown = (event: KeyboardEvent): void => {
       const action = resolveAction(event);
       if (action === null) return;
+      if (shouldThrottleKey(action, Date.now())) return;
 
       const handler = handlers[action];
       if (handler !== undefined) {

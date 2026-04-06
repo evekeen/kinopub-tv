@@ -189,6 +189,7 @@ export const BookmarksPage = memo(function BookmarksPage(): ReactElement {
   }, [loadFolders]);
 
   useEffect(() => {
+    if (loading) return;
     rafRef.current = requestAnimationFrame(() => {
       setFocus(BOOKMARKS_PAGE_FOCUS_KEY);
     });
@@ -197,7 +198,7 @@ export const BookmarksPage = memo(function BookmarksPage(): ReactElement {
         cancelAnimationFrame(rafRef.current);
       }
     };
-  }, []);
+  }, [loading]);
 
   const handleFolderSelect = useCallback(
     (folder: BookmarkFolder): void => {

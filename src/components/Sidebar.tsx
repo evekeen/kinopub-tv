@@ -57,13 +57,13 @@ const SidebarItem = memo(function SidebarItem({
 
 export const Sidebar = memo(function Sidebar(): ReactElement {
   const currentScreen = useUiStore((s) => s.currentScreen);
-  const navigate = useUiStore((s) => s.navigate);
+  const navigateWithFocus = useUiStore((s) => s.navigateWithFocus);
 
   const handleSelect = useCallback(
     (screen: Screen): void => {
-      navigate(screen);
+      navigateWithFocus(screen);
     },
-    [navigate],
+    [navigateWithFocus],
   );
 
   const { ref, focusKey } = useFocusable({

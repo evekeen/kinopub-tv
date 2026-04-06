@@ -53,6 +53,7 @@ export const PosterCard = memo(function PosterCard({
 
   return (
     <div ref={ref} className={cardClass}>
+      {focused && <div className={styles.imageGlow} />}
       <div className={styles.imageContainer}>
         {!imageLoaded && <div className={styles.placeholder} />}
         {shouldLoadImage && (

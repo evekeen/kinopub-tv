@@ -33,15 +33,15 @@
 
 .retryButton {
   font-size: 24px;
-  color: #4a9eff;
+  color: #ffffff;
   padding: 12px 32px;
-  border: 2px solid #4a9eff;
+  border: 2px solid #ffffff;
   border-radius: 8px;
   background: none;
   cursor: pointer;
 }
 
 .retryButtonFocused {
-  background-color: rgba(74, 158, 255, 0.2);
-  outline: 3px solid #4a9eff;
+  background-color: #e50914;
+  border-color: #e50914;
 }
