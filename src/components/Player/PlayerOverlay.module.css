@@ -66,7 +66,8 @@
   flex-shrink: 0;
   border-radius: 50%;
   background-color: rgba(74, 158, 255, 0.4);
-  outline: none;
+  outline: 3px solid #4a9eff;
+  outline-offset: 2px;
 }
 
 .progressWrapper {
@@ -99,5 +100,6 @@
   flex-shrink: 0;
   border-radius: 8px;
   background-color: rgba(74, 158, 255, 0.4);
-  outline: none;
+  outline: 3px solid #4a9eff;
+  outline-offset: 2px;
 }

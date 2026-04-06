@@ -82,15 +82,15 @@ Bump every text element below 24px to the TV minimum. These are pure CSS changes
 
 Add consistent 3px outline to every focused state. Components that currently use background-only focus get an outline added. Components that use `outline: none` get it removed.
 
-- [ ] `src/components/EpisodeList.module.css`: add `outline: 3px solid #4a9eff; outline-offset: -3px;` to `.seasonTabFocused` (keep existing `background-color` as supplement)
-- [ ] `src/components/EpisodeList.module.css`: add `outline: 3px solid #4a9eff; outline-offset: -3px;` to `.episodeRowFocused` (keep existing `background-color` as supplement)
-- [ ] `src/components/Player/PlayerOverlay.module.css`: remove `outline: none` from `.playPauseFocused` (line 69), add `outline: 3px solid #4a9eff; outline-offset: 2px;`
-- [ ] `src/components/Player/PlayerOverlay.module.css`: remove `outline: none` from `.tracksButtonFocused` (line 102), add `outline: 3px solid #4a9eff; outline-offset: 2px;`
-- [ ] `src/components/Player/TrackPicker.module.css`: remove `outline: none` from `.itemFocused` (line 53), add `outline: 3px solid #4a9eff; outline-offset: -3px;`
-- [ ] `src/pages/ContentPage.module.css`: add `outline: 3px solid #4a9eff; outline-offset: 2px;` to `.actionButtonFocused` (keep existing `background-color`)
-- [ ] `src/components/Sidebar.module.css`: change `.itemFocused` outline from `2px` to `3px` for consistency (line 42)
-- [ ] `src/pages/SearchPage.module.css`: change `.inputWrapperFocused` outline from `2px` to `3px` for consistency
-- [ ] `src/pages/BookmarksPage.module.css`: change `.backButtonFocused` and `.folderFocused` outlines from `2px` to `3px`
+- [x] `src/components/EpisodeList.module.css`: add `outline: 3px solid #4a9eff; outline-offset: -3px;` to `.seasonTabFocused` (keep existing `background-color` as supplement)
+- [x] `src/components/EpisodeList.module.css`: add `outline: 3px solid #4a9eff; outline-offset: -3px;` to `.episodeRowFocused` (keep existing `background-color` as supplement)
+- [x] `src/components/Player/PlayerOverlay.module.css`: remove `outline: none` from `.playPauseFocused` (line 69), add `outline: 3px solid #4a9eff; outline-offset: 2px;`
+- [x] `src/components/Player/PlayerOverlay.module.css`: remove `outline: none` from `.tracksButtonFocused` (line 102), add `outline: 3px solid #4a9eff; outline-offset: 2px;`
+- [x] `src/components/Player/TrackPicker.module.css`: remove `outline: none` from `.itemFocused` (line 53), add `outline: 3px solid #4a9eff; outline-offset: -3px;`
+- [x] `src/pages/ContentPage.module.css`: add `outline: 3px solid #4a9eff; outline-offset: 2px;` to `.actionButtonFocused` (keep existing `background-color`)
+- [x] `src/components/Sidebar.module.css`: change `.itemFocused` outline from `2px` to `3px` for consistency (line 42)
+- [x] `src/pages/SearchPage.module.css`: change `.inputWrapperFocused` outline from `2px` to `3px` for consistency
+- [x] `src/pages/BookmarksPage.module.css`: change `.backButtonFocused` and `.folderFocused` outlines from `2px` to `3px`
 
 **DoD:** `npm run typecheck && npm run lint && npm run build` passes. Every focusable element shows a 3px blue outline when focused. No `outline: none` remains on any focused state class. Verify in browser with keyboard navigation.
 

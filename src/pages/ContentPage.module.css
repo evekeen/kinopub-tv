@@ -149,6 +149,8 @@
   composes: actionButton;
   background-color: #4a9eff;
   color: #ffffff;
+  outline: 3px solid #4a9eff;
+  outline-offset: 2px;
 }
 
 .bookmarkActive {

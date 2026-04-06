@@ -27,7 +27,7 @@
 
 .backButtonFocused {
   composes: backButton;
-  outline: 2px solid #4a9eff;
+  outline: 3px solid #4a9eff;
   color: #ffffff;
 }
 
@@ -56,7 +56,7 @@
 
 .folderFocused {
   composes: folder;
-  outline: 2px solid #4a9eff;
+  outline: 3px solid #4a9eff;
   background-color: #243a5e;
 }
 

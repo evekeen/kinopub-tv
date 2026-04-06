@@ -24,7 +24,7 @@
 
 .inputWrapperFocused {
   composes: inputWrapper;
-  outline: 2px solid #4a9eff;
+  outline: 3px solid #4a9eff;
 }
 
 .searchIcon {

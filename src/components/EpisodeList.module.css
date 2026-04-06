@@ -26,6 +26,8 @@
   composes: seasonTab;
   background-color: #4a9eff;
   color: #ffffff;
+  outline: 3px solid #4a9eff;
+  outline-offset: -3px;
 }
 
 .seasonTabActive {
@@ -62,6 +64,8 @@
 .episodeRowFocused {
   composes: episodeRow;
   background-color: #1a2a4a;
+  outline: 3px solid #4a9eff;
+  outline-offset: -3px;
 }
 
 .episodeThumbnail {
