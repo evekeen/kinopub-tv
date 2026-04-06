@@ -1,5 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { getCurrentFocusKey } from '@noriginmedia/norigin-spatial-navigation';
 import { useUiStore } from './ui';
+
+vi.mock('@noriginmedia/norigin-spatial-navigation', () => ({
+  getCurrentFocusKey: vi.fn(() => 'mocked-focus-key'),
+}));
 
 const mockExit = vi.fn();
 
@@ -159,5 +164,38 @@ describe('ui store', () => {
     useUiStore.getState().goBack();
     expect(useUiStore.getState().currentScreen).toBe('home');
     expect(useUiStore.getState().navigationStack).toHaveLength(0);
+  });
+
+  it('navigateWithFocus captures current focus key automatically', () => {
+    useUiStore.setState({ currentScreen: 'home', screenParams: {} });
+    vi.mocked(getCurrentFocusKey).mockReturnValue('content-play-button');
+
+    useUiStore.getState().navigateWithFocus('player', { params: { mediaId: 50 } });
+
+    const state = useUiStore.getState();
+    expect(state.currentScreen).toBe('player');
+    expect(state.navigationStack[0].lastFocusKey).toBe('content-play-button');
+  });
+
+  it('navigateWithFocus restores captured focus key on goBack', () => {
+    useUiStore.setState({ currentScreen: 'content', screenParams: { contentId: 10 } });
+    vi.mocked(getCurrentFocusKey).mockReturnValue('episode-row-3');
+
+    useUiStore.getState().navigateWithFocus('player', { params: { mediaId: 99 } });
+    useUiStore.getState().goBack();
+
+    expect(useUiStore.getState().lastRestoredFocusKey).toBe('episode-row-3');
+    expect(useUiStore.getState().currentScreen).toBe('content');
+  });
+
+  it('navigateWithFocus works without params', () => {
+    useUiStore.setState({ currentScreen: 'home', screenParams: {} });
+    vi.mocked(getCurrentFocusKey).mockReturnValue('sidebar-search');
+
+    useUiStore.getState().navigateWithFocus('search');
+
+    const state = useUiStore.getState();
+    expect(state.currentScreen).toBe('search');
+    expect(state.navigationStack[0].lastFocusKey).toBe('sidebar-search');
   });
 });

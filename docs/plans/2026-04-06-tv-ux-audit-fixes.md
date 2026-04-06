@@ -98,14 +98,14 @@ Add consistent 3px outline to every focused state. Components that currently use
 
 Ensure every `navigate()` call captures the current focus key so pressing Back restores focus to the exact element.
 
-- [ ] `src/store/ui.ts`: add a `navigateWithFocus` action that:
+- [x] `src/store/ui.ts`: add a `navigateWithFocus` action that:
   1. Gets the current focused key via norigin's `getCurrentFocusKey()` (import from `@noriginmedia/norigin-spatial-navigation`)
   2. Calls the existing `navigate()` with the captured key as `lastFocusKey`
   3. Export it alongside the existing `navigate`
-- [ ] `src/pages/ContentPage.tsx`: when navigating to PlayerPage (lines ~146, 155-164), use `navigateWithFocus` instead of bare `navigate` so focus returns to the play button or episode row on Back
-- [ ] `src/components/Sidebar.tsx`: when navigating between sections (line ~64), use `navigateWithFocus` so focus returns to the correct sidebar item on Back
-- [ ] `src/pages/SearchPage.tsx`: replace literal `'search-page'` with a named constant `SEARCH_PAGE_FOCUS_KEY` for consistency with other pages
-- [ ] Verify: navigate Home → Content → Player → Back → Content (focus should be on play button) → Back → Home (focus should be on the card that was selected)
+- [x] `src/pages/ContentPage.tsx`: when navigating to PlayerPage (lines ~146, 155-164), use `navigateWithFocus` instead of bare `navigate` so focus returns to the play button or episode row on Back
+- [x] `src/components/Sidebar.tsx`: when navigating between sections (line ~64), use `navigateWithFocus` so focus returns to the correct sidebar item on Back
+- [x] `src/pages/SearchPage.tsx`: replace literal `'search-page'` with a named constant `SEARCH_PAGE_FOCUS_KEY` for consistency with other pages
+- [x] Verify: navigate Home → Content → Player → Back → Content (focus should be on play button) → Back → Home (focus should be on the card that was selected)
 
 **DoD:** `npm run typecheck && npm run lint && npm run build` passes. Back navigation from Player restores focus to the play button on ContentPage. Back from any Sidebar navigation restores focus to the sidebar item.
 

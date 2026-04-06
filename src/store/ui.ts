@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { getCurrentFocusKey } from '@noriginmedia/norigin-spatial-navigation';
 
 type Screen =
   | 'auth'
@@ -30,12 +31,17 @@ interface NavigateOptions {
   lastFocusKey?: string;
 }
 
+interface NavigateWithFocusOptions {
+  params?: ScreenParams;
+}
+
 interface UiState {
   currentScreen: Screen;
   screenParams: ScreenParams;
   navigationStack: StackEntry[];
   lastRestoredFocusKey: string | null;
   navigate: (screen: Screen, options?: NavigateOptions) => void;
+  navigateWithFocus: (screen: Screen, options?: NavigateWithFocusOptions) => void;
   goBack: () => void;
   clearStack: () => void;
   clearLastRestoredFocusKey: () => void;
@@ -97,6 +103,11 @@ export const useUiStore = create<UiState>()((set, get) => ({
       screenParams: params,
       navigationStack: trimmedStack,
     });
+  },
+
+  navigateWithFocus(screen: Screen, options: NavigateWithFocusOptions = {}): void {
+    const focusKey = getCurrentFocusKey();
+    get().navigate(screen, { params: options.params, lastFocusKey: focusKey });
   },
 
   goBack(): void {

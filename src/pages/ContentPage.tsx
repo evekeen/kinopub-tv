@@ -80,7 +80,7 @@ function hasRatings(item: ItemDetails): boolean {
 
 export const ContentPage = memo(function ContentPage(): ReactElement {
   const contentId = useUiStore((s) => s.screenParams.contentId);
-  const navigate = useUiStore((s) => s.navigate);
+  const navigateWithFocus = useUiStore((s) => s.navigateWithFocus);
   const goBack = useUiStore((s) => s.goBack);
 
   const [item, setItem] = useState<ItemDetails | null>(null);
@@ -143,16 +143,16 @@ export const ContentPage = memo(function ContentPage(): ReactElement {
     if (kind === 'movie' && item.videos && item.videos.length > 0) {
       const video = item.videos[0];
       const movieResumeTime = video.watching.status === 0 ? video.watching.time : 0;
-      navigate('player', { params: { contentId: item.id, mediaId: video.id, title: item.title, resumeTime: movieResumeTime } });
+      navigateWithFocus('player', { params: { contentId: item.id, mediaId: video.id, title: item.title, resumeTime: movieResumeTime } });
     }
-  }, [item, navigate]);
+  }, [item, navigateWithFocus]);
 
   const handleSelectEpisode = useCallback(
     (episode: Video): void => {
       if (item === null) return;
       const episodeTitle = item.title + ' S' + episode.snumber + 'E' + episode.number;
       const resumeTime = episode.watching.status === 0 ? episode.watching.time : 0;
-      navigate('player', {
+      navigateWithFocus('player', {
         params: {
           contentId: item.id,
           mediaId: episode.id,
@@ -163,7 +163,7 @@ export const ContentPage = memo(function ContentPage(): ReactElement {
         },
       });
     },
-    [item, navigate],
+    [item, navigateWithFocus],
   );
 
   const handleBookmarkToggle = useCallback((): void => {
