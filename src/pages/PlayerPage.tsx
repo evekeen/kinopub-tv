@@ -202,7 +202,7 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
   }, [player.videoRef, setPlaying, setCurrentTime, setDuration, goBack]);
 
   const getCurrentTime = useCallback((): number => {
-    return player.videoRef.current?.currentTime || currentTimeRef.current;
+    return player.videoRef.current?.currentTime ?? currentTimeRef.current;
   }, [player.videoRef]);
 
   usePlaybackSync(contentId, mediaId, getCurrentTime, isPlaying);
@@ -250,6 +250,7 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
     pause: () => playerRef.current.pause(),
     stop: goBack,
     back: goBack,
+    enter: handlePlayPause,
     fastForward: () => handleSeek(currentTimeRef.current + SEEK_JUMP_S),
     rewind: () => handleSeek(Math.max(0, currentTimeRef.current - SEEK_JUMP_S)),
     channelUp: () => handleSeek(currentTimeRef.current + SEEK_JUMP_S),
