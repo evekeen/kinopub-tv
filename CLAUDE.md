@@ -180,15 +180,21 @@ Tizen CSP blocks inline scripts. All JS must be in external `.js` files loaded v
 
 ## hls.js Integration
 
-### Critical: Use UMD Light Build
+### Critical: Use UMD Full Build (not ESM, not light)
 
-The ESM build causes multi-second lockups on Tizen (hls.js#7106). Always alias in vite.config.ts:
+The ESM build causes multi-second lockups on Tizen (hls.js#7106). The light build (`hls.light.js`) excludes the audio track controller — alternate audio renditions are invisible. Always alias to the full UMD build:
 ```typescript
 resolve: {
-  alias: { 'hls.js': 'hls.js/dist/hls.light.js' }
+  alias: { 'hls.js': 'hls.js/dist/hls.js' }
 }
 ```
-The light build excludes subtitle parsing (we handle SRT externally) and saves ~35KB.
+
+### Use `url.hls4` for Multi-Audio Support
+
+- `url.hls` = single muxed audio stream (e.g., `master-v1a1.m3u8`) — no audio track switching
+- `url.hls4` = HLS4 manifest with `#EXT-X-MEDIA:TYPE=AUDIO` alternate renditions — all audio tracks available for switching via hls.js
+- Prefer `url.hls4` with fallback to `url.hls`: `bestFile.url.hls4 ?? bestFile.url.hls`
+- The original AVPlay HLS4 issue does NOT affect hls.js — it was Samsung's AVPlay that choked on HLS4
 
 ### PlayerContext Singleton
 

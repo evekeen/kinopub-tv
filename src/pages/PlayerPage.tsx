@@ -86,7 +86,7 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
         return;
       }
 
-      const hlsUrl = bestFile.url.hls;
+      const hlsUrl = bestFile.url.hls4 ?? bestFile.url.hls;
       setTitle(screenTitle ?? bestFile.quality);
       setSubtitles(mediaLinks.subtitles);
       setMedia(hlsUrl, [], mediaLinks.subtitles);

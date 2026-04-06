@@ -16,7 +16,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      'hls.js': 'hls.js/dist/hls.light.js',
+      'hls.js': 'hls.js/dist/hls.js',
     },
   },
 });
