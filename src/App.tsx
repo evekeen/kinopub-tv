@@ -101,8 +101,8 @@ export function App(): ReactElement {
     if (lastRestoredFocusKey !== null) {
       requestAnimationFrame(() => {
         setFocus(lastRestoredFocusKey);
+        clearLastRestoredFocusKey();
       });
-      clearLastRestoredFocusKey();
     }
   }, [lastRestoredFocusKey, clearLastRestoredFocusKey]);
 

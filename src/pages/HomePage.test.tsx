@@ -11,7 +11,7 @@ function makeWatchingItem(id: number, title: string, watched: number, total: num
     id,
     title,
     type: 'serial',
-    subtype: '',
+    subtype: null,
     posters: {
       small: 'https://example.com/small.jpg',
       medium: 'https://example.com/medium.jpg',

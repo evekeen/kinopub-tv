@@ -1,10 +1,10 @@
-import { Item, ItemType, Posters } from './content';
+import { Item, ItemSubtype, ItemType, Posters } from './content';
 
 export interface WatchingSerialItem {
   id: number;
   type: ItemType;
   title: string;
-  subtype: string;
+  subtype: ItemSubtype;
   posters: Posters;
   new: number;
   total: number;
@@ -15,7 +15,7 @@ export interface WatchingMovieItem {
   id: number;
   type: ItemType;
   title: string;
-  subtype: string;
+  subtype: ItemSubtype;
   posters: Posters;
   status: number;
   time: number;

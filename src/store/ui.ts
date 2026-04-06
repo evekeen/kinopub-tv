@@ -63,8 +63,14 @@ export const useUiStore = create<UiState>()((set, get) => ({
     const params = options.params ?? {};
     const focusKey = options.lastFocusKey ?? null;
 
-    if (screen === state.currentScreen && Object.keys(params).length === 0) {
-      return;
+    if (screen === state.currentScreen) {
+      const currentParams = state.screenParams;
+      const paramKeys = Object.keys(params) as (keyof ScreenParams)[];
+      const currentKeys = Object.keys(currentParams) as (keyof ScreenParams)[];
+      if (paramKeys.length === currentKeys.length &&
+          paramKeys.every((k) => params[k] === currentParams[k])) {
+        return;
+      }
     }
 
     if (state.currentScreen === 'auth') {

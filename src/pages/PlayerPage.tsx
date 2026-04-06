@@ -68,6 +68,8 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
   const currentTimeRef = useRef(0);
   const seekingRef = useRef(false);
   const canPlayHandlerRef = useRef<(() => void) | null>(null);
+  const isPlayingRef = useRef(isPlaying);
+  isPlayingRef.current = isPlaying;
 
   currentTimeRef.current = currentTime;
 
@@ -219,12 +221,12 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
   }, [selectedSubtitle, subtitles, loadSubtitle, clearSubtitle]);
 
   const handlePlayPause = useCallback((): void => {
-    if (isPlaying) {
-      player.pause();
+    if (isPlayingRef.current) {
+      playerRef.current.pause();
     } else {
-      player.play();
+      playerRef.current.play();
     }
-  }, [isPlaying, player]);
+  }, []);
 
   const handleSeek = useCallback(
     (time: number): void => {
