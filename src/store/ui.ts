@@ -16,6 +16,7 @@ interface ScreenParams {
   seasonNumber?: number;
   episodeNumber?: number;
   title?: string;
+  resumeTime?: number;
 }
 
 interface StackEntry {

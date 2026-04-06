@@ -35,14 +35,18 @@ function getWatchedClass(status: WatchingStatus): string {
 interface EpisodeListProps {
   seasons: ReadonlyArray<Season>;
   onSelectEpisode: (episode: Video) => void;
+  initialSeasonIndex?: number;
+  initialEpisodeIndex?: number;
 }
 
 export const EpisodeList = memo(function EpisodeList({
   seasons,
   onSelectEpisode,
+  initialSeasonIndex,
+  initialEpisodeIndex,
 }: EpisodeListProps): ReactElement {
-  const [selectedSeasonIndex, setSelectedSeasonIndex] = useState(0);
-  const [focusedEpisodeIndex, setFocusedEpisodeIndex] = useState(0);
+  const [selectedSeasonIndex, setSelectedSeasonIndex] = useState(initialSeasonIndex ?? 0);
+  const [focusedEpisodeIndex, setFocusedEpisodeIndex] = useState(initialEpisodeIndex ?? 0);
 
   const { ref, focusKey } = useFocusable({
     trackChildren: true,

@@ -39,6 +39,7 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
   const contentId = useUiStore((s) => s.screenParams.contentId);
   const mediaId = useUiStore((s) => s.screenParams.mediaId);
   const screenTitle = useUiStore((s) => s.screenParams.title);
+  const resumeTime = useUiStore((s) => s.screenParams.resumeTime);
   const goBack = useUiStore((s) => s.goBack);
 
   const setMedia = usePlayerStore((s) => s.setMedia);
@@ -65,6 +66,7 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
   const [subtitles, setSubtitles] = useState<Subtitle[]>([]);
   const [title, setTitle] = useState('');
   const currentTimeRef = useRef(0);
+  const seekingRef = useRef(false);
 
   currentTimeRef.current = currentTime;
 
@@ -104,12 +106,23 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
           setSelectedAudioTrack(engTrack.id);
         }
       });
+
+      if (resumeTime !== undefined && resumeTime > 0) {
+        const video = playerRef.current.videoRef.current;
+        if (video !== null) {
+          const onCanPlay = (): void => {
+            video.removeEventListener('canplay', onCanPlay);
+            playerRef.current.seek(resumeTime);
+          };
+          video.addEventListener('canplay', onCanPlay);
+        }
+      }
       setLoading(false);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to load media'));
       setLoading(false);
     }
-  }, [mediaId, screenTitle, setMedia]);
+  }, [mediaId, screenTitle, resumeTime, setMedia]);
 
   useEffect(() => {
     fetchAndPlay();
@@ -143,6 +156,12 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
       goBack();
     };
     const onTimeUpdate = (): void => {
+      if (!seekingRef.current) {
+        setCurrentTime(video.currentTime || 0);
+      }
+    };
+    const onSeeked = (): void => {
+      seekingRef.current = false;
       setCurrentTime(video.currentTime || 0);
     };
     const onProgress = (): void => {
@@ -156,6 +175,7 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
     video.addEventListener('durationchange', onDurationChange);
     video.addEventListener('ended', onEnded);
     video.addEventListener('timeupdate', onTimeUpdate);
+    video.addEventListener('seeked', onSeeked);
     video.addEventListener('progress', onProgress);
 
     return () => {
@@ -164,6 +184,7 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
       video.removeEventListener('durationchange', onDurationChange);
       video.removeEventListener('ended', onEnded);
       video.removeEventListener('timeupdate', onTimeUpdate);
+      video.removeEventListener('seeked', onSeeked);
       video.removeEventListener('progress', onProgress);
     };
   }, [player.videoRef, setPlaying, setCurrentTime, setDuration, goBack]);
@@ -197,6 +218,7 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
 
   const handleSeek = useCallback(
     (time: number): void => {
+      seekingRef.current = true;
       player.seek(time);
     },
     [player],
@@ -225,6 +247,7 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
     playPause: handlePlayPause,
     play: () => playerRef.current.play(),
     pause: () => playerRef.current.pause(),
+    enter: handlePlayPause,
     stop: handleBack,
     back: handleBack,
     fastForward: () => handleSeek(currentTimeRef.current + SEEK_JUMP_S),

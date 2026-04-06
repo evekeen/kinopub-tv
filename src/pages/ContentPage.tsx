@@ -17,8 +17,41 @@ import { getItemDetail } from '../api/content';
 import { getFolders, addItem, removeItem } from '../api/bookmarks';
 import { useUiStore } from '../store/ui';
 import { formatDuration } from '../utils/formatDuration';
-import type { ItemDetails, ItemType, Video, BookmarkFolder } from '../types';
+import type { ItemDetails, ItemType, Video, BookmarkFolder, Season } from '../types';
 import styles from './ContentPage.module.css';
+
+interface ResumePoint {
+  seasonIndex: number;
+  episodeIndex: number;
+  time: number;
+}
+
+function findResumePoint(seasons: ReadonlyArray<Season>): ResumePoint | null {
+  for (let si = 0; si < seasons.length; si++) {
+    const eps = seasons[si].episodes;
+    for (let ei = 0; ei < eps.length; ei++) {
+      if (eps[ei].watched === 0) {
+        return { seasonIndex: si, episodeIndex: ei, time: eps[ei].watching.time };
+      }
+    }
+  }
+  for (let si = seasons.length - 1; si >= 0; si--) {
+    const eps = seasons[si].episodes;
+    for (let ei = eps.length - 1; ei >= 0; ei--) {
+      if (eps[ei].watched === 1) {
+        const nextEi = ei + 1;
+        if (nextEi < eps.length) {
+          return { seasonIndex: si, episodeIndex: nextEi, time: 0 };
+        }
+        if (si + 1 < seasons.length) {
+          return { seasonIndex: si + 1, episodeIndex: 0, time: 0 };
+        }
+        return null;
+      }
+    }
+  }
+  return null;
+}
 
 type ContentKind = 'movie' | 'serial';
 
@@ -115,6 +148,7 @@ export const ContentPage = memo(function ContentPage(): ReactElement {
     (episode: Video): void => {
       if (item === null) return;
       const episodeTitle = item.title + ' S' + episode.snumber + 'E' + episode.number;
+      const resumeTime = episode.watching.status === 0 ? episode.watching.time : 0;
       navigate('player', {
         params: {
           contentId: item.id,
@@ -122,6 +156,7 @@ export const ContentPage = memo(function ContentPage(): ReactElement {
           seasonNumber: episode.snumber,
           episodeNumber: episode.number,
           title: episodeTitle,
+          resumeTime,
         },
       });
     },
@@ -171,6 +206,7 @@ export const ContentPage = memo(function ContentPage(): ReactElement {
   }
 
   const kind = classifyType(item.type);
+  const resumePoint = kind === 'serial' && item.seasons ? findResumePoint(item.seasons) : null;
   const showRatings = hasRatings(item);
   const genreText = item.genres.map((g) => g.title).join(', ');
   const countryText = item.countries.map((c) => c.title).join(', ');
@@ -246,6 +282,8 @@ export const ContentPage = memo(function ContentPage(): ReactElement {
             <EpisodeList
               seasons={item.seasons}
               onSelectEpisode={handleSelectEpisode}
+              initialSeasonIndex={resumePoint?.seasonIndex}
+              initialEpisodeIndex={resumePoint?.episodeIndex}
             />
           )}
         </div>

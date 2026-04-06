@@ -331,6 +331,46 @@ Focus-driven, not scroll-driven:
 - All colors must meet high contrast requirements — TV panels have lower contrast than monitors
 - sRGB color space only
 
+## Deploy to Samsung TV
+
+### Prerequisites
+- Tizen Studio installed at `~/tizen-studio`
+- Samsung certificate profile `tv-profile` configured with TV's DUID
+- TV in Developer Mode with Mac's IP whitelisted
+
+### First Connection After TV Restart (Tizen 9.0)
+1. Open Tizen Device Manager: `open ~/tizen-studio/tools/device-manager/bin/device-manager.app`
+2. Connect to TV IP in the GUI — this triggers a consent dialog on the TV screen
+3. Accept the dialog on the TV
+4. After that, `sdb connect <TV_IP>` works from CLI
+
+### Deploy Commands
+```bash
+export PATH="$HOME/tizen-studio/tools:$HOME/tizen-studio/tools/ide/bin:$PATH"
+sdb connect 192.168.8.146
+npm run build
+cp tizen/config.xml dist/config.xml && cp tizen/icon.png dist/icon.png
+tizen package -t wgt -s tv-profile -- dist
+tizen install -n dist/KinoPub.wgt -s 192.168.8.146:26101
+sdb -s 192.168.8.146:26101 shell 0 debug evekeen001.KinoPub  # launches with debug port
+```
+
+### On-Device E2E Testing via CDP
+After launching in debug mode, the app exposes a Chrome DevTools Protocol port:
+```bash
+# Get debug target
+curl http://192.168.8.146:<PORT>/json
+
+# Connect via WebSocket and automate:
+# - Evaluate JS: Runtime.evaluate
+# - Read page text: document.body.innerText
+# - Simulate remote keys: Input.dispatchKeyEvent with keyCode
+#   ArrowUp=38, ArrowDown=40, ArrowLeft=37, ArrowRight=39, Enter=13, Backspace=8
+# - Check video state: document.querySelector('video').currentTime/paused/readyState
+```
+
+Key codes for Samsung remote: Play/Pause=415, Stop=413, FastForward=417, Rewind=412, Back=10009
+
 ## Git Commits
 
 - Brief, focused commit messages
