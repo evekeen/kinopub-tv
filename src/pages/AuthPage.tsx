@@ -138,13 +138,21 @@ export const AuthPage = memo(function AuthPage(): ReactElement {
     );
   }
 
+  if (deviceCode === null) {
+    return (
+      <div className={styles.container}>
+        <Spinner />
+      </div>
+    );
+  }
+
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Sign In</h1>
       <p className={styles.instruction}>Go to</p>
-      <p className={styles.url}>{deviceCode!.verification_uri}</p>
+      <p className={styles.url}>{deviceCode.verification_uri}</p>
       <p className={styles.instruction}>and enter the code</p>
-      <p className={styles.code}>{deviceCode!.user_code}</p>
+      <p className={styles.code}>{deviceCode.user_code}</p>
       <div className={styles.pollingIndicator}>
         <div className={styles.pollingDot} />
         <span className={styles.pollingText}>Waiting for activation...</span>

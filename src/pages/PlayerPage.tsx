@@ -231,17 +231,17 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
   const handleSeek = useCallback(
     (time: number): void => {
       seekingRef.current = true;
-      player.seek(time);
+      playerRef.current.seek(time);
     },
-    [player],
+    [],
   );
 
   const handleSelectAudio = useCallback(
     (id: number): void => {
-      player.setAudioTrack(id);
+      playerRef.current.setAudioTrack(id);
       setSelectedAudioTrack(id);
     },
-    [player, setSelectedAudioTrack],
+    [setSelectedAudioTrack],
   );
 
   const remoteHandlers: RemoteKeyMap = useMemo(() => ({
