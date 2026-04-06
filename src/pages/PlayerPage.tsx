@@ -236,7 +236,6 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
     playPause: handlePlayPause,
     play: () => playerRef.current.play(),
     pause: () => playerRef.current.pause(),
-    enter: handlePlayPause,
     stop: goBack,
     back: goBack,
     fastForward: () => handleSeek(currentTimeRef.current + SEEK_JUMP_S),

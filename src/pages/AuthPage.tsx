@@ -14,13 +14,13 @@ export const AuthPage = memo(function AuthPage(): ReactElement {
   const [errorMessage, setErrorMessage] = useState<string>('');
   const login = useAuthStore((s) => s.login);
   const navigate = useUiStore((s) => s.navigate);
-  const pollTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pollIntervalRef = useRef<number>(5000);
   const mountedRef = useRef(true);
 
   const stopPolling = useCallback((): void => {
     if (pollTimerRef.current !== null) {
-      clearInterval(pollTimerRef.current);
+      clearTimeout(pollTimerRef.current);
       pollTimerRef.current = null;
     }
   }, []);
