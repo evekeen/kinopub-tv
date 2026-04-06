@@ -88,4 +88,36 @@ describe('usePlaybackSync', () => {
 
     expect(markTime).toHaveBeenCalledWith(1, 2, 250);
   });
+
+  it('calls markTime when playback pauses', () => {
+    const getCurrentTime = vi.fn(() => 180);
+    let isPlaying = true;
+
+    const { rerender } = renderHook(() =>
+      usePlaybackSync(1, 2, getCurrentTime, isPlaying),
+    );
+
+    expect(markTime).not.toHaveBeenCalled();
+
+    isPlaying = false;
+    rerender();
+
+    expect(markTime).toHaveBeenCalledWith(1, 2, 180);
+  });
+
+  it('does not duplicate markTime when paused then unmounted', () => {
+    const getCurrentTime = vi.fn(() => 300);
+    let isPlaying = true;
+
+    const { rerender, unmount } = renderHook(() =>
+      usePlaybackSync(1, 2, getCurrentTime, isPlaying),
+    );
+
+    isPlaying = false;
+    rerender();
+    expect(markTime).toHaveBeenCalledTimes(1);
+
+    unmount();
+    expect(markTime).toHaveBeenCalledTimes(1);
+  });
 });
