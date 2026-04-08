@@ -66,22 +66,22 @@ describe('HomePage', () => {
     expect(screen.getByText('Continue Watching')).toBeDefined();
   });
 
-  it('filters out not-started and completed shows', async () => {
+  it('filters out completed shows but shows not-started', async () => {
     render(<HomePage />);
 
     await waitFor(() => {
       expect(screen.getByText('Scrubs')).toBeDefined();
     });
 
-    expect(screen.queryByText('Not Started')).toBeNull();
+    expect(screen.getByText('Not Started')).toBeDefined();
     expect(screen.queryByText('Completed')).toBeNull();
   });
 
-  it('shows empty state when no in-progress shows', async () => {
+  it('shows empty state when all shows are completed', async () => {
     const watching = await import('../api/watching');
     vi.mocked(watching.getWatchingSerials).mockResolvedValue({
       status: 200,
-      items: [makeWatchingItem(1, 'Not Started', 0, 20)],
+      items: [makeWatchingItem(1, 'Done Show', 20, 20)],
     });
 
     render(<HomePage />);

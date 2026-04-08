@@ -215,7 +215,11 @@ export async function apiGet<T>(
   params?: Record<string, string | number | boolean | undefined>
 ): Promise<T> {
   const url = buildUrl(path, params);
-  return apiRequest<T>(url);
+  return apiRequest<T>(url, {
+    headers: {
+      'Cache-Control': 'no-cache',
+    },
+  });
 }
 
 export async function apiPost<T>(

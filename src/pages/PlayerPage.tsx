@@ -20,6 +20,7 @@ import { usePlaybackSync } from '../hooks/usePlaybackSync';
 import { useSubtitles } from '../hooks/useSubtitles';
 import { useRemoteKeys } from '../hooks/useRemoteKeys';
 import { getMediaLinks } from '../api/media';
+import { markTime } from '../api/watching';
 import { usePlayerStore } from '../store/player';
 import { useUiStore } from '../store/ui';
 import type { HlsAudioTrack } from '../contexts/PlayerContext';
@@ -70,6 +71,10 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
   const canPlayHandlerRef = useRef<(() => void) | null>(null);
   const isPlayingRef = useRef(isPlaying);
   isPlayingRef.current = isPlaying;
+  const contentIdRef = useRef(contentId);
+  contentIdRef.current = contentId;
+  const mediaIdRef = useRef(mediaId);
+  mediaIdRef.current = mediaId;
 
   currentTimeRef.current = currentTime;
 
@@ -165,6 +170,12 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
     const onDurationChange = (): void => setDuration(video.duration || 0);
     const onEnded = (): void => {
       setPlaying(false);
+      const cId = contentIdRef.current;
+      const mId = mediaIdRef.current;
+      const dur = video.duration;
+      if (cId !== undefined && mId !== undefined && dur > 0) {
+        markTime(cId, mId, Math.floor(dur)).catch(() => {});
+      }
       goBack();
     };
     const onTimeUpdate = (): void => {
