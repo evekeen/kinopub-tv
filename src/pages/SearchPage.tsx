@@ -31,11 +31,13 @@ const SEARCH_PAGE_FOCUS_KEY = 'search-page';
 interface SearchInputProps {
   value: string;
   onChange: (value: string) => void;
+  onNavigateDown: () => void;
 }
 
 const SearchInput = memo(function SearchInput({
   value,
   onChange,
+  onNavigateDown,
 }: SearchInputProps): ReactElement {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -55,6 +57,17 @@ const SearchInput = memo(function SearchInput({
     [onChange],
   );
 
+  const handleInputKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>): void => {
+      if (e.keyCode === 40 || e.key === 'ArrowDown') {
+        e.preventDefault();
+        inputRef.current?.blur();
+        onNavigateDown();
+      }
+    },
+    [onNavigateDown],
+  );
+
   const wrapperClass = focused
     ? styles.inputWrapperFocused
     : styles.inputWrapper;
@@ -68,6 +81,7 @@ const SearchInput = memo(function SearchInput({
         type="text"
         value={value}
         onChange={handleChange}
+        onKeyDown={handleInputKeyDown}
         placeholder="Search..."
       />
     </div>
@@ -209,6 +223,18 @@ export const SearchPage = memo(function SearchPage(): ReactElement {
     setFocusedCardIndex(index);
   }, []);
 
+  const resultsRef = useRef(results);
+  resultsRef.current = results;
+
+  const handleInputNavigateDown = useCallback((): void => {
+    const currentResults = resultsRef.current;
+    if (currentResults.length > 0) {
+      requestAnimationFrame(() => {
+        setFocus('search-card-' + currentResults[0].id);
+      });
+    }
+  }, []);
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent): void => {
       const keyCode = event.keyCode;
@@ -265,7 +291,7 @@ export const SearchPage = memo(function SearchPage(): ReactElement {
     <FocusContext.Provider value={focusKey}>
       <div ref={ref} className={styles.container}>
         <div className={styles.inputContainer}>
-          <SearchInput value={query} onChange={handleQueryChange} />
+          <SearchInput value={query} onChange={handleQueryChange} onNavigateDown={handleInputNavigateDown} />
         </div>
 
         <div className={styles.resultsContainer}>
