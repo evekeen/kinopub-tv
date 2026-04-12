@@ -228,11 +228,21 @@ The `<video>` element and hls.js instance live in a React Context at the App lev
 - Sign with: `tizen package -t wgt -s <profile-name> -- dist/`
 - Samsung certificate must include TV's DUID (get via `sdb shell 0 getduid`)
 
+### Developer Mode (persists across reboots — do NOT keep re-asking about it)
+- Developer Mode stays ON across TV restarts — it does NOT auto-disable
+- Host PC IP setting also persists across restarts
+
 ### sdb Connection on Tizen 9.0 (2025 TVs)
-- After every TV restart, sdb connection must be re-authorized via **Tizen Device Manager GUI** (`open ~/tizen-studio/tools/device-manager/bin/device-manager.app`)
-- Connect to the TV IP in Device Manager first — this triggers a consent dialog on the TV screen
-- Only after accepting the GUI consent will `sdb connect <TV_IP>` work from CLI
-- This approval is lost on TV restart — must repeat the Device Manager step each time
+- No consent dialog needed on the TV screen — `sdb connect <TV_IP>` works directly after TV restart
+- Developer Mode and Host PC IP persist across reboots
+
+### Network Setup for Cross-Subnet Deployment
+- TV is on Gl.inet (192.168.8.x, VPN) — Mac is on Movistar (192.168.1.x)
+- Gl.inet GL-MT300N-V2 WAN IP: assigned by Movistar DHCP (check admin panel)
+- socat TCP relay on Gl.inet forwards WAN:26101 → TV:26101
+- Host PC IP on TV: 192.168.8.238 (Mac's permanent IP on FilmLovers)
+- Gl.inet admin password: see memory
+- SSH to Gl.inet from WAN: `ssh root@<gl.inet-wan-ip>` (port 22 open on WAN)
 
 ### On-Device Debugging
 - Launch in debug mode: `sdb shell 0 debug <appId>` — returns a debug port
@@ -339,10 +349,7 @@ Focus-driven, not scroll-driven:
 - TV in Developer Mode with Mac's IP whitelisted
 
 ### First Connection After TV Restart (Tizen 9.0)
-1. Open Tizen Device Manager: `open ~/tizen-studio/tools/device-manager/bin/device-manager.app`
-2. Connect to TV IP in the GUI — this triggers a consent dialog on the TV screen
-3. Accept the dialog on the TV
-4. After that, `sdb connect <TV_IP>` works from CLI
+- `sdb connect <TV_IP>` works directly — no Device Manager GUI or consent dialog needed
 
 ### Deploy Commands
 ```bash

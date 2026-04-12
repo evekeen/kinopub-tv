@@ -112,6 +112,12 @@ export function App(): ReactElement {
   }, [lastRestoredFocusKey, clearLastRestoredFocusKey]);
 
   useEffect(() => {
+    if (isAuthenticated && currentScreen === 'auth') {
+      useUiStore.getState().navigate('home');
+    }
+  }, [isAuthenticated, currentScreen]);
+
+  useEffect(() => {
     setOnAuthFailure(() => {
       useAuthStore.getState().logout();
     });

@@ -20,6 +20,7 @@ import { usePlaybackSync } from '../hooks/usePlaybackSync';
 import { useSubtitles } from '../hooks/useSubtitles';
 import { useRemoteKeys } from '../hooks/useRemoteKeys';
 import { getMediaLinks } from '../api/media';
+import { markTime, toggleWatched } from '../api/watching';
 import { usePlayerStore } from '../store/player';
 import { useUiStore } from '../store/ui';
 import type { HlsAudioTrack } from '../contexts/PlayerContext';
@@ -40,6 +41,7 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
   const mediaId = useUiStore((s) => s.screenParams.mediaId);
   const screenTitle = useUiStore((s) => s.screenParams.title);
   const resumeTime = useUiStore((s) => s.screenParams.resumeTime);
+  const alreadyWatched = useUiStore((s) => s.screenParams.alreadyWatched);
   const goBack = useUiStore((s) => s.goBack);
 
   const setMedia = usePlayerStore((s) => s.setMedia);
@@ -70,6 +72,8 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
   const canPlayHandlerRef = useRef<(() => void) | null>(null);
   const isPlayingRef = useRef(isPlaying);
   isPlayingRef.current = isPlaying;
+  const watchedMarkedRef = useRef(alreadyWatched === true);
+  const backingOutRef = useRef(false);
 
   currentTimeRef.current = currentTime;
 
@@ -156,6 +160,27 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
     };
   }, [player.videoRef]);
 
+  const getCurrentTime = useCallback((): number => {
+    const video = player.videoRef.current;
+    if (video !== null && video.readyState > 0) return video.currentTime;
+    return currentTimeRef.current;
+  }, [player.videoRef]);
+
+  const handleBack = useCallback((): void => {
+    if (backingOutRef.current) return;
+    if (contentId !== undefined && mediaId !== undefined) {
+      const time = Math.floor(getCurrentTime());
+      if (time > 0) {
+        backingOutRef.current = true;
+        const timeout = new Promise<void>((resolve) => window.setTimeout(resolve, 2000));
+        Promise.race([markTime(contentId, mediaId, time).catch(() => {}), timeout])
+          .then(() => goBack());
+        return;
+      }
+    }
+    goBack();
+  }, [contentId, mediaId, getCurrentTime, goBack]);
+
   useEffect(() => {
     const video = player.videoRef.current;
     if (video === null) return;
@@ -165,11 +190,22 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
     const onDurationChange = (): void => setDuration(video.duration || 0);
     const onEnded = (): void => {
       setPlaying(false);
-      goBack();
+      handleBack();
     };
     const onTimeUpdate = (): void => {
       if (!seekingRef.current) {
-        setCurrentTime(video.currentTime || 0);
+        const time = video.currentTime || 0;
+        setCurrentTime(time);
+        if (
+          !watchedMarkedRef.current &&
+          contentId !== undefined &&
+          mediaId !== undefined &&
+          video.duration > 0 &&
+          time / video.duration >= 0.9
+        ) {
+          watchedMarkedRef.current = true;
+          toggleWatched(contentId, mediaId).catch(() => {});
+        }
       }
     };
     const onSeeked = (): void => {
@@ -199,13 +235,7 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
       video.removeEventListener('seeked', onSeeked);
       video.removeEventListener('progress', onProgress);
     };
-  }, [player.videoRef, setPlaying, setCurrentTime, setDuration, goBack]);
-
-  const getCurrentTime = useCallback((): number => {
-    const video = player.videoRef.current;
-    if (video !== null && video.readyState > 0) return video.currentTime;
-    return currentTimeRef.current;
-  }, [player.videoRef]);
+  }, [player.videoRef, setPlaying, setCurrentTime, setDuration, handleBack, contentId, mediaId]);
 
   usePlaybackSync(contentId, mediaId, getCurrentTime, isPlaying);
 
@@ -240,6 +270,14 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
     [setCurrentTime],
   );
 
+  const handleSeekForward = useCallback((): void => {
+    handleSeek(currentTimeRef.current + SEEK_JUMP_S);
+  }, [handleSeek]);
+
+  const handleSeekBackward = useCallback((): void => {
+    handleSeek(Math.max(0, currentTimeRef.current - SEEK_JUMP_S));
+  }, [handleSeek]);
+
   const handleSelectAudio = useCallback(
     (id: number): void => {
       playerRef.current.setAudioTrack(id);
@@ -248,18 +286,26 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
     [setSelectedAudioTrack],
   );
 
+  const handlePlay = useCallback((): void => {
+    playerRef.current.play();
+  }, []);
+
+  const handlePause = useCallback((): void => {
+    playerRef.current.pause();
+  }, []);
+
   const remoteHandlers: RemoteKeyMap = useMemo(() => ({
     playPause: handlePlayPause,
-    play: () => playerRef.current.play(),
-    pause: () => playerRef.current.pause(),
-    stop: goBack,
-    back: goBack,
+    play: handlePlay,
+    pause: handlePause,
+    stop: handleBack,
+    back: handleBack,
     enter: handlePlayPause,
-    fastForward: () => handleSeek(currentTimeRef.current + SEEK_JUMP_S),
-    rewind: () => handleSeek(Math.max(0, currentTimeRef.current - SEEK_JUMP_S)),
-    channelUp: () => handleSeek(currentTimeRef.current + SEEK_JUMP_S),
-    channelDown: () => handleSeek(Math.max(0, currentTimeRef.current - SEEK_JUMP_S)),
-  }), [handlePlayPause, goBack, handleSeek]);
+    fastForward: handleSeekForward,
+    rewind: handleSeekBackward,
+    channelUp: handleSeekForward,
+    channelDown: handleSeekBackward,
+  }), [handlePlayPause, handlePlay, handlePause, handleBack, handleSeekForward, handleSeekBackward]);
 
   useRemoteKeys(remoteHandlers);
 
