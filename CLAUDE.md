@@ -236,11 +236,23 @@ The `<video>` element and hls.js instance live in a React Context at the App lev
 - No consent dialog needed on the TV screen — `sdb connect <TV_IP>` works directly after TV restart
 - Developer Mode and Host PC IP persist across reboots
 
-### Network Setup for Cross-Subnet Deployment
-- TV is on Gl.inet (192.168.8.x, VPN) — Mac is on Movistar (192.168.1.x)
-- Gl.inet GL-MT300N-V2 WAN IP: assigned by Movistar DHCP (check admin panel)
-- socat TCP relay on Gl.inet forwards WAN:26101 → TV:26101
+### Network Setup — Two Deployment Options
+
+**Option A: TV on Ethernet (preferred, reliable)**
+- TV connected to Gl.inet LAN port via ethernet cable
+- TV IP: 192.168.8.195 (ethernet DHCP)
+- `sdb push` transfers in ~1.5s vs minutes over WiFi
+- Use `scripts/deploy-tv.sh` — switches WiFi to FilmLovers, deploys, switches back
+
+**Option B: TV on WiFi only**
+- TV IP: 192.168.8.146 (WiFi DHCP, may change on reboot)
+- File transfer via `tizen install` is unreliable over WiFi — frequent failures
+- socat TCP relay on Gl.inet forwards WAN:26101 → TV:26101 (for SunChasers access)
+
+**Common:**
+- Mac is on Movistar WiFi "SunChasers" (192.168.1.x)
 - Host PC IP on TV: 192.168.8.238 (Mac's permanent IP on FilmLovers)
+- Gl.inet GL-MT300N-V2 WAN IP: assigned by Movistar DHCP (check admin panel)
 - Gl.inet admin password: see memory
 - SSH to Gl.inet from WAN: `ssh root@<gl.inet-wan-ip>` (port 22 open on WAN)
 
@@ -351,15 +363,16 @@ Focus-driven, not scroll-driven:
 ### First Connection After TV Restart (Tizen 9.0)
 - `sdb connect <TV_IP>` works directly — no Device Manager GUI or consent dialog needed
 
-### Deploy Commands
+### Deploy Commands (automated)
 ```bash
-export PATH="$HOME/tizen-studio/tools:$HOME/tizen-studio/tools/ide/bin:$PATH"
-sdb connect 192.168.8.146
 npm run build
 cp tizen/config.xml dist/config.xml && cp tizen/icon.png dist/icon.png
+export PATH="$HOME/tizen-studio/tools:$HOME/tizen-studio/tools/ide/bin:$PATH"
 tizen package -t wgt -s tv-profile -- dist
-tizen install -n dist/KinoPub.wgt -s 192.168.8.146:26101
-sdb -s 192.168.8.146:26101 shell 0 debug evekeen001.KinoPub  # launches with debug port
+bash scripts/deploy-tv.sh  # switches WiFi, deploys, switches back
+```
+
+The deploy script (`scripts/deploy-tv.sh`) handles WiFi switching to FilmLovers, sdb connect, file push, install, app launch, and WiFi restore. Always run with `run_in_background: true` from Claude Code to avoid API disconnection during WiFi switch. TV IP is configured in the script (default: 192.168.8.195 for ethernet).
 ```
 
 ### On-Device E2E Testing via CDP

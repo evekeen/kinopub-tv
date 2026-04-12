@@ -29,6 +29,7 @@ interface PlayerOverlayProps {
   selectedSubtitle: number | null;
   onPlayPause: () => void;
   onSeek: (time: number) => void;
+  onBack: () => void;
   onSelectAudio: (id: number) => void;
   onSelectSubtitle: (index: number | null) => void;
 }
@@ -64,6 +65,7 @@ export const PlayerOverlay = memo(function PlayerOverlay({
   selectedSubtitle,
   onPlayPause,
   onSeek,
+  onBack,
   onSelectAudio,
   onSelectSubtitle,
 }: PlayerOverlayProps): ReactElement | null {
@@ -101,7 +103,13 @@ export const PlayerOverlay = memo(function PlayerOverlay({
   }, [resetHideTimer]);
 
   useEffect(() => {
-    const handleAnyKey = (): void => {
+    const handleAnyKey = (event: KeyboardEvent): void => {
+      const isBack =
+        event.keyCode === 10009 ||
+        event.keyCode === 8 ||
+        event.key === 'Backspace' ||
+        event.key === 'Escape';
+      if (isBack) return;
       if (!visible) {
         showOverlay();
       } else {
@@ -131,24 +139,28 @@ export const PlayerOverlay = memo(function PlayerOverlay({
   }, [resetHideTimer]);
 
   useEffect(() => {
-    const handleBackInTrackPicker = (event: KeyboardEvent): void => {
-      if (!showTrackPickerRef.current) return;
-      if (
+    const handleBackKey = (event: KeyboardEvent): void => {
+      const isBack =
         event.keyCode === 10009 ||
         event.keyCode === 8 ||
         event.key === 'Backspace' ||
-        event.key === 'Escape'
-      ) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
+        event.key === 'Escape';
+      if (!isBack) return;
+
+      event.preventDefault();
+      event.stopImmediatePropagation();
+
+      if (showTrackPickerRef.current) {
         handleCloseTracks();
+      } else {
+        onBack();
       }
     };
-    window.addEventListener('keydown', handleBackInTrackPicker, true);
+    window.addEventListener('keydown', handleBackKey, true);
     return () => {
-      window.removeEventListener('keydown', handleBackInTrackPicker, true);
+      window.removeEventListener('keydown', handleBackKey, true);
     };
-  }, [handleCloseTracks]);
+  }, [handleCloseTracks, onBack]);
 
   const { ref: overlayRef, focusKey: overlayFocusKey } = useFocusable({
     trackChildren: true,
@@ -195,6 +207,7 @@ export const PlayerOverlay = memo(function PlayerOverlay({
     focusKey: PROGRESS_FOCUS_KEY,
     onFocus: handleProgressFocus,
     onArrowPress: handleProgressArrow,
+    onEnterPress: onPlayPause,
   });
 
   const { ref: playPauseRef } = useFocusable({
@@ -216,7 +229,7 @@ export const PlayerOverlay = memo(function PlayerOverlay({
   const playPauseIcon = isPlaying ? '\u275A\u275A' : '\u25B6';
 
   if (!visible && !showTrackPicker) {
-    return null;
+    return <></>;
   }
 
   return (

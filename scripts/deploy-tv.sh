@@ -5,7 +5,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 APP_ID="evekeen001.KinoPub"
 
-TV_IP="192.168.8.146"
+TV_IP="192.168.8.195"
 TV_WIFI="FilmLovers"
 WIFI_PASS="FromSpbWithLove"
 
@@ -35,7 +35,7 @@ restore_wifi() {
   fi
 }
 
-trap restore_wifi EXIT
+trap restore_wifi EXIT INT TERM
 
 WGT_PATH="$PROJECT_DIR/dist/KinoPub.wgt"
 SHOULD_BUILD=false
@@ -69,7 +69,7 @@ for attempt in 1 2 3; do
     fi
     sleep 1
   done
-  echo "Retry $attempt..."
+  echo "WiFi retry $attempt..."
 done
 if [ "$CONNECTED" = false ]; then
   echo "ERROR: Failed to connect to $TV_WIFI after 3 attempts"
@@ -77,13 +77,45 @@ if [ "$CONNECTED" = false ]; then
 fi
 
 echo "Connecting sdb to $TV_IP..."
-sdb kill-server 2>/dev/null || true
+sdb disconnect "$TV_IP":26101 2>/dev/null || true
 sleep 1
-sdb start-server 2>/dev/null || true
-sdb connect "$TV_IP":26101
+SDB_CONNECTED=false
+for attempt in 1 2 3 4 5; do
+  OUTPUT=$(sdb connect "$TV_IP":26101 2>&1)
+  echo "$OUTPUT"
+  if echo "$OUTPUT" | grep -q "connected to"; then
+    SDB_CONNECTED=true
+    break
+  fi
+  echo "sdb retry $attempt..."
+  sleep 3
+done
+if [ "$SDB_CONNECTED" = false ]; then
+  echo "ERROR: Failed to connect sdb to $TV_IP:26101"
+  exit 1
+fi
 
-echo "Installing KinoPub.wgt..."
-tizen install -n "$WGT_PATH" -s "$TV_IP":26101
+echo "Pushing KinoPub.wgt to TV..."
+PUSHED=false
+for attempt in 1 2 3; do
+  if sdb -s "$TV_IP":26101 push "$WGT_PATH" /home/owner/share/tmp/sdk_tools/tmp/KinoPub.wgt 2>&1; then
+    PUSHED=true
+    break
+  fi
+  echo "Push retry $attempt — reconnecting sdb..."
+  sdb disconnect "$TV_IP":26101 2>/dev/null || true
+  sleep 3
+  sdb connect "$TV_IP":26101 2>&1 || true
+  sleep 2
+done
+if [ "$PUSHED" = false ]; then
+  echo "ERROR: Failed to push file after 3 attempts"
+  exit 1
+fi
+
+echo "Installing KinoPub.wgt on TV..."
+sdb -s "$TV_IP":26101 shell 0 vd_appinstall evekeen001 /home/owner/share/tmp/sdk_tools/tmp/KinoPub.wgt 2>&1 || \
+  tizen install -n "$WGT_PATH" -s "$TV_IP":26101 2>&1 || true
 
 echo "Launching app..."
 sdb -s "$TV_IP:26101" shell 0 debug "$APP_ID" 2>/dev/null || true

@@ -298,14 +298,11 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
     playPause: handlePlayPause,
     play: handlePlay,
     pause: handlePause,
-    stop: handleBack,
-    back: handleBack,
-    enter: handlePlayPause,
     fastForward: handleSeekForward,
     rewind: handleSeekBackward,
     channelUp: handleSeekForward,
     channelDown: handleSeekBackward,
-  }), [handlePlayPause, handlePlay, handlePause, handleBack, handleSeekForward, handleSeekBackward]);
+  }), [handlePlayPause, handlePlay, handlePause, handleSeekForward, handleSeekBackward]);
 
   useRemoteKeys(remoteHandlers);
 
@@ -357,6 +354,7 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
         selectedSubtitle={selectedSubtitle}
         onPlayPause={handlePlayPause}
         onSeek={handleSeek}
+        onBack={handleBack}
         onSelectAudio={handleSelectAudio}
         onSelectSubtitle={setSelectedSubtitle}
       />
