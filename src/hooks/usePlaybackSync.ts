@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { markTime } from '../api/watching';
 
-const SYNC_INTERVAL_MS = 30000;
+const SYNC_INTERVAL_MS = 10000;
 
 export function usePlaybackSync(
   itemId: number | undefined,
@@ -18,27 +18,29 @@ export function usePlaybackSync(
   videoIdRef.current = videoId;
   getCurrentTimeRef.current = getCurrentTime;
 
+  const sync = useRef((): void => {
+    const id = itemIdRef.current;
+    const vid = videoIdRef.current;
+    if (id === undefined || vid === undefined) return;
+    const currentTime = Math.floor(getCurrentTimeRef.current());
+    if (currentTime > 0 && currentTime !== lastSyncedTime.current) {
+      lastSyncedTime.current = currentTime;
+      markTime(id, vid, currentTime).catch(() => {});
+    }
+  });
+
   useEffect(() => {
-    if (itemId === undefined || videoId === undefined || !isPlaying) {
+    if (itemId === undefined || videoId === undefined) return;
+    if (!isPlaying) {
+      sync.current();
       return;
     }
 
-    const sync = (): void => {
-      const id = itemIdRef.current;
-      const vid = videoIdRef.current;
-      if (id === undefined || vid === undefined) return;
-      const currentTime = Math.floor(getCurrentTimeRef.current());
-      if (currentTime > 0 && currentTime !== lastSyncedTime.current) {
-        lastSyncedTime.current = currentTime;
-        markTime(id, vid, currentTime).catch(() => {});
-      }
-    };
-
-    const intervalId = window.setInterval(sync, SYNC_INTERVAL_MS);
+    const intervalId = window.setInterval(sync.current, SYNC_INTERVAL_MS);
 
     return () => {
       window.clearInterval(intervalId);
-      sync();
+      sync.current();
     };
   }, [itemId, videoId, isPlaying]);
 
