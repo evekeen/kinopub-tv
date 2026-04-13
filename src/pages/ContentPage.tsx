@@ -251,19 +251,21 @@ export const ContentPage = memo(function ContentPage(): ReactElement {
     });
   }, [item, bookmarked, bookmarkFolders]);
 
-  const handleWatchlistToggle = useCallback((): void => {
+  const handleSubscribeToggle = useCallback((): void => {
     if (item === null) return;
 
     toggleWatchlist(item.id)
       .then(() => {
         setItem((prev) => {
           if (prev === null) return prev;
-          return { ...prev, in_watchlist: !prev.in_watchlist };
+          return {
+            ...prev,
+            subscribed: !prev.subscribed,
+            in_watchlist: !prev.in_watchlist,
+          };
         });
       })
-      .catch((err: unknown) => {
-        setError(err instanceof Error ? err : new Error('Watchlist operation failed'));
-      });
+      .catch(() => {});
   }, [item]);
 
   useBackKey(goBack);
@@ -341,10 +343,10 @@ export const ContentPage = memo(function ContentPage(): ReactElement {
                   />
                 )}
                 <ActionButton
-                  label={item.in_watchlist ? 'Watching' : 'Watch'}
-                  focusKey="content-watchlist-button"
-                  onPress={handleWatchlistToggle}
-                  active={item.in_watchlist}
+                  label={item.subscribed ? 'Subscribed' : 'Subscribe'}
+                  focusKey="content-subscribe-button"
+                  onPress={handleSubscribeToggle}
+                  active={item.subscribed}
                 />
                 <ActionButton
                   label={bookmarked ? 'Bookmarked' : 'Bookmark'}

@@ -74,6 +74,10 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
   isPlayingRef.current = isPlaying;
   const watchedMarkedRef = useRef(alreadyWatched === true);
   const backingOutRef = useRef(false);
+  const contentIdRef = useRef(contentId);
+  contentIdRef.current = contentId;
+  const mediaIdRef = useRef(mediaId);
+  mediaIdRef.current = mediaId;
 
   currentTimeRef.current = currentTime;
 

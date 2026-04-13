@@ -92,7 +92,7 @@ export const HomePage = memo(function HomePage(): ReactElement {
     try {
       const response = await getWatchingSerials('updated', true);
       const inProgress = response.items.filter(
-        (s) => s.watched > 0 && s.watched < s.total,
+        (s) => s.watched < s.total,
       );
       setItems(inProgress);
     } catch (err) {
