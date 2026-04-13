@@ -88,11 +88,11 @@ export const ProgressBar = memo(function ProgressBar({
     const handleKeyDown = (event: KeyboardEvent): void => {
       if (event.keyCode === 37 || event.key === 'ArrowLeft') {
         event.preventDefault();
-        event.stopPropagation();
+        event.stopImmediatePropagation();
         handleSeekLeft();
       } else if (event.keyCode === 39 || event.key === 'ArrowRight') {
         event.preventDefault();
-        event.stopPropagation();
+        event.stopImmediatePropagation();
         handleSeekRight();
       }
     };

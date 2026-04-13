@@ -29,11 +29,29 @@ interface PlayerOverlayProps {
   selectedSubtitle: number | null;
   onPlayPause: () => void;
   onSeek: (time: number) => void;
+  onBack: () => void;
   onSelectAudio: (id: number) => void;
   onSelectSubtitle: (index: number | null) => void;
 }
 
+type FocusedElement = 'progress' | 'playPause' | 'tracks';
+
 const AUTO_HIDE_MS = 5000;
+const PROGRESS_FOCUS_KEY = 'player-overlay-progress';
+const PLAY_PAUSE_FOCUS_KEY = 'player-overlay-play-pause';
+const TRACKS_FOCUS_KEY = 'player-overlay-tracks-btn';
+
+function handleTracksArrow(direction: string): boolean {
+  if (direction === 'up') {
+    setFocus(PROGRESS_FOCUS_KEY);
+    return false;
+  }
+  if (direction === 'left') {
+    setFocus(PLAY_PAUSE_FOCUS_KEY);
+    return false;
+  }
+  return true;
+}
 
 export const PlayerOverlay = memo(function PlayerOverlay({
   title,
@@ -47,15 +65,17 @@ export const PlayerOverlay = memo(function PlayerOverlay({
   selectedSubtitle,
   onPlayPause,
   onSeek,
+  onBack,
   onSelectAudio,
   onSelectSubtitle,
 }: PlayerOverlayProps): ReactElement | null {
   const [visible, setVisible] = useState(true);
   const [showTrackPicker, setShowTrackPicker] = useState(false);
-  const [focusedElement, setFocusedElement] = useState<'playPause' | 'progress' | 'tracks'>('progress');
+  const [focusedElement, setFocusedElement] = useState<FocusedElement>('progress');
   const hideTimerRef = useRef<number | null>(null);
   const showTrackPickerRef = useRef(showTrackPicker);
   showTrackPickerRef.current = showTrackPicker;
+  const prevVisibleRef = useRef(false);
 
   const resetHideTimer = useCallback((): void => {
     if (hideTimerRef.current !== null) {
@@ -83,7 +103,13 @@ export const PlayerOverlay = memo(function PlayerOverlay({
   }, [resetHideTimer]);
 
   useEffect(() => {
-    const handleAnyKey = (): void => {
+    const handleAnyKey = (event: KeyboardEvent): void => {
+      const isBack =
+        event.keyCode === 10009 ||
+        event.keyCode === 8 ||
+        event.key === 'Backspace' ||
+        event.key === 'Escape';
+      if (isBack) return;
       if (!visible) {
         showOverlay();
       } else {
@@ -108,29 +134,33 @@ export const PlayerOverlay = memo(function PlayerOverlay({
     setShowTrackPicker(false);
     resetHideTimer();
     requestAnimationFrame(() => {
-      setFocus('player-overlay-tracks-btn');
+      setFocus(TRACKS_FOCUS_KEY);
     });
   }, [resetHideTimer]);
 
   useEffect(() => {
-    const handleBackInTrackPicker = (event: KeyboardEvent): void => {
-      if (!showTrackPickerRef.current) return;
-      if (
+    const handleBackKey = (event: KeyboardEvent): void => {
+      const isBack =
         event.keyCode === 10009 ||
         event.keyCode === 8 ||
         event.key === 'Backspace' ||
-        event.key === 'Escape'
-      ) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
+        event.key === 'Escape';
+      if (!isBack) return;
+
+      event.preventDefault();
+      event.stopImmediatePropagation();
+
+      if (showTrackPickerRef.current) {
         handleCloseTracks();
+      } else {
+        onBack();
       }
     };
-    window.addEventListener('keydown', handleBackInTrackPicker, true);
+    window.addEventListener('keydown', handleBackKey, true);
     return () => {
-      window.removeEventListener('keydown', handleBackInTrackPicker, true);
+      window.removeEventListener('keydown', handleBackKey, true);
     };
-  }, [handleCloseTracks]);
+  }, [handleCloseTracks, onBack]);
 
   const { ref: overlayRef, focusKey: overlayFocusKey } = useFocusable({
     trackChildren: true,
@@ -139,49 +169,67 @@ export const PlayerOverlay = memo(function PlayerOverlay({
     isFocusBoundary: true,
   });
 
-  const handlePlayPauseFocus = useCallback((): void => {
-    setFocusedElement('playPause');
-  }, []);
-
   const handleProgressFocus = useCallback((): void => {
     setFocusedElement('progress');
+  }, []);
+
+  const handlePlayPauseFocus = useCallback((): void => {
+    setFocusedElement('playPause');
   }, []);
 
   const handleTracksBtnFocus = useCallback((): void => {
     setFocusedElement('tracks');
   }, []);
 
-  const { ref: playPauseRef } = useFocusable({
-    onEnterPress: onPlayPause,
-    focusKey: 'player-overlay-play-pause',
-    onFocus: handlePlayPauseFocus,
-  });
-
-  const { ref: progressRef } = useFocusable({
-    focusKey: 'player-overlay-progress',
-    onFocus: handleProgressFocus,
-  });
-
-  const { ref: tracksBtnRef } = useFocusable({
-    onEnterPress: handleOpenTracks,
-    focusKey: 'player-overlay-tracks-btn',
-    onFocus: handleTracksBtnFocus,
-  });
-
-  useEffect(() => {
-    if (visible && !showTrackPicker) {
-      requestAnimationFrame(() => {
-        setFocus('player-overlay-progress');
-      });
+  const handleProgressArrow = useCallback((direction: string): boolean => {
+    if (direction === 'down') {
+      setFocus(PLAY_PAUSE_FOCUS_KEY);
+      return false;
     }
-  }, [visible, showTrackPicker]);
-
-  const playPauseIcon = isPlaying ? '\u275A\u275A' : '\u25B6';
+    return true;
+  }, []);
 
   const hasExtraTracks = audioTracks.length > 1 || subtitles.length > 0;
 
+  const handlePlayPauseArrow = useCallback((direction: string): boolean => {
+    if (direction === 'up') {
+      setFocus(PROGRESS_FOCUS_KEY);
+      return false;
+    }
+    if (direction === 'right' && hasExtraTracks) {
+      setFocus(TRACKS_FOCUS_KEY);
+      return false;
+    }
+    return true;
+  }, [hasExtraTracks]);
+
+  const { ref: progressRef } = useFocusable({
+    focusKey: PROGRESS_FOCUS_KEY,
+    onFocus: handleProgressFocus,
+    onArrowPress: handleProgressArrow,
+    onEnterPress: onPlayPause,
+  });
+
+  const { ref: playPauseRef } = useFocusable({
+    onEnterPress: onPlayPause,
+    focusKey: PLAY_PAUSE_FOCUS_KEY,
+    onFocus: handlePlayPauseFocus,
+    onArrowPress: handlePlayPauseArrow,
+  });
+
+  useEffect(() => {
+    if (visible && !prevVisibleRef.current) {
+      requestAnimationFrame(() => {
+        setFocus(PROGRESS_FOCUS_KEY);
+      });
+    }
+    prevVisibleRef.current = visible;
+  }, [visible]);
+
+  const playPauseIcon = isPlaying ? '\u275A\u275A' : '\u25B6';
+
   if (!visible && !showTrackPicker) {
-    return null;
+    return <></>;
   }
 
   return (
@@ -193,37 +241,32 @@ export const PlayerOverlay = memo(function PlayerOverlay({
               <div className={styles.title}>{title}</div>
             </div>
             <div className={styles.bottomBar}>
-              <div className={styles.controls}>
+              <div ref={progressRef} className={styles.progressRow}>
+                <ProgressBar
+                  currentTime={currentTime}
+                  duration={duration}
+                  buffered={buffered}
+                  onSeek={onSeek}
+                  focused={focusedElement === 'progress'}
+                />
+              </div>
+              <div className={styles.buttonRow}>
                 <div
                   ref={playPauseRef}
                   className={
                     focusedElement === 'playPause'
-                      ? styles.playPauseFocused
-                      : styles.playPause
+                      ? styles.transportButton + ' ' + styles.buttonFocused
+                      : styles.transportButton
                   }
                 >
                   {playPauseIcon}
                 </div>
-                <div ref={progressRef} className={styles.progressWrapper}>
-                  <ProgressBar
-                    currentTime={currentTime}
-                    duration={duration}
-                    buffered={buffered}
-                    onSeek={onSeek}
-                    focused={focusedElement === 'progress'}
-                  />
-                </div>
                 {hasExtraTracks && (
-                  <div
-                    ref={tracksBtnRef}
-                    className={
-                      focusedElement === 'tracks'
-                        ? styles.tracksButtonFocused
-                        : styles.tracksButton
-                    }
-                  >
-                    CC
-                  </div>
+                  <TracksButton
+                    focused={focusedElement === 'tracks'}
+                    onOpen={handleOpenTracks}
+                    onFocus={handleTracksBtnFocus}
+                  />
                 )}
               </div>
             </div>
@@ -241,5 +284,37 @@ export const PlayerOverlay = memo(function PlayerOverlay({
         )}
       </div>
     </FocusContext.Provider>
+  );
+});
+
+interface TracksButtonProps {
+  focused: boolean;
+  onOpen: () => void;
+  onFocus: () => void;
+}
+
+const TracksButton = memo(function TracksButton({
+  focused,
+  onOpen,
+  onFocus,
+}: TracksButtonProps): ReactElement {
+  const { ref } = useFocusable({
+    onEnterPress: onOpen,
+    focusKey: TRACKS_FOCUS_KEY,
+    onFocus,
+    onArrowPress: handleTracksArrow,
+  });
+
+  return (
+    <div
+      ref={ref}
+      className={
+        focused
+          ? styles.tracksButton + ' ' + styles.buttonFocused
+          : styles.tracksButton
+      }
+    >
+      CC
+    </div>
   );
 });

@@ -18,6 +18,7 @@ interface ScreenParams {
   episodeNumber?: number;
   title?: string;
   resumeTime?: number;
+  alreadyWatched?: boolean;
 }
 
 interface StackEntry {

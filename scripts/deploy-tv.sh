@@ -3,27 +3,41 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-WGT_NAME="kinopub-tizen.wgt"
-WGT_PATH="$PROJECT_DIR/$WGT_NAME"
 APP_ID="evekeen001.KinoPub"
-PACKAGE_ID="evekeen001"
 
-if [ $# -lt 1 ]; then
-  echo "Usage: $0 <TV_IP> [--build]"
-  echo ""
-  echo "Deploys kinopub-tizen.wgt to a Samsung TV via sdb."
-  echo ""
-  echo "Options:"
-  echo "  --build    Run build-wgt.sh before deploying"
-  echo ""
-  echo "Prerequisites:"
-  echo "  - Tizen Studio installed with sdb in PATH"
-  echo "  - TV in Developer Mode with your PC's IP whitelisted"
-  echo "  - TV and PC on the same network"
-  exit 1
+TV_IP="192.168.8.195"
+TV_WIFI="FilmLovers"
+WIFI_PASS="FromSpbWithLove"
+
+export PATH="$HOME/tizen-studio/tools:$HOME/tizen-studio/tools/ide/bin:$PATH"
+
+ORIGINAL_WIFI=$(networksetup -getairportnetwork en0 | sed 's/Current Wi-Fi Network: //')
+if [ "$ORIGINAL_WIFI" = "You are not associated with an AirPort network." ]; then
+  ORIGINAL_WIFI="SunChasers"
 fi
+echo "Current WiFi: $ORIGINAL_WIFI"
 
-TV_IP="$1"
+restore_wifi() {
+  if [ "$ORIGINAL_WIFI" != "$TV_WIFI" ]; then
+    echo "Restoring WiFi to $ORIGINAL_WIFI..."
+    for attempt in 1 2 3; do
+      networksetup -setairportnetwork en0 "$ORIGINAL_WIFI" "$WIFI_PASS" 2>/dev/null || true
+      for i in $(seq 1 10); do
+        IP=$(ipconfig getifaddr en0 2>/dev/null || true)
+        if [ -n "$IP" ] && ! echo "$IP" | grep -q "^192\.168\.8\."; then
+          echo "Restored: $ORIGINAL_WIFI ($IP)"
+          return
+        fi
+        sleep 1
+      done
+    done
+    echo "WARNING: WiFi restore failed after 3 attempts"
+  fi
+}
+
+trap restore_wifi EXIT INT TERM
+
+WGT_PATH="$PROJECT_DIR/dist/KinoPub.wgt"
 SHOULD_BUILD=false
 
 for arg in "$@"; do
@@ -32,38 +46,78 @@ for arg in "$@"; do
   fi
 done
 
-if ! command -v sdb &> /dev/null; then
-  echo "Error: sdb not found in PATH."
-  echo "Install Tizen Studio and add its tools directory to PATH."
-  exit 1
-fi
-
 if [ "$SHOULD_BUILD" = true ]; then
   echo "Building .wgt..."
   bash "$SCRIPT_DIR/build-wgt.sh"
 fi
 
 if [ ! -f "$WGT_PATH" ]; then
-  echo "Error: $WGT_NAME not found. Run scripts/build-wgt.sh first or use --build flag."
+  echo "Error: KinoPub.wgt not found. Run 'npm run build-wgt' or use --build flag."
   exit 1
 fi
 
-echo "Connecting to TV at $TV_IP..."
-sdb connect "$TV_IP"
-sdb -s "$TV_IP:26101" capability > /dev/null 2>&1 || {
-  echo "Error: Could not connect to TV at $TV_IP:26101"
+echo "Switching to $TV_WIFI..."
+CONNECTED=false
+for attempt in 1 2 3; do
+  networksetup -setairportnetwork en0 "$TV_WIFI" "$WIFI_PASS" 2>/dev/null || true
+  for i in $(seq 1 10); do
+    IP=$(ipconfig getifaddr en0 2>/dev/null || true)
+    if echo "$IP" | grep -q "^192\.168\.8\."; then
+      echo "Connected: $IP"
+      CONNECTED=true
+      break 2
+    fi
+    sleep 1
+  done
+  echo "WiFi retry $attempt..."
+done
+if [ "$CONNECTED" = false ]; then
+  echo "ERROR: Failed to connect to $TV_WIFI after 3 attempts"
   exit 1
-}
+fi
 
-echo "Uninstalling previous version (if any)..."
-sdb -s "$TV_IP:26101" shell 0 vd_appuninstall "$PACKAGE_ID" 2>/dev/null || true
+echo "Connecting sdb to $TV_IP..."
+sdb disconnect "$TV_IP":26101 2>/dev/null || true
+sleep 1
+SDB_CONNECTED=false
+for attempt in 1 2 3 4 5; do
+  OUTPUT=$(sdb connect "$TV_IP":26101 2>&1)
+  echo "$OUTPUT"
+  if echo "$OUTPUT" | grep -q "connected to"; then
+    SDB_CONNECTED=true
+    break
+  fi
+  echo "sdb retry $attempt..."
+  sleep 3
+done
+if [ "$SDB_CONNECTED" = false ]; then
+  echo "ERROR: Failed to connect sdb to $TV_IP:26101"
+  exit 1
+fi
 
-echo "Installing $WGT_NAME..."
-sdb -s "$TV_IP:26101" install "$WGT_PATH"
+echo "Pushing KinoPub.wgt to TV..."
+PUSHED=false
+for attempt in 1 2 3; do
+  if sdb -s "$TV_IP":26101 push "$WGT_PATH" /home/owner/share/tmp/sdk_tools/tmp/KinoPub.wgt 2>&1; then
+    PUSHED=true
+    break
+  fi
+  echo "Push retry $attempt — reconnecting sdb..."
+  sdb disconnect "$TV_IP":26101 2>/dev/null || true
+  sleep 3
+  sdb connect "$TV_IP":26101 2>&1 || true
+  sleep 2
+done
+if [ "$PUSHED" = false ]; then
+  echo "ERROR: Failed to push file after 3 attempts"
+  exit 1
+fi
+
+echo "Installing KinoPub.wgt on TV..."
+sdb -s "$TV_IP":26101 shell 0 vd_appinstall evekeen001 /home/owner/share/tmp/sdk_tools/tmp/KinoPub.wgt 2>&1 || \
+  tizen install -n "$WGT_PATH" -s "$TV_IP":26101 2>&1 || true
 
 echo "Launching app..."
-sdb -s "$TV_IP:26101" shell 0 vd_appcontrol "launch $APP_ID"
+sdb -s "$TV_IP:26101" shell 0 debug "$APP_ID" 2>/dev/null || true
 
-echo ""
-echo "Deployed successfully to $TV_IP"
-echo "App ID: $APP_ID"
+echo "Done!"

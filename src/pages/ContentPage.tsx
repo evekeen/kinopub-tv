@@ -195,7 +195,7 @@ export const ContentPage = memo(function ContentPage(): ReactElement {
     if (kind === 'movie' && item.videos && item.videos.length > 0) {
       const video = item.videos[0];
       const movieResumeTime = video.watching.status === 0 ? video.watching.time : 0;
-      navigateWithFocus('player', { params: { contentId: item.id, mediaId: video.id, title: item.title, resumeTime: movieResumeTime } });
+      navigateWithFocus('player', { params: { contentId: item.id, mediaId: video.id, title: item.title, resumeTime: movieResumeTime, alreadyWatched: video.watched === 1 } });
     }
   }, [item, navigateWithFocus]);
 
@@ -212,6 +212,7 @@ export const ContentPage = memo(function ContentPage(): ReactElement {
           episodeNumber: episode.number,
           title: episodeTitle,
           resumeTime,
+          alreadyWatched: episode.watched === 1,
         },
       });
     },
