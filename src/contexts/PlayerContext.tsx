@@ -203,8 +203,13 @@ export function PlayerProvider({ children }: PlayerProviderProps): ReactElement 
 
   const seek = useCallback((time: number): void => {
     const video = videoRef.current;
-    if (video !== null) {
-      video.currentTime = Math.max(0, Math.min(time, video.duration || 0));
+    if (video === null) return;
+    const target = Math.max(0, time);
+    const duration = video.duration;
+    if (isFinite(duration) && duration > 0) {
+      video.currentTime = Math.min(target, duration);
+    } else {
+      video.currentTime = target;
     }
   }, []);
 

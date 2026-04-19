@@ -5,7 +5,8 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 APP_ID="evekeen001.KinoPub"
 
-TV_IP="192.168.8.195"
+TV_IPS=("192.168.8.195" "192.168.8.146")
+TV_IP=""
 TV_WIFI="FilmLovers"
 WIFI_PASS="FromSpbWithLove"
 
@@ -76,24 +77,34 @@ if [ "$CONNECTED" = false ]; then
   exit 1
 fi
 
-echo "Connecting sdb to $TV_IP..."
-sdb disconnect "$TV_IP":26101 2>/dev/null || true
-sleep 1
 SDB_CONNECTED=false
-for attempt in 1 2 3 4 5; do
-  OUTPUT=$(sdb connect "$TV_IP":26101 2>&1)
-  echo "$OUTPUT"
-  if echo "$OUTPUT" | grep -q "connected to"; then
-    SDB_CONNECTED=true
-    break
-  fi
-  echo "sdb retry $attempt..."
-  sleep 3
+for candidate in "${TV_IPS[@]}"; do
+  echo "Trying TV at $candidate..."
+  sdb disconnect "$candidate":26101 >/dev/null 2>&1 || true
+  sleep 1
+  for attempt in 1 2 3; do
+    OUTPUT=$(sdb connect "$candidate":26101 2>&1 || true)
+    echo "$OUTPUT"
+    if echo "$OUTPUT" | grep -q "connected to"; then
+      SDB_CONNECTED=true
+      TV_IP="$candidate"
+      break 2
+    fi
+    echo "sdb retry $attempt for $candidate..."
+    sleep 2
+  done
 done
 if [ "$SDB_CONNECTED" = false ]; then
-  echo "ERROR: Failed to connect sdb to $TV_IP:26101"
+  echo "ERROR: Failed to connect sdb to any TV IP"
+  echo "Scanning 192.168.8.0/24 for TV via arp..."
+  arp -a | grep -i '192\.168\.8\.' || true
+  echo "Pinging known IPs..."
+  for ip in 192.168.8.195 192.168.8.146; do
+    ping -c 1 -W 1 "$ip" >/dev/null 2>&1 && echo "$ip is up" || echo "$ip is down"
+  done
   exit 1
 fi
+echo "Connected via $TV_IP"
 
 echo "Pushing KinoPub.wgt to TV..."
 PUSHED=false

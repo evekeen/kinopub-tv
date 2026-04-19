@@ -226,20 +226,6 @@ export async function apiPost<T>(
   path: string,
   body?: Record<string, string | number | boolean | undefined>
 ): Promise<T> {
-  const url = `${API_BASE}/${path}`;
-
-  const formBody = new URLSearchParams();
-  if (body) {
-    for (const [key, value] of Object.entries(body)) {
-      if (value !== undefined) {
-        formBody.set(key, String(value));
-      }
-    }
-  }
-
-  return apiRequest<T>(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: formBody.toString(),
-  }, false);
+  const url = buildUrl(path, body);
+  return apiRequest<T>(url, { method: 'POST' }, false);
 }
