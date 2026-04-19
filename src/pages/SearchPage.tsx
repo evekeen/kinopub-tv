@@ -2,6 +2,7 @@ import {
   ReactElement,
   memo,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   useCallback,
@@ -49,6 +50,12 @@ const SearchInput = memo(function SearchInput({
     focusKey: SEARCH_INPUT_FOCUS_KEY,
     onEnterPress: handleEnterPress,
   });
+
+  useLayoutEffect(() => {
+    if (!focused && document.activeElement === inputRef.current) {
+      inputRef.current?.blur();
+    }
+  }, [focused]);
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>): void => {

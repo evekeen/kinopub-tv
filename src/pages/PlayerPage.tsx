@@ -39,6 +39,7 @@ function pickBestFile(files: MediaFile[]): MediaFile | null {
 export const PlayerPage = memo(function PlayerPage(): ReactElement {
   const contentId = useUiStore((s) => s.screenParams.contentId);
   const mediaId = useUiStore((s) => s.screenParams.mediaId);
+  const seasonNumber = useUiStore((s) => s.screenParams.seasonNumber);
   const screenTitle = useUiStore((s) => s.screenParams.title);
   const resumeTime = useUiStore((s) => s.screenParams.resumeTime);
   const alreadyWatched = useUiStore((s) => s.screenParams.alreadyWatched);
@@ -69,7 +70,8 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
   const [title, setTitle] = useState('');
   const currentTimeRef = useRef(0);
   const seekingRef = useRef(false);
-  const canPlayHandlerRef = useRef<(() => void) | null>(null);
+  const resumeSeekRef = useRef<{ time: number; applied: boolean } | null>(null);
+  const resumeListenersRef = useRef<(() => void) | null>(null);
   const isPlayingRef = useRef(isPlaying);
   isPlayingRef.current = isPlaying;
   const watchedMarkedRef = useRef(alreadyWatched === true);
@@ -121,16 +123,39 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
       if (resumeTime !== undefined && resumeTime > 0) {
         const video = playerRef.current.videoRef.current;
         if (video !== null) {
-          if (canPlayHandlerRef.current !== null) {
-            video.removeEventListener('canplay', canPlayHandlerRef.current);
+          if (resumeListenersRef.current !== null) {
+            resumeListenersRef.current();
           }
-          const onCanPlay = (): void => {
-            video.removeEventListener('canplay', onCanPlay);
-            canPlayHandlerRef.current = null;
-            playerRef.current.seek(resumeTime);
+          resumeSeekRef.current = { time: resumeTime, applied: false };
+
+          const attemptSeek = (): boolean => {
+            const entry = resumeSeekRef.current;
+            if (entry === null || entry.applied) return true;
+            const duration = video.duration;
+            if (!isFinite(duration) || duration <= 0) return false;
+            playerRef.current.seek(entry.time);
+            entry.applied = true;
+            return true;
           };
-          canPlayHandlerRef.current = onCanPlay;
-          video.addEventListener('canplay', onCanPlay);
+
+          const onReady = (): void => {
+            if (attemptSeek() && resumeListenersRef.current !== null) {
+              resumeListenersRef.current();
+            }
+          };
+
+          video.addEventListener('loadedmetadata', onReady);
+          video.addEventListener('canplay', onReady);
+          video.addEventListener('durationchange', onReady);
+
+          resumeListenersRef.current = (): void => {
+            video.removeEventListener('loadedmetadata', onReady);
+            video.removeEventListener('canplay', onReady);
+            video.removeEventListener('durationchange', onReady);
+            resumeListenersRef.current = null;
+          };
+
+          attemptSeek();
         }
       }
       setLoading(false);
@@ -144,10 +169,10 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
     fetchAndPlay();
 
     return () => {
-      if (canPlayHandlerRef.current !== null && playerRef.current.videoRef.current !== null) {
-        playerRef.current.videoRef.current.removeEventListener('canplay', canPlayHandlerRef.current);
-        canPlayHandlerRef.current = null;
+      if (resumeListenersRef.current !== null) {
+        resumeListenersRef.current();
       }
+      resumeSeekRef.current = null;
       playerRef.current.destroy();
       reset();
     };
@@ -204,11 +229,12 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
           !watchedMarkedRef.current &&
           contentId !== undefined &&
           mediaId !== undefined &&
+          isFinite(video.duration) &&
           video.duration > 0 &&
           time / video.duration >= 0.9
         ) {
           watchedMarkedRef.current = true;
-          toggleWatched(contentId, mediaId).catch(() => {});
+          toggleWatched(contentId, mediaId, seasonNumber).catch(() => {});
         }
       }
     };
@@ -239,7 +265,7 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
       video.removeEventListener('seeked', onSeeked);
       video.removeEventListener('progress', onProgress);
     };
-  }, [player.videoRef, setPlaying, setCurrentTime, setDuration, handleBack, contentId, mediaId]);
+  }, [player.videoRef, setPlaying, setCurrentTime, setDuration, handleBack, contentId, mediaId, seasonNumber]);
 
   usePlaybackSync(contentId, mediaId, getCurrentTime, isPlaying);
 

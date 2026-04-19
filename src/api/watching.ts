@@ -20,11 +20,15 @@ export async function markTime(itemId: number, videoId: number, time: number): P
   });
 }
 
-export async function toggleWatched(itemId: number, videoId: number): Promise<StatusResponse> {
-  return apiPost<StatusResponse>('watching/toggle', {
+export async function toggleWatched(itemId: number, videoId: number, seasonNumber?: number): Promise<StatusResponse> {
+  const body: Record<string, number> = {
     id: itemId,
     video: videoId,
-  });
+  };
+  if (seasonNumber !== undefined) {
+    body.season = seasonNumber;
+  }
+  return apiPost<StatusResponse>('watching/toggle', body);
 }
 
 export async function toggleWatchlist(itemId: number): Promise<StatusResponse> {
