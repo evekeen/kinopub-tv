@@ -174,6 +174,15 @@ export const ContentPage = memo(function ContentPage(): ReactElement {
     if (initialFocusAppliedRef.current) return;
     initialFocusAppliedRef.current = true;
 
+    const kind = classifyType(item.type);
+    const playButtonRendered = kind === 'movie' || (kind === 'serial' && resumePoint !== null);
+    const hasEpisodeList = kind === 'serial' && item.seasons !== undefined && item.seasons.length > 0;
+    const defaultFocusTarget = playButtonRendered
+      ? 'content-play-button'
+      : hasEpisodeList
+        ? 'episode-list'
+        : 'content-subscribe-button';
+
     const pendingFocusKey = useUiStore.getState().lastRestoredFocusKey;
     if (pendingFocusKey !== null) {
       useUiStore.getState().clearLastRestoredFocusKey();
@@ -190,17 +199,16 @@ export const ContentPage = memo(function ContentPage(): ReactElement {
         }
       }
 
+      const restoreTarget = pendingFocusKey === 'content-play-button' && !playButtonRendered
+        ? defaultFocusTarget
+        : pendingFocusKey;
       requestAnimationFrame(() => {
-        setFocus(pendingFocusKey);
+        setFocus(restoreTarget);
       });
       return;
     }
-    const kind = classifyType(item.type);
-    const focusTarget = kind === 'movie' || (kind === 'serial' && resumePoint !== null)
-      ? 'content-play-button'
-      : 'episode-list';
     requestAnimationFrame(() => {
-      setFocus(focusTarget);
+      setFocus(defaultFocusTarget);
     });
   }, [item, loading, resumePoint]);
 

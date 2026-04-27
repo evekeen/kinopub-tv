@@ -263,7 +263,16 @@ export async function setupMockApi(page: Page): Promise<MockApiHandle> {
       return;
     }
 
-    if (url.includes('/watching/toggle')) {
+    if (url.includes('/watching/togglewatchlist')) {
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ status: 200 }),
+      });
+      return;
+    }
+
+    if (url.match(/\/watching\/toggle(\?|$)/)) {
       handleWatchingToggle(route, url);
       return;
     }
@@ -314,9 +323,9 @@ export async function setupMockApi(page: Page): Promise<MockApiHandle> {
 
     if (url.includes('/watching')) {
       route.fulfill({
-        status: 200,
+        status: 404,
         contentType: 'application/json',
-        body: JSON.stringify({ status: 200 }),
+        body: JSON.stringify({ status: 404, error: 'Unknown watching endpoint' }),
       });
       return;
     }

@@ -5,6 +5,48 @@ import { ContentPage } from './ContentPage';
 import { useUiStore } from '../store/ui';
 import type { ItemDetails, BookmarkFolder, Season } from '../types';
 
+function makeFullyWatchedSerialSeasons(): Season[] {
+  return [
+    {
+      id: 10,
+      number: 1,
+      title: 'Season 1',
+      watched: 1,
+      watching: { status: 1, time: 0 },
+      episodes: [
+        {
+          id: 201,
+          title: 'Episode 1',
+          number: 1,
+          snumber: 1,
+          thumbnail: '',
+          duration: 3600,
+          watched: 1,
+          watching: { status: 1, time: 3600 },
+          tracks: 2,
+          ac3: 0,
+          audios: [],
+          subtitles: [],
+        },
+        {
+          id: 202,
+          title: 'Episode 2',
+          number: 2,
+          snumber: 1,
+          thumbnail: '',
+          duration: 3600,
+          watched: 1,
+          watching: { status: 1, time: 3600 },
+          tracks: 2,
+          ac3: 0,
+          audios: [],
+          subtitles: [],
+        },
+      ],
+    },
+  ];
+}
+
 function makeMovieDetails(overrides?: Partial<ItemDetails>): ItemDetails {
   return {
     id: 42,
@@ -629,6 +671,30 @@ describe('ContentPage', () => {
         alreadyWatched: false,
       },
     });
+  });
+
+  it('does not render Play/Resume button when serial is fully watched', async () => {
+    const content = await import('../api/content');
+    vi.mocked(content.getItemDetail).mockResolvedValue({
+      status: 200,
+      item: makeSerialDetails({ seasons: makeFullyWatchedSerialSeasons() }),
+    });
+    useUiStore.setState({
+      currentScreen: 'content',
+      screenParams: { contentId: 43 },
+      navigationStack: [{ screen: 'home', params: {}, lastFocusKey: 'home-page' }],
+      lastRestoredFocusKey: 'content-play-button',
+    });
+
+    render(<ContentPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Test Serial')).toBeDefined();
+    });
+
+    expect(screen.queryByText('Play')).toBeNull();
+    expect(screen.queryByText('Resume')).toBeNull();
+    expect(screen.getByText('Subscribe')).toBeDefined();
   });
 
   it('Play button picks S1E1 for a fresh serial', async () => {
