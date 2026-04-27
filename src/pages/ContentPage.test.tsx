@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { init } from '@noriginmedia/norigin-spatial-navigation';
 import { ContentPage } from './ContentPage';
 import { useUiStore } from '../store/ui';
-import type { ItemDetails, BookmarkFolder } from '../types';
+import type { ItemDetails, BookmarkFolder, Season } from '../types';
 
 function makeMovieDetails(overrides?: Partial<ItemDetails>): ItemDetails {
   return {
@@ -70,7 +70,7 @@ function makeMovieDetails(overrides?: Partial<ItemDetails>): ItemDetails {
   };
 }
 
-function makeSerialDetails(): ItemDetails {
+function makeSerialDetails(overrides?: Partial<ItemDetails>): ItemDetails {
   return makeMovieDetails({
     id: 43,
     title: 'Test Serial',
@@ -138,7 +138,106 @@ function makeSerialDetails(): ItemDetails {
         ],
       },
     ],
+    ...overrides,
   });
+}
+
+function makeFreshSerialSeasons(): Season[] {
+  return [
+    {
+      id: 10,
+      number: 1,
+      title: 'Season 1',
+      watched: -1,
+      watching: { status: -1, time: 0 },
+      episodes: [
+        {
+          id: 201,
+          title: 'Episode 1',
+          number: 1,
+          snumber: 1,
+          thumbnail: '',
+          duration: 3600,
+          watched: -1,
+          watching: { status: -1, time: 0 },
+          tracks: 2,
+          ac3: 0,
+          audios: [],
+          subtitles: [],
+        },
+        {
+          id: 202,
+          title: 'Episode 2',
+          number: 2,
+          snumber: 1,
+          thumbnail: '',
+          duration: 3600,
+          watched: -1,
+          watching: { status: -1, time: 0 },
+          tracks: 2,
+          ac3: 0,
+          audios: [],
+          subtitles: [],
+        },
+      ],
+    },
+  ];
+}
+
+function makeInProgressSerialSeasons(): Season[] {
+  return [
+    {
+      id: 10,
+      number: 1,
+      title: 'Season 1',
+      watched: 0,
+      watching: { status: 0, time: 0 },
+      episodes: [
+        {
+          id: 201,
+          title: 'Episode 1',
+          number: 1,
+          snumber: 1,
+          thumbnail: '',
+          duration: 3600,
+          watched: 1,
+          watching: { status: 1, time: 3600 },
+          tracks: 2,
+          ac3: 0,
+          audios: [],
+          subtitles: [],
+        },
+        {
+          id: 202,
+          title: 'Episode 2',
+          number: 2,
+          snumber: 1,
+          thumbnail: '',
+          duration: 3600,
+          watched: 0,
+          watching: { status: 0, time: 1200 },
+          tracks: 2,
+          ac3: 0,
+          audios: [],
+          subtitles: [],
+        },
+        {
+          id: 203,
+          title: 'Episode 3',
+          number: 3,
+          snumber: 1,
+          thumbnail: '',
+          duration: 3600,
+          watched: -1,
+          watching: { status: -1, time: 0 },
+          tracks: 2,
+          ac3: 0,
+          audios: [],
+          subtitles: [],
+        },
+      ],
+    },
+  ];
 }
 
 const mockFolders: BookmarkFolder[] = [
@@ -322,7 +421,7 @@ describe('ContentPage', () => {
     expect(screen.getByText('Second Episode')).toBeDefined();
   });
 
-  it('does not render Play button for serials', async () => {
+  it('renders Play button for serial when next episode has no progress', async () => {
     const content = await import('../api/content');
     vi.mocked(content.getItemDetail).mockResolvedValue({
       status: 200,
@@ -340,7 +439,7 @@ describe('ContentPage', () => {
       expect(screen.getByText('Test Serial')).toBeDefined();
     });
 
-    expect(screen.queryByText('Play')).toBeNull();
+    expect(screen.getByText('Play')).toBeDefined();
   });
 
   it('renders duration in human-readable format', async () => {
@@ -371,7 +470,7 @@ describe('ContentPage', () => {
     const content = await import('../api/content');
     vi.mocked(content.getItemDetail).mockResolvedValue({
       status: 200,
-      item: makeSerialDetails(),
+      item: makeSerialDetails({ type: 'tvshow' }),
     });
     useUiStore.setState({
       currentScreen: 'content',
@@ -385,7 +484,7 @@ describe('ContentPage', () => {
       expect(screen.getByText('Test Serial')).toBeDefined();
     });
 
-    expect(screen.queryByText('Play')).toBeNull();
+    expect(screen.getByText('Season 1')).toBeDefined();
   });
 
   it('falls back to medium poster when big is empty', async () => {
@@ -405,5 +504,171 @@ describe('ContentPage', () => {
 
     const img = screen.getByAltText('Test Movie');
     expect((img as HTMLImageElement).src).toContain('medium.jpg');
+  });
+
+  it('shows Resume label when an in-progress episode exists', async () => {
+    const content = await import('../api/content');
+    vi.mocked(content.getItemDetail).mockResolvedValue({
+      status: 200,
+      item: makeSerialDetails({ seasons: makeInProgressSerialSeasons() }),
+    });
+    useUiStore.setState({
+      currentScreen: 'content',
+      screenParams: { contentId: 43 },
+      navigationStack: [{ screen: 'home', params: {}, lastFocusKey: 'home-page' }],
+    });
+
+    render(<ContentPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Test Serial')).toBeDefined();
+    });
+
+    expect(screen.getByText('Resume')).toBeDefined();
+    expect(screen.queryByText('Play')).toBeNull();
+  });
+
+  it('shows Play label for fresh serial with no progress', async () => {
+    const content = await import('../api/content');
+    vi.mocked(content.getItemDetail).mockResolvedValue({
+      status: 200,
+      item: makeSerialDetails({ seasons: makeFreshSerialSeasons() }),
+    });
+    useUiStore.setState({
+      currentScreen: 'content',
+      screenParams: { contentId: 43 },
+      navigationStack: [{ screen: 'home', params: {}, lastFocusKey: 'home-page' }],
+    });
+
+    render(<ContentPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Test Serial')).toBeDefined();
+    });
+
+    expect(screen.getByText('Play')).toBeDefined();
+  });
+
+  it('Play button picks the in-progress episode when one exists', async () => {
+    const navigateWithFocusSpy = vi.fn();
+    const content = await import('../api/content');
+    vi.mocked(content.getItemDetail).mockResolvedValue({
+      status: 200,
+      item: makeSerialDetails({ seasons: makeInProgressSerialSeasons() }),
+    });
+    useUiStore.setState({
+      currentScreen: 'content',
+      screenParams: { contentId: 43 },
+      navigationStack: [{ screen: 'home', params: {}, lastFocusKey: 'home-page' }],
+      navigateWithFocus: navigateWithFocusSpy,
+    });
+
+    render(<ContentPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Resume')).toBeDefined();
+    });
+
+    const button = screen.getByText('Resume').parentElement;
+    expect(button).not.toBeNull();
+    fireEvent.keyDown(button!, { key: 'Enter', keyCode: 13 });
+
+    await waitFor(() => {
+      expect(navigateWithFocusSpy).toHaveBeenCalled();
+    });
+
+    expect(navigateWithFocusSpy).toHaveBeenCalledWith('player', {
+      params: {
+        contentId: 43,
+        mediaId: 202,
+        seasonNumber: 1,
+        episodeNumber: 2,
+        title: 'Test Serial S1E2',
+        resumeTime: 1200,
+        alreadyWatched: false,
+      },
+    });
+  });
+
+  it('Play button picks next-after-last-watched when no in-progress', async () => {
+    const navigateWithFocusSpy = vi.fn();
+    const content = await import('../api/content');
+    vi.mocked(content.getItemDetail).mockResolvedValue({
+      status: 200,
+      item: makeSerialDetails(),
+    });
+    useUiStore.setState({
+      currentScreen: 'content',
+      screenParams: { contentId: 43 },
+      navigationStack: [{ screen: 'home', params: {}, lastFocusKey: 'home-page' }],
+      navigateWithFocus: navigateWithFocusSpy,
+    });
+
+    render(<ContentPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Play')).toBeDefined();
+    });
+
+    const button = screen.getByText('Play').parentElement;
+    expect(button).not.toBeNull();
+    fireEvent.keyDown(button!, { key: 'Enter', keyCode: 13 });
+
+    await waitFor(() => {
+      expect(navigateWithFocusSpy).toHaveBeenCalled();
+    });
+
+    expect(navigateWithFocusSpy).toHaveBeenCalledWith('player', {
+      params: {
+        contentId: 43,
+        mediaId: 202,
+        seasonNumber: 1,
+        episodeNumber: 2,
+        title: 'Test Serial S1E2',
+        resumeTime: 0,
+        alreadyWatched: false,
+      },
+    });
+  });
+
+  it('Play button picks S1E1 for a fresh serial', async () => {
+    const navigateWithFocusSpy = vi.fn();
+    const content = await import('../api/content');
+    vi.mocked(content.getItemDetail).mockResolvedValue({
+      status: 200,
+      item: makeSerialDetails({ seasons: makeFreshSerialSeasons() }),
+    });
+    useUiStore.setState({
+      currentScreen: 'content',
+      screenParams: { contentId: 43 },
+      navigationStack: [{ screen: 'home', params: {}, lastFocusKey: 'home-page' }],
+      navigateWithFocus: navigateWithFocusSpy,
+    });
+
+    render(<ContentPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Play')).toBeDefined();
+    });
+
+    const button = screen.getByText('Play').parentElement;
+    expect(button).not.toBeNull();
+    fireEvent.keyDown(button!, { key: 'Enter', keyCode: 13 });
+
+    await waitFor(() => {
+      expect(navigateWithFocusSpy).toHaveBeenCalled();
+    });
+
+    expect(navigateWithFocusSpy).toHaveBeenCalledWith('player', {
+      params: {
+        contentId: 43,
+        mediaId: 201,
+        seasonNumber: 1,
+        episodeNumber: 1,
+        title: 'Test Serial S1E1',
+        resumeTime: 0,
+        alreadyWatched: false,
+      },
+    });
   });
 });

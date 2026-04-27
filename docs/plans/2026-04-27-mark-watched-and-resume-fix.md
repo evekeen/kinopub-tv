@@ -222,14 +222,14 @@ Make the parameter name match the actual semantics so this doesn't get re-confus
 
 Make the next-unwatched episode reachable with one button press from the content page.
 
-- [ ] In `src/pages/ContentPage.tsx`, derive the resume target once when rendering serials:
+- [x] In `src/pages/ContentPage.tsx`, derive the resume target once when rendering serials:
   ```typescript
   const resumePoint = kind === 'serial' && item.seasons
     ? findResumePoint(item.seasons)
     : null;
   ```
   (already exists — keep as-is)
-- [ ] Compute the button label:
+- [x] Compute the button label:
   ```typescript
   function getResumeLabel(point: ResumePoint | null): string {
     if (point === null) return 'Play';
@@ -238,7 +238,7 @@ Make the next-unwatched episode reachable with one button press from the content
   }
   ```
   (Pure function above the component, no comments needed — name is self-documenting.)
-- [ ] Add a `handleResumeSerial` callback (above `handleSelectEpisode`):
+- [x] Add a `handleResumeSerial` callback (above `handleSelectEpisode`):
   ```typescript
   const handleResumeSerial = useCallback((): void => {
     if (item === null || !item.seasons) return;
@@ -264,7 +264,7 @@ Make the next-unwatched episode reachable with one button press from the content
     });
   }, [item, navigateWithFocus]);
   ```
-- [ ] Render the button inside the `actions` div, BEFORE Subscribe/Bookmark, only when `kind === 'serial'`:
+- [x] Render the button inside the `actions` div, BEFORE Subscribe/Bookmark, only when `kind === 'serial'`:
   ```tsx
   {kind === 'serial' && item.seasons && item.seasons.length > 0 && (
     <ActionButton
@@ -276,7 +276,7 @@ Make the next-unwatched episode reachable with one button press from the content
   )}
   ```
   The existing `kind === 'movie'` Play button keeps its existing logic.
-- [ ] Update the default-focus effect to focus `content-play-button` for serials too (not just movies). The existing branch is at `src/pages/ContentPage.tsx:171-177`:
+- [x] Update the default-focus effect to focus `content-play-button` for serials too (not just movies). The existing branch is at `src/pages/ContentPage.tsx:171-177`:
   ```typescript
   const focusTarget = kind === 'movie' || (kind === 'serial' && resumePoint !== null)
     ? 'content-play-button'

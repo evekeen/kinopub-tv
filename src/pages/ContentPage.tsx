@@ -37,10 +37,12 @@ function findResumePoint(seasons: ReadonlyArray<Season>): ResumePoint | null {
       }
     }
   }
+  let hasAnyWatched = false;
   for (let si = seasons.length - 1; si >= 0; si--) {
     const eps = seasons[si].episodes;
     for (let ei = eps.length - 1; ei >= 0; ei--) {
       if (eps[ei].watched === 1) {
+        hasAnyWatched = true;
         const nextEi = ei + 1;
         if (nextEi < eps.length) {
           return { seasonIndex: si, episodeIndex: nextEi, time: 0 };
@@ -52,7 +54,16 @@ function findResumePoint(seasons: ReadonlyArray<Season>): ResumePoint | null {
       }
     }
   }
+  if (!hasAnyWatched && seasons.length > 0 && seasons[0].episodes.length > 0) {
+    return { seasonIndex: 0, episodeIndex: 0, time: 0 };
+  }
   return null;
+}
+
+function getResumeLabel(point: ResumePoint | null): string {
+  if (point === null) return 'Play';
+  if (point.time > 0) return 'Resume';
+  return 'Play';
 }
 
 interface EpisodePosition {
@@ -169,7 +180,11 @@ export const ContentPage = memo(function ContentPage(): ReactElement {
         return;
       }
       const kind = classifyType(item.type);
-      const focusTarget = kind === 'movie'
+      const seasons = item.seasons;
+      const hasResumePoint = kind === 'serial' && seasons !== undefined
+        ? findResumePoint(seasons) !== null
+        : false;
+      const focusTarget = kind === 'movie' || (kind === 'serial' && hasResumePoint)
         ? 'content-play-button'
         : 'episode-list';
       requestAnimationFrame(() => {
@@ -197,6 +212,30 @@ export const ContentPage = memo(function ContentPage(): ReactElement {
       const movieResumeTime = video.watched !== 1 && video.watching.time > 0 ? video.watching.time : 0;
       navigateWithFocus('player', { params: { contentId: item.id, mediaId: video.id, title: item.title, resumeTime: movieResumeTime, alreadyWatched: video.watched === 1 } });
     }
+  }, [item, navigateWithFocus]);
+
+  const handleResumeSerial = useCallback((): void => {
+    if (item === null || !item.seasons) return;
+    const point = findResumePoint(item.seasons);
+    const target = point !== null
+      ? item.seasons[point.seasonIndex].episodes[point.episodeIndex]
+      : item.seasons[0]?.episodes[0];
+    if (target === undefined) return;
+    const episodeTitle = item.title + ' S' + target.snumber + 'E' + target.number;
+    const resumeTime = target.watched !== 1 && target.watching.time > 0
+      ? target.watching.time
+      : 0;
+    navigateWithFocus('player', {
+      params: {
+        contentId: item.id,
+        mediaId: target.id,
+        seasonNumber: target.snumber,
+        episodeNumber: target.number,
+        title: episodeTitle,
+        resumeTime,
+        alreadyWatched: target.watched === 1,
+      },
+    });
   }, [item, navigateWithFocus]);
 
   const handleSelectEpisode = useCallback(
@@ -339,6 +378,14 @@ export const ContentPage = memo(function ContentPage(): ReactElement {
                     label="Play"
                     focusKey="content-play-button"
                     onPress={handlePlay}
+                    active={false}
+                  />
+                )}
+                {kind === 'serial' && item.seasons && item.seasons.length > 0 && (
+                  <ActionButton
+                    label={getResumeLabel(resumePoint)}
+                    focusKey="content-play-button"
+                    onPress={handleResumeSerial}
                     active={false}
                   />
                 )}
