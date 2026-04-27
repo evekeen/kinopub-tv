@@ -41,10 +41,13 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
   const contentId = useUiStore((s) => s.screenParams.contentId);
   const mediaId = useUiStore((s) => s.screenParams.mediaId);
   const seasonNumber = useUiStore((s) => s.screenParams.seasonNumber);
+  const episodeNumber = useUiStore((s) => s.screenParams.episodeNumber);
   const screenTitle = useUiStore((s) => s.screenParams.title);
   const resumeTime = useUiStore((s) => s.screenParams.resumeTime);
   const alreadyWatched = useUiStore((s) => s.screenParams.alreadyWatched);
   const goBack = useUiStore((s) => s.goBack);
+
+  const videoNumber = episodeNumber ?? 1;
 
   const setMedia = usePlayerStore((s) => s.setMedia);
   const setPlaying = usePlayerStore((s) => s.setPlaying);
@@ -204,14 +207,14 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
         backingOutRef.current = true;
         const timeout = new Promise<void>((resolve) => window.setTimeout(resolve, 2000));
         Promise.race([
-          markTime(contentId, mediaId, time).catch((err: unknown) => logWatchingError('markTime:back', err)),
+          markTime(contentId, videoNumber, time, seasonNumber).catch((err: unknown) => logWatchingError('markTime:back', err)),
           timeout,
         ]).then(() => goBack());
         return;
       }
     }
     goBack();
-  }, [contentId, mediaId, getCurrentTime, goBack]);
+  }, [contentId, mediaId, videoNumber, seasonNumber, getCurrentTime, goBack]);
 
   useEffect(() => {
     const video = player.videoRef.current;
@@ -237,7 +240,7 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
           time / video.duration >= 0.9
         ) {
           watchedMarkedRef.current = true;
-          toggleWatched(contentId, mediaId, seasonNumber).catch((err: unknown) => logWatchingError('toggleWatched:90%', err));
+          toggleWatched(contentId, videoNumber, seasonNumber, 1).catch((err: unknown) => logWatchingError('toggleWatched:90%', err));
         }
       }
     };
@@ -268,9 +271,9 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
       video.removeEventListener('seeked', onSeeked);
       video.removeEventListener('progress', onProgress);
     };
-  }, [player.videoRef, setPlaying, setCurrentTime, setDuration, handleBack, contentId, mediaId, seasonNumber]);
+  }, [player.videoRef, setPlaying, setCurrentTime, setDuration, handleBack, contentId, mediaId, videoNumber, seasonNumber]);
 
-  usePlaybackSync(contentId, mediaId, getCurrentTime, isPlaying);
+  usePlaybackSync(contentId, videoNumber, getCurrentTime, isPlaying);
 
   const { currentCue, loadSubtitle, clearSubtitle } = useSubtitles(currentTime);
 

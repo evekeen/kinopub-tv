@@ -168,22 +168,22 @@ Replace silent `.catch(() => {})` with a logger so a future recurrence of this b
 
 Use `episodeNumber` from `screenParams` (movies → fallback to `1`) for all watching calls. This is the actual fix.
 
-- [ ] In `src/pages/PlayerPage.tsx`, read `episodeNumber` from the store at the top with the other screen params:
+- [x] In `src/pages/PlayerPage.tsx`, read `episodeNumber` from the store at the top with the other screen params:
   ```typescript
   const episodeNumber = useUiStore((s) => s.screenParams.episodeNumber);
   ```
-- [ ] Compute a `videoNumber` constant once: `const videoNumber = episodeNumber ?? 1;`
-- [ ] Update the `handleBack` markTime call (currently `markTime(contentId, mediaId, time)`) to:
+- [x] Compute a `videoNumber` constant once: `const videoNumber = episodeNumber ?? 1;`
+- [x] Update the `handleBack` markTime call (currently `markTime(contentId, mediaId, time)`) to:
   ```typescript
   markTime(contentId, videoNumber, time, seasonNumber)
   ```
-- [ ] Update the 90%-trigger `toggleWatched` call (currently `toggleWatched(contentId, mediaId, seasonNumber)`) to:
+- [x] Update the 90%-trigger `toggleWatched` call (currently `toggleWatched(contentId, mediaId, seasonNumber)`) to:
   ```typescript
   toggleWatched(contentId, videoNumber, seasonNumber, 1)
   ```
   Note the explicit `status=1` — sets watched, never un-marks.
-- [ ] Update the `usePlaybackSync(contentId, mediaId, ...)` call to pass `videoNumber` instead of `mediaId`. This requires updating the hook signature in Task 5.
-- [ ] Add `videoNumber` to the dependency array of the effect that registers the timeupdate listener (currently has `mediaId`).
+- [x] Update the `usePlaybackSync(contentId, mediaId, ...)` call to pass `videoNumber` instead of `mediaId`. This requires updating the hook signature in Task 5.
+- [x] Add `videoNumber` to the dependency array of the effect that registers the timeupdate listener (currently has `mediaId`).
 
 **DoD:** `npm run typecheck` passes. Dev build: open a serial episode S2E3, watch >90%, the dev console shows no `[watching]` warnings. Re-open the content page and the episode shows watched (UI confirmation in Task 6).
 
