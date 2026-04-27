@@ -36,7 +36,7 @@ describe('usePlaybackSync', () => {
     expect(markTime).not.toHaveBeenCalled();
   });
 
-  it('does not call markTime when videoId is undefined', () => {
+  it('does not call markTime when videoNumber is undefined', () => {
     const getCurrentTime = vi.fn(() => 120);
 
     renderHook(() => usePlaybackSync(1, undefined, getCurrentTime, true));
@@ -51,7 +51,7 @@ describe('usePlaybackSync', () => {
     renderHook(() => usePlaybackSync(1, 2, getCurrentTime, true));
     vi.advanceTimersByTime(30000);
 
-    expect(markTime).toHaveBeenCalledWith(1, 2, 120);
+    expect(markTime).toHaveBeenCalledWith(1, 2, 120, undefined);
   });
 
   it('calls markTime multiple times at 30s intervals', () => {
@@ -66,7 +66,7 @@ describe('usePlaybackSync', () => {
     time = 130;
     vi.advanceTimersByTime(30000);
     expect(markTime).toHaveBeenCalledTimes(2);
-    expect(markTime).toHaveBeenCalledWith(1, 2, 130);
+    expect(markTime).toHaveBeenCalledWith(1, 2, 130, undefined);
   });
 
   it('does not call markTime when currentTime is 0', () => {
@@ -86,7 +86,7 @@ describe('usePlaybackSync', () => {
     );
     unmount();
 
-    expect(markTime).toHaveBeenCalledWith(1, 2, 250);
+    expect(markTime).toHaveBeenCalledWith(1, 2, 250, undefined);
   });
 
   it('calls markTime when playback pauses', () => {
@@ -102,7 +102,7 @@ describe('usePlaybackSync', () => {
     isPlaying = false;
     rerender();
 
-    expect(markTime).toHaveBeenCalledWith(1, 2, 180);
+    expect(markTime).toHaveBeenCalledWith(1, 2, 180, undefined);
   });
 
   it('does not duplicate markTime when paused then unmounted', () => {
@@ -119,5 +119,21 @@ describe('usePlaybackSync', () => {
 
     unmount();
     expect(markTime).toHaveBeenCalledTimes(1);
+  });
+
+  it('passes seasonNumber to markTime for serial episodes', () => {
+    const getCurrentTime = vi.fn(() => 120);
+    renderHook(() => usePlaybackSync(42, 3, getCurrentTime, true, 2));
+    vi.advanceTimersByTime(30000);
+    expect(markTime).toHaveBeenCalledWith(42, 3, 120, 2);
+  });
+
+  it('passes a small 1-based video number, not a server-side ID (regression guard)', () => {
+    const getCurrentTime = vi.fn(() => 60);
+    renderHook(() => usePlaybackSync(42, 3, getCurrentTime, true, 2));
+    vi.advanceTimersByTime(30000);
+    const call = (markTime as unknown as { mock: { calls: number[][] } }).mock.calls[0];
+    const videoArg = call[1];
+    expect(videoArg).toBeLessThan(100);
   });
 });

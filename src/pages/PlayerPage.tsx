@@ -273,7 +273,7 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
     };
   }, [player.videoRef, setPlaying, setCurrentTime, setDuration, handleBack, contentId, mediaId, videoNumber, seasonNumber]);
 
-  usePlaybackSync(contentId, videoNumber, getCurrentTime, isPlaying);
+  usePlaybackSync(contentId, videoNumber, getCurrentTime, isPlaying, seasonNumber);
 
   const { currentCue, loadSubtitle, clearSubtitle } = useSubtitles(currentTime);
 

@@ -191,9 +191,9 @@ Use `episodeNumber` from `screenParams` (movies → fallback to `1`) for all wat
 
 Make the parameter name match the actual semantics so this doesn't get re-confused at the next call site.
 
-- [ ] In `src/hooks/usePlaybackSync.ts`, rename the second parameter from `videoId` to `videoNumber` and the inner refs (`videoIdRef` → `videoNumberRef`).
-- [ ] Add a third optional parameter `seasonNumber?: number` and a fourth ref for it. Pass it through to `markTime`.
-- [ ] In `src/hooks/usePlaybackSync.test.ts`:
+- [x] In `src/hooks/usePlaybackSync.ts`, rename the second parameter from `videoId` to `videoNumber` and the inner refs (`videoIdRef` → `videoNumberRef`).
+- [x] Add a third optional parameter `seasonNumber?: number` and a fourth ref for it. Pass it through to `markTime`.
+- [x] In `src/hooks/usePlaybackSync.test.ts`:
   - Rename test arguments to reflect the new semantics. The numeric values (`1`, `2`) stay the same — they just mean different things now.
   - Add one new test:
     ```typescript
