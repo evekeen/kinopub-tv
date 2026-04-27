@@ -47,6 +47,9 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
   const alreadyWatched = useUiStore((s) => s.screenParams.alreadyWatched);
   const goBack = useUiStore((s) => s.goBack);
 
+  if (seasonNumber !== undefined && episodeNumber === undefined) {
+    throw new Error('PlayerPage: serial navigation requires episodeNumber when seasonNumber is set');
+  }
   const videoNumber = episodeNumber ?? 1;
 
   const setMedia = usePlayerStore((s) => s.setMedia);

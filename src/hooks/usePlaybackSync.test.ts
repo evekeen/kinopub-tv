@@ -132,8 +132,7 @@ describe('usePlaybackSync', () => {
     const getCurrentTime = vi.fn(() => 60);
     renderHook(() => usePlaybackSync(42, 3, getCurrentTime, true, 2));
     vi.advanceTimersByTime(30000);
-    const call = (markTime as unknown as { mock: { calls: number[][] } }).mock.calls[0];
-    const videoArg = call[1];
-    expect(videoArg).toBeLessThan(100);
+    const videoArg = vi.mocked(markTime).mock.calls[0][1];
+    expect(videoArg).toBe(3);
   });
 });

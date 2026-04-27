@@ -215,11 +215,11 @@ export const ContentPage = memo(function ContentPage(): ReactElement {
   }, [item, navigateWithFocus]);
 
   const handleResumeSerial = useCallback((): void => {
-    if (item === null || !item.seasons) return;
+    if (item === null || item.seasons === undefined || item.seasons.length === 0) return;
     const point = findResumePoint(item.seasons);
     const target = point !== null
       ? item.seasons[point.seasonIndex].episodes[point.episodeIndex]
-      : item.seasons[0]?.episodes[0];
+      : item.seasons[0].episodes[0];
     if (target === undefined) return;
     const episodeTitle = item.title + ' S' + target.snumber + 'E' + target.number;
     const resumeTime = target.watched !== 1 && target.watching.time > 0
