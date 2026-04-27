@@ -12,23 +12,32 @@ export async function getWatchingMovies(sort?: string): Promise<ListResponse<Wat
   return apiGet<ListResponse<WatchingMovieItem>>('watching/movies', { sort });
 }
 
-export async function markTime(itemId: number, videoId: number, time: number): Promise<StatusResponse> {
+export async function markTime(
+  itemId: number,
+  videoNumber: number,
+  time: number,
+  seasonNumber?: number,
+): Promise<StatusResponse> {
   return apiPost<StatusResponse>('watching/marktime', {
     id: itemId,
-    video: videoId,
+    video: videoNumber,
     time,
+    season: seasonNumber,
   });
 }
 
-export async function toggleWatched(itemId: number, videoId: number, seasonNumber?: number): Promise<StatusResponse> {
-  const body: Record<string, number> = {
+export async function toggleWatched(
+  itemId: number,
+  videoNumber: number,
+  seasonNumber?: number,
+  status?: 0 | 1,
+): Promise<StatusResponse> {
+  return apiPost<StatusResponse>('watching/toggle', {
     id: itemId,
-    video: videoId,
-  };
-  if (seasonNumber !== undefined) {
-    body.season = seasonNumber;
-  }
-  return apiPost<StatusResponse>('watching/toggle', body);
+    video: videoNumber,
+    season: seasonNumber,
+    status,
+  });
 }
 
 export async function toggleWatchlist(itemId: number): Promise<StatusResponse> {

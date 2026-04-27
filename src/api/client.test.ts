@@ -204,40 +204,32 @@ describe('client', () => {
   });
 
   describe('apiPost', () => {
-    it('sends POST request with form-encoded body', async () => {
+    it('sends POST request with params in query string and bearer auth', async () => {
       setTokens('test-token', 'refresh-token');
       mockFetch.mockResolvedValueOnce(jsonResponse(200, { status: 200 }));
 
       await apiPost('watching/marktime', { id: 1, video: 2, time: 100 });
 
       expect(mockFetch).toHaveBeenCalledWith(
-        'https://api.service-kp.com/v1/watching/marktime',
+        'https://api.service-kp.com/v1/watching/marktime?id=1&video=2&time=100',
         expect.objectContaining({
           method: 'POST',
           headers: expect.objectContaining({
-            'Content-Type': 'application/x-www-form-urlencoded',
             Authorization: 'Bearer test-token',
           }),
         }),
       );
-
-      const calledInit = mockFetch.mock.calls[0][1] as RequestInit;
-      const body = new URLSearchParams(calledInit.body as string);
-      expect(body.get('id')).toBe('1');
-      expect(body.get('video')).toBe('2');
-      expect(body.get('time')).toBe('100');
     });
 
-    it('skips undefined values in body', async () => {
+    it('skips undefined params from query string', async () => {
       setTokens('test-token', 'refresh-token');
       mockFetch.mockResolvedValueOnce(jsonResponse(200, { status: 200 }));
 
       await apiPost('test', { key: 'value', empty: undefined });
 
-      const calledInit = mockFetch.mock.calls[0][1] as RequestInit;
-      const body = new URLSearchParams(calledInit.body as string);
-      expect(body.get('key')).toBe('value');
-      expect(body.has('empty')).toBe(false);
+      const calledUrl = mockFetch.mock.calls[0][0] as string;
+      expect(calledUrl).toContain('key=value');
+      expect(calledUrl).not.toContain('empty');
     });
   });
 });
