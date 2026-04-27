@@ -47,8 +47,8 @@
         "id": 1,
         "number": 1,
         "title": "Season 1",
-        "watched": 0,
-        "watching": { "status": 0, "time": 0 },
+        "watched": -1,
+        "watching": { "status": -1, "time": 0 },
         "episodes": [
           {
             "id": 6001,
@@ -57,8 +57,8 @@
             "snumber": 1,
             "thumbnail": "https://via.placeholder.com/320x180/1a2a4a/ffffff?text=S1E1",
             "duration": 2700,
-            "watched": 0,
-            "watching": { "status": 0, "time": 0 },
+            "watched": -1,
+            "watching": { "status": -1, "time": 0 },
             "tracks": 2,
             "ac3": 1,
             "audios": [
@@ -73,8 +73,24 @@
             "snumber": 1,
             "thumbnail": "https://via.placeholder.com/320x180/1a2a4a/ffffff?text=S1E2",
             "duration": 2700,
-            "watched": 0,
-            "watching": { "status": 0, "time": 0 },
+            "watched": -1,
+            "watching": { "status": -1, "time": 0 },
+            "tracks": 2,
+            "ac3": 1,
+            "audios": [
+              { "id": 1, "index": 0, "codec": "aac", "channels": 6, "lang": "eng" }
+            ],
+            "subtitles": []
+          },
+          {
+            "id": 6003,
+            "title": "First Contact",
+            "number": 3,
+            "snumber": 1,
+            "thumbnail": "https://via.placeholder.com/320x180/1a2a4a/ffffff?text=S1E3",
+            "duration": 2700,
+            "watched": -1,
+            "watching": { "status": -1, "time": 0 },
             "tracks": 2,
             "ac3": 1,
             "audios": [

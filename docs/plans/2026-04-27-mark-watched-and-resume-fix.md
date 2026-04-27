@@ -312,14 +312,14 @@ Verify the 90%-watched logic calls `toggleWatched` with the right args, exactly 
 
 Make the e2e suite catch this class of bug instead of rubber-stamping it.
 
-- [ ] In `e2e/helpers/mock-api.ts`, replace the catch-all `/watching` handler with explicit handling:
+- [x] In `e2e/helpers/mock-api.ts`, replace the catch-all `/watching` handler with explicit handling:
   - Maintain an in-memory `watchedMap: Map<string, 0 | 1>` keyed by `${itemId}:${seasonNumber ?? 0}:${videoNumber}`.
   - For `watching/toggle`: parse query params; if `video` is missing or > 50, return 404 (simulates kino.pub rejecting bogus video numbers); otherwise update `watchedMap` and return `{status: 200, watched: 1}`.
   - For `watching/marktime`: similarly validate `video` is a small integer; return `{status: 200}`.
   - For `watching/serials` / `watching/movies`: return empty list (existing behavior).
-- [ ] In the same file, when serving `/items/2001` (the serial fixture), post-process the JSON: walk `item.seasons[*].episodes[*]` and set `watched: 1` for any `(snumber, number)` pair present in `watchedMap`. This makes re-fetches reflect prior toggles.
-- [ ] Add a new fixture `e2e/fixtures/item-detail-serial.json` (or update existing) so `seasons[0].episodes[0]` has `number: 1, snumber: 1, watched: -1`. Pick a serial with at least 3 episodes to make the test meaningful.
-- [ ] In `e2e/player.spec.ts`, add a new test:
+- [x] In the same file, when serving `/items/2001` (the serial fixture), post-process the JSON: walk `item.seasons[*].episodes[*]` and set `watched: 1` for any `(snumber, number)` pair present in `watchedMap`. This makes re-fetches reflect prior toggles.
+- [x] Add a new fixture `e2e/fixtures/item-detail-serial.json` (or update existing) so `seasons[0].episodes[0]` has `number: 1, snumber: 1, watched: -1`. Pick a serial with at least 3 episodes to make the test meaningful.
+- [x] In `e2e/player.spec.ts`, add a new test:
   ```typescript
   test('watching past 90% marks episode as watched on return', async ({ page }) => {
     // navigate to serial → episode 1
@@ -339,7 +339,7 @@ Make the e2e suite catch this class of bug instead of rubber-stamping it.
     await expect(watchedDot).toBeVisible({ timeout: 3000 });
   });
   ```
-- [ ] Add a second e2e test that verifies the Play/Resume button on a serial:
+- [x] Add a second e2e test that verifies the Play/Resume button on a serial:
   ```typescript
   test('serial Play button starts next unwatched episode', async ({ page }) => {
     // navigate to a serial whose episode 1 is already watched
