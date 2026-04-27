@@ -290,18 +290,18 @@ Make the next-unwatched episode reachable with one button press from the content
 
 Verify the 90%-watched logic calls `toggleWatched` with the right args, exactly once per session.
 
-- [ ] Create `src/pages/PlayerPage.test.tsx`. Mock `../api/watching`, `../api/media`, `../contexts/PlayerContext`, and `../hooks/useSubtitles` — only the watching mock needs to track calls.
-- [ ] Set up `useUiStore` with `screenParams: { contentId: 42, mediaId: 99999, seasonNumber: 2, episodeNumber: 3, alreadyWatched: false }`.
-- [ ] Mock `usePlayerContext` to return a fake `videoRef` whose `current` is a fake `<video>`-like element. Manually dispatch `timeupdate` events with controlled `currentTime`/`duration` values.
-- [ ] Test 1 — fires once at 90%: dispatch `timeupdate` with `currentTime: 891, duration: 990` (90.0%). Assert:
+- [x] Create `src/pages/PlayerPage.test.tsx`. Mock `../api/watching`, `../api/media`, `../contexts/PlayerContext`, and `../hooks/useSubtitles` — only the watching mock needs to track calls.
+- [x] Set up `useUiStore` with `screenParams: { contentId: 42, mediaId: 99999, seasonNumber: 2, episodeNumber: 3, alreadyWatched: false }`.
+- [x] Mock `usePlayerContext` to return a fake `videoRef` whose `current` is a fake `<video>`-like element. Manually dispatch `timeupdate` events with controlled `currentTime`/`duration` values.
+- [x] Test 1 — fires once at 90%: dispatch `timeupdate` with `currentTime: 891, duration: 990` (90.0%). Assert:
   ```typescript
   expect(toggleWatched).toHaveBeenCalledTimes(1);
   expect(toggleWatched).toHaveBeenCalledWith(42, 3, 2, 1);
   ```
-- [ ] Test 2 — does not fire below 90%: dispatch `timeupdate` with `currentTime: 800, duration: 990`. Assert `toggleWatched` not called.
-- [ ] Test 3 — does not double-fire: dispatch `timeupdate` at 89%, then 90%, then 95%. Assert `toggleWatched` called exactly once.
-- [ ] Test 4 — skipped when `alreadyWatched: true`: re-render with that screen param and dispatch `timeupdate` at 95%. Assert `toggleWatched` not called.
-- [ ] Test 5 — for a movie (`episodeNumber: undefined, seasonNumber: undefined`), uses `video=1`:
+- [x] Test 2 — does not fire below 90%: dispatch `timeupdate` with `currentTime: 800, duration: 990`. Assert `toggleWatched` not called.
+- [x] Test 3 — does not double-fire: dispatch `timeupdate` at 89%, then 90%, then 95%. Assert `toggleWatched` called exactly once.
+- [x] Test 4 — skipped when `alreadyWatched: true`: re-render with that screen param and dispatch `timeupdate` at 95%. Assert `toggleWatched` not called.
+- [x] Test 5 — for a movie (`episodeNumber: undefined, seasonNumber: undefined`), uses `video=1`:
   ```typescript
   expect(toggleWatched).toHaveBeenCalledWith(42, 1, undefined, 1);
   ```
