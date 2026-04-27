@@ -150,7 +150,7 @@ Pin the exact URL/query string sent for both `marktime` and `toggle` so future "
 
 Replace silent `.catch(() => {})` with a logger so a future recurrence of this bug is visible during development.
 
-- [ ] Create `src/utils/logger.ts`:
+- [x] Create `src/utils/logger.ts`:
   ```typescript
   export function logWatchingError(context: string, error: unknown): void {
     if (import.meta.env.DEV) {
@@ -159,8 +159,8 @@ Replace silent `.catch(() => {})` with a logger so a future recurrence of this b
     }
   }
   ```
-- [ ] In `src/hooks/usePlaybackSync.ts`, replace the two `.catch(() => {})` calls (interval + unmount) with `.catch((err: unknown) => logWatchingError('markTime', err))`.
-- [ ] In `src/pages/PlayerPage.tsx`, replace the two `.catch(() => {})` calls (handleBack markTime and 90% toggleWatched) similarly. Use distinct context strings: `'markTime:back'`, `'toggleWatched:90%'`.
+- [x] In `src/hooks/usePlaybackSync.ts`, replace the two `.catch(() => {})` calls (interval + unmount) with `.catch((err: unknown) => logWatchingError('markTime', err))`.
+- [x] In `src/pages/PlayerPage.tsx`, replace the two `.catch(() => {})` calls (handleBack markTime and 90% toggleWatched) similarly. Use distinct context strings: `'markTime:back'`, `'toggleWatched:90%'`.
 
 **DoD:** `npm run lint` passes (the per-line eslint-disable for `no-console` is the only console call in production code paths). In dev, calling `markTime` with a forced 404 logs a warning. In a production build (`import.meta.env.DEV === false`), the logger is a no-op.
 

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { markTime } from '../api/watching';
+import { logWatchingError } from '../utils/logger';
 
 const SYNC_INTERVAL_MS = 10000;
 
@@ -25,7 +26,7 @@ export function usePlaybackSync(
     const currentTime = Math.floor(getCurrentTimeRef.current());
     if (currentTime > 0 && currentTime !== lastSyncedTime.current) {
       lastSyncedTime.current = currentTime;
-      markTime(id, vid, currentTime).catch(() => {});
+      markTime(id, vid, currentTime).catch((err: unknown) => logWatchingError('markTime', err));
     }
   });
 
@@ -51,7 +52,7 @@ export function usePlaybackSync(
       if (id === undefined || vid === undefined) return;
       const currentTime = Math.floor(getCurrentTimeRef.current());
       if (currentTime > 0 && currentTime !== lastSyncedTime.current) {
-        markTime(id, vid, currentTime).catch(() => {});
+        markTime(id, vid, currentTime).catch((err: unknown) => logWatchingError('markTime', err));
       }
     };
   }, []);

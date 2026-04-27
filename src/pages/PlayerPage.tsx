@@ -21,6 +21,7 @@ import { useSubtitles } from '../hooks/useSubtitles';
 import { useRemoteKeys } from '../hooks/useRemoteKeys';
 import { getMediaLinks } from '../api/media';
 import { markTime, toggleWatched } from '../api/watching';
+import { logWatchingError } from '../utils/logger';
 import { usePlayerStore } from '../store/player';
 import { useUiStore } from '../store/ui';
 import type { HlsAudioTrack } from '../contexts/PlayerContext';
@@ -202,8 +203,10 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
       if (time > 0) {
         backingOutRef.current = true;
         const timeout = new Promise<void>((resolve) => window.setTimeout(resolve, 2000));
-        Promise.race([markTime(contentId, mediaId, time).catch(() => {}), timeout])
-          .then(() => goBack());
+        Promise.race([
+          markTime(contentId, mediaId, time).catch((err: unknown) => logWatchingError('markTime:back', err)),
+          timeout,
+        ]).then(() => goBack());
         return;
       }
     }
@@ -234,7 +237,7 @@ export const PlayerPage = memo(function PlayerPage(): ReactElement {
           time / video.duration >= 0.9
         ) {
           watchedMarkedRef.current = true;
-          toggleWatched(contentId, mediaId, seasonNumber).catch(() => {});
+          toggleWatched(contentId, mediaId, seasonNumber).catch((err: unknown) => logWatchingError('toggleWatched:90%', err));
         }
       }
     };

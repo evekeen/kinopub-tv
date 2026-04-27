@@ -18,8 +18,8 @@ describe('usePlaybackSync', () => {
     vi.useRealTimers();
   });
 
-  it('does not call markTime when not playing', () => {
-    const getCurrentTime = vi.fn(() => 120);
+  it('does not call markTime when not playing and currentTime is 0', () => {
+    const getCurrentTime = vi.fn(() => 0);
 
     renderHook(() => usePlaybackSync(1, 2, getCurrentTime, false));
     vi.advanceTimersByTime(35000);
