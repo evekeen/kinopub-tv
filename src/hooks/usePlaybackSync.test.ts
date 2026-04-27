@@ -127,12 +127,4 @@ describe('usePlaybackSync', () => {
     vi.advanceTimersByTime(30000);
     expect(markTime).toHaveBeenCalledWith(42, 3, 120, 2);
   });
-
-  it('passes a small 1-based video number, not a server-side ID (regression guard)', () => {
-    const getCurrentTime = vi.fn(() => 60);
-    renderHook(() => usePlaybackSync(42, 3, getCurrentTime, true, 2));
-    vi.advanceTimersByTime(30000);
-    const videoArg = vi.mocked(markTime).mock.calls[0][1];
-    expect(videoArg).toBe(3);
-  });
 });

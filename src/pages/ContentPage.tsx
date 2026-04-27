@@ -5,6 +5,7 @@ import {
   useRef,
   useState,
   useCallback,
+  useMemo,
 } from 'react';
 import {
   useFocusable,
@@ -60,10 +61,8 @@ function findResumePoint(seasons: ReadonlyArray<Season>): ResumePoint | null {
   return null;
 }
 
-function getResumeLabel(point: ResumePoint | null): string {
-  if (point === null) return 'Play';
-  if (point.time > 0) return 'Resume';
-  return 'Play';
+function getResumeLabel(point: ResumePoint): string {
+  return point.time > 0 ? 'Resume' : 'Play';
 }
 
 interface EpisodePosition {
@@ -156,6 +155,13 @@ export const ContentPage = memo(function ContentPage(): ReactElement {
     fetchContent();
   }, [fetchContent]);
 
+  const resumePoint = useMemo<ResumePoint | null>(() => {
+    if (item === null) return null;
+    const kind = classifyType(item.type);
+    if (kind !== 'serial' || item.seasons === undefined) return null;
+    return findResumePoint(item.seasons);
+  }, [item]);
+
   useEffect(() => {
     if (item !== null && !loading) {
       const pendingFocusKey = useUiStore.getState().lastRestoredFocusKey;
@@ -180,18 +186,14 @@ export const ContentPage = memo(function ContentPage(): ReactElement {
         return;
       }
       const kind = classifyType(item.type);
-      const seasons = item.seasons;
-      const hasResumePoint = kind === 'serial' && seasons !== undefined
-        ? findResumePoint(seasons) !== null
-        : false;
-      const focusTarget = kind === 'movie' || (kind === 'serial' && hasResumePoint)
+      const focusTarget = kind === 'movie' || (kind === 'serial' && resumePoint !== null)
         ? 'content-play-button'
         : 'episode-list';
       requestAnimationFrame(() => {
         setFocus(focusTarget);
       });
     }
-  }, [item, loading]);
+  }, [item, loading, resumePoint]);
 
   useEffect(() => {
     if (focusRestorePosition !== null && pendingFocusRef.current !== null) {
@@ -215,14 +217,11 @@ export const ContentPage = memo(function ContentPage(): ReactElement {
   }, [item, navigateWithFocus]);
 
   const handleResumeSerial = useCallback((): void => {
-    if (item === null || item.seasons === undefined || item.seasons.length === 0) return;
-    const point = findResumePoint(item.seasons);
-    const target = point !== null
-      ? item.seasons[point.seasonIndex].episodes[point.episodeIndex]
-      : item.seasons[0].episodes[0];
+    if (item === null || item.seasons === undefined || resumePoint === null) return;
+    const target = item.seasons[resumePoint.seasonIndex].episodes[resumePoint.episodeIndex];
     if (target === undefined) return;
     const episodeTitle = item.title + ' S' + target.snumber + 'E' + target.number;
-    const resumeTime = target.watched !== 1 && target.watching.time > 0
+    const targetResumeTime = target.watched !== 1 && target.watching.time > 0
       ? target.watching.time
       : 0;
     navigateWithFocus('player', {
@@ -232,11 +231,11 @@ export const ContentPage = memo(function ContentPage(): ReactElement {
         seasonNumber: target.snumber,
         episodeNumber: target.number,
         title: episodeTitle,
-        resumeTime,
+        resumeTime: targetResumeTime,
         alreadyWatched: target.watched === 1,
       },
     });
-  }, [item, navigateWithFocus]);
+  }, [item, resumePoint, navigateWithFocus]);
 
   const handleSelectEpisode = useCallback(
     (episode: Video): void => {
@@ -318,7 +317,6 @@ export const ContentPage = memo(function ContentPage(): ReactElement {
   }
 
   const kind = classifyType(item.type);
-  const resumePoint = kind === 'serial' && item.seasons ? findResumePoint(item.seasons) : null;
   const showRatings = hasRatings(item);
   const genreText = item.genres.map((g) => g.title).join(', ');
   const countryText = item.countries.map((c) => c.title).join(', ');
@@ -381,7 +379,7 @@ export const ContentPage = memo(function ContentPage(): ReactElement {
                     active={false}
                   />
                 )}
-                {kind === 'serial' && item.seasons && item.seasons.length > 0 && (
+                {kind === 'serial' && resumePoint !== null && (
                   <ActionButton
                     label={getResumeLabel(resumePoint)}
                     focusKey="content-play-button"

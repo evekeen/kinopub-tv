@@ -66,6 +66,7 @@ vi.mock('../hooks/useSubtitles', () => ({
 vi.mock('../hooks/usePlaybackSync', () => ({
   usePlaybackSync: vi.fn(),
 }));
+import { usePlaybackSync } from '../hooks/usePlaybackSync';
 
 vi.mock('../components/Player/PlayerOverlay', () => ({
   PlayerOverlay: () => null,
@@ -212,4 +213,20 @@ describe('PlayerPage 90% auto-mark', () => {
 
     expect(toggleWatched).toHaveBeenCalledWith(42, 1, undefined, 1);
   });
+
+  it('passes episodeNumber (not mediaId) to usePlaybackSync for serial episodes', async () => {
+    vi.mocked(usePlaybackSync).mockClear();
+
+    await act(async () => {
+      renderResult = render(<PlayerPage />);
+    });
+
+    const calls = vi.mocked(usePlaybackSync).mock.calls;
+    expect(calls.length).toBeGreaterThan(0);
+    const lastCall = calls[calls.length - 1];
+    const videoNumberArg = lastCall[1];
+    expect(videoNumberArg).toBe(3);
+    expect(videoNumberArg).not.toBe(99999);
+  });
+
 });
