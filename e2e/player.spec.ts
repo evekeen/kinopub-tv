@@ -8,10 +8,10 @@ const EPISODE_2_MEDIA_ID = 6002;
 
 test.describe('Player page', () => {
   async function navigateToPlayer(page: Page): Promise<void> {
-    await expect(page.getByText('Fresh Movie One')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(SERIAL_TITLE)).toBeVisible({ timeout: 10000 });
 
     await page.keyboard.press('Enter');
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(1500);
 
     await page.keyboard.press('Enter');
     await page.waitForTimeout(1500);
@@ -75,7 +75,7 @@ test.describe('Player page', () => {
     await page.keyboard.press('Backspace');
     await page.waitForTimeout(1000);
 
-    await expect(page.getByText('Fresh Movie One')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(SERIAL_TITLE)).toBeVisible({ timeout: 5000 });
   });
 });
 
