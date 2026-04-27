@@ -115,8 +115,8 @@ Change `markTime` and `toggleWatched` so callers pass a 1-based video/episode NU
 
 Pin the exact URL/query string sent for both `marktime` and `toggle` so future "swap the ID back in" regressions fail in CI.
 
-- [ ] Create `src/api/watching.test.ts`. Mock `localStorage.getItem` to return a stub access token. Spy on `globalThis.fetch` and assert it returns `{ ok: true, status: 200, json: async () => ({ status: 200 }) }`.
-- [ ] Test 1 — `markTime` for a serial episode:
+- [x] Create `src/api/watching.test.ts`. Mock `localStorage.getItem` to return a stub access token. Spy on `globalThis.fetch` and assert it returns `{ ok: true, status: 200, json: async () => ({ status: 200 }) }`.
+- [x] Test 1 — `markTime` for a serial episode:
   ```typescript
   await markTime(42, 3, 1234, 2);
   expect(fetch).toHaveBeenCalledWith(
@@ -124,7 +124,7 @@ Pin the exact URL/query string sent for both `marktime` and `toggle` so future "
     expect.objectContaining({ method: 'POST' }),
   );
   ```
-- [ ] Test 2 — `markTime` for a movie:
+- [x] Test 2 — `markTime` for a movie:
   ```typescript
   await markTime(42, 1, 600);
   expect(fetch).toHaveBeenCalledWith(
@@ -133,7 +133,7 @@ Pin the exact URL/query string sent for both `marktime` and `toggle` so future "
   );
   ```
   Assert no `season=` substring in the URL.
-- [ ] Test 3 — `toggleWatched` with explicit `status=1`:
+- [x] Test 3 — `toggleWatched` with explicit `status=1`:
   ```typescript
   await toggleWatched(42, 3, 2, 1);
   expect(fetch).toHaveBeenCalledWith(
@@ -141,8 +141,8 @@ Pin the exact URL/query string sent for both `marktime` and `toggle` so future "
     expect.objectContaining({ method: 'POST' }),
   );
   ```
-- [ ] Test 4 — `toggleWatched` for a movie without `status` (flip mode): URL has `id=42&video=1`, no `season`, no `status`.
-- [ ] Test 5 — Authorization header is `Bearer <stub-token>`.
+- [x] Test 4 — `toggleWatched` for a movie without `status` (flip mode): URL has `id=42&video=1`, no `season`, no `status`.
+- [x] Test 5 — Authorization header is `Bearer <stub-token>`.
 
 **DoD:** `npm run test -- watching` passes. All five cases assert the EXACT URL string. If anyone reverts the `video` change, these tests fail with a clear `expected video=3 got video=12345` style diff.
 
