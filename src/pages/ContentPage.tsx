@@ -48,15 +48,21 @@ function findResumePoint(seasons: ReadonlyArray<Season>): ResumePoint | null {
         if (nextEi < eps.length) {
           return { seasonIndex: si, episodeIndex: nextEi, time: 0 };
         }
-        if (si + 1 < seasons.length) {
-          return { seasonIndex: si + 1, episodeIndex: 0, time: 0 };
+        for (let nsi = si + 1; nsi < seasons.length; nsi++) {
+          if (seasons[nsi].episodes.length > 0) {
+            return { seasonIndex: nsi, episodeIndex: 0, time: 0 };
+          }
         }
         return null;
       }
     }
   }
-  if (!hasAnyWatched && seasons.length > 0 && seasons[0].episodes.length > 0) {
-    return { seasonIndex: 0, episodeIndex: 0, time: 0 };
+  if (!hasAnyWatched) {
+    for (let si = 0; si < seasons.length; si++) {
+      if (seasons[si].episodes.length > 0) {
+        return { seasonIndex: si, episodeIndex: 0, time: 0 };
+      }
+    }
   }
   return null;
 }
@@ -118,6 +124,7 @@ export const ContentPage = memo(function ContentPage(): ReactElement {
 
   const [focusRestorePosition, setFocusRestorePosition] = useState<EpisodePosition | null>(null);
   const pendingFocusRef = useRef<string | null>(null);
+  const initialFocusAppliedRef = useRef(false);
 
   const bookmarked = item !== null && item.bookmarks.length > 0;
 
@@ -163,36 +170,38 @@ export const ContentPage = memo(function ContentPage(): ReactElement {
   }, [item]);
 
   useEffect(() => {
-    if (item !== null && !loading) {
-      const pendingFocusKey = useUiStore.getState().lastRestoredFocusKey;
-      if (pendingFocusKey !== null) {
-        useUiStore.getState().clearLastRestoredFocusKey();
+    if (item === null || loading) return;
+    if (initialFocusAppliedRef.current) return;
+    initialFocusAppliedRef.current = true;
 
-        if (pendingFocusKey.startsWith('episode-') && item.seasons) {
-          const episodeId = parseInt(pendingFocusKey.slice(8), 10);
-          if (!isNaN(episodeId)) {
-            const position = findEpisodePosition(item.seasons, episodeId);
-            if (position !== null) {
-              pendingFocusRef.current = pendingFocusKey;
-              setFocusRestorePosition(position);
-              return;
-            }
+    const pendingFocusKey = useUiStore.getState().lastRestoredFocusKey;
+    if (pendingFocusKey !== null) {
+      useUiStore.getState().clearLastRestoredFocusKey();
+
+      if (pendingFocusKey.startsWith('episode-') && item.seasons) {
+        const episodeId = parseInt(pendingFocusKey.slice(8), 10);
+        if (!isNaN(episodeId)) {
+          const position = findEpisodePosition(item.seasons, episodeId);
+          if (position !== null) {
+            pendingFocusRef.current = pendingFocusKey;
+            setFocusRestorePosition(position);
+            return;
           }
         }
-
-        requestAnimationFrame(() => {
-          setFocus(pendingFocusKey);
-        });
-        return;
       }
-      const kind = classifyType(item.type);
-      const focusTarget = kind === 'movie' || (kind === 'serial' && resumePoint !== null)
-        ? 'content-play-button'
-        : 'episode-list';
+
       requestAnimationFrame(() => {
-        setFocus(focusTarget);
+        setFocus(pendingFocusKey);
       });
+      return;
     }
+    const kind = classifyType(item.type);
+    const focusTarget = kind === 'movie' || (kind === 'serial' && resumePoint !== null)
+      ? 'content-play-button'
+      : 'episode-list';
+    requestAnimationFrame(() => {
+      setFocus(focusTarget);
+    });
   }, [item, loading, resumePoint]);
 
   useEffect(() => {
